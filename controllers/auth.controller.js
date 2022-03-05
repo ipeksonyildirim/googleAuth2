@@ -1,16 +1,16 @@
 const express = require('express')
 const passport = require('passport')
 
-const getAuthGoggle = async (req, res, next) => {
+const getAuthGoogle = async (req, res, next) => {
     try {
-        passport.authenticate('google', { scope: ['email', 'profile'] })
+        passport.authenticate('google', { scope: ['email', 'profile'] })(req, res, next);
 
     } catch (error) {
         return next(error);
     }
 };
 
-const getAuthGoggleCallback = async (req, res, next) => {
+const getAuthGoogleCallback = async (req, res, next) => {
     try {
         passport.authenticate('google', { failureRedirect: '/auth/failure' }),
         (req, res) => {
@@ -29,6 +29,6 @@ const getAuthFailure = async (req, res, next) => {
     }
 };
 
-exports.getAuthGoggle = getAuthGoggle;
-exports.getAuthGoggleCallback = getAuthGoggleCallback;
+exports.getAuthGoogle = getAuthGoogle;
+exports.getAuthGoogleCallback = getAuthGoogleCallback;
 exports.getAuthFailure = getAuthFailure;

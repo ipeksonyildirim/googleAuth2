@@ -30,13 +30,13 @@ module.exports = router;
 
 // @desc Auth with Google
 //@route GET /auth/google
-router.get('/google', authController.getAuthGoggle);
+router.get('/google', authController.getAuthGoogle);
 // router.get('/google', passport.authenticate('google', { scope: ['email', 'profile'] }))
 
 
 // @desc Google Auth callback
 //@route GET /auth/google/callback
-router.get('/google/callback', authController.getAuthGoggleCallback);
+router.get('/google/callback', authController.getAuthGoogleCallback);
 
 /*
 router.get('/google/callback', 
