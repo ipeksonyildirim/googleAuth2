@@ -1,32 +1,33 @@
 const mongoose = require('mongoose');
-const uniqueValidator = require('mongoose-unique-validator');
+const {Schema, Model} = mongoose
 
-const UserSchema = new mongoose.Schema({
-    googleId: {
-        type:String,
-        required: true
+const UserSchema = new Schema({
+    name: String,
+    email: {type: String, unique: true},
+    image: {type: String},
+    createdAt: {type: Date, default: Date.now()},
+    courses: [{
+        type: Schema.Types.ObjectId,
+        ref: 'Course'
+    }],
+    gpa: Number,
+    addresses: [{String}],
+    role: {
+        type: String,
+        enum: ['student', 'academic'],
+        default: ['student']
     },
-    displayName: {
-        type:String,
-        required: true
-    },
-    firstName: {
-        type:String,
-        required: true
-    },
-    lastName: {
-        type:String,
-        required: true
-    },
-    image: {
-        type:String
-    },
-    createdAt: {
-        type:Date,
-        default: Date.now()
-    }
-
+    appointments: [{
+        date: Date,
+        from: {
+            type: Schema.Types.ObjectId,
+            ref: 'User'
+        }
+    }],
+    faculty: String,
+    major: String,
+    token: String,
+    active: Boolean
 })
 
-UserSchema.plugin(uniqueValidator);
-module.exports = mongoose.model('User', UserSchema)
+module.exports = new Model('User', UserSchema)
