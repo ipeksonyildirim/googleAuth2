@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 var Float = require("mongoose-float").loadType(mongoose);
 
-const AdminDeptSchema = new mongoose.Schema({
+const PersonelSchema = new mongoose.Schema({
   id: {
     type: String,
     required: true,
@@ -28,6 +28,10 @@ const AdminDeptSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
+  },
+  department: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Department",
   },
   registerationDate: {
     type: Date,
@@ -83,4 +87,4 @@ const adressSchema = new mongoose.Schema({
       required: true,
     },
   });
-  
+  module.exports = mongoose.model('Personel', PersonelSchema)

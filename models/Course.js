@@ -18,6 +18,10 @@ const CourseSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Lecturer',
     },
+    department: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Department',
+    },
     termYear: {
         type: String,
         required: true,
@@ -53,3 +57,4 @@ const CourseSchema = new mongoose.Schema({
 
     
 });
+module.exports = mongoose.model('Course', CourseSchema);

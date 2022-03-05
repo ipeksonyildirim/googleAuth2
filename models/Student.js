@@ -71,14 +71,6 @@ const StudentSchema = new mongoose.Schema({
         type: Date,
         default: Date.now,
     },
-    appointmentAdvisor: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'AppointmentAdvisor',
-    },
-    appointmentDepartment: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'AppointmentDepartment',
-    },
     credit: {
         type: Number,
         required: true,

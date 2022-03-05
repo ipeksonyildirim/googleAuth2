@@ -10,6 +10,10 @@ const GradeSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Lecturer',
     },
+    course: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Course',
+    },
     grade: {
         type: String,
         required: true,
@@ -34,3 +38,5 @@ const GradeSchema = new mongoose.Schema({
     },
 
 });
+
+module.exports = mongoose.model('Grade', GradeSchema);

@@ -35,10 +35,6 @@ const LecturerSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Department',
     },
-    appointment: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'AppointmentAdvisor',
-    },
     registerationDate: {
         type: Date,
         default: Date.now,
@@ -102,3 +98,5 @@ const adressSchema = new mongoose.Schema({
     },
 
  });
+
+ module.exports = mongoose.model('Lecturer', LecturerSchema);
