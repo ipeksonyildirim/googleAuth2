@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const {Schema, Model} = mongoose
+const {Schema, model} = mongoose
 
 const UserSchema = new Schema({
     name: String,
@@ -30,4 +30,4 @@ const UserSchema = new Schema({
     active: Boolean
 })
 
-module.exports = new Model('User', UserSchema)
+module.exports = model('User', UserSchema)
