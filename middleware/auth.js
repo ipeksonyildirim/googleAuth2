@@ -10,7 +10,7 @@ module.exports = {
     if (!req.user) {
       return next();
     } else {
-      res.redirect("/protected");
+      res.redirect("/dashboard");
     }
   },
 };

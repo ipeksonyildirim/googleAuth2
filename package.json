@@ -24,6 +24,7 @@
     "moment": "^2.29.1",
     "mongoose": "^6.2.3",
     "mongoose-float": "^1.0.4",
+    "mongoose-unique-validator": "^3.0.0",
     "morgan": "^1.10.0",
     "passport": "^0.5.2",
     "passport-google-oauth2": "^0.2.0",

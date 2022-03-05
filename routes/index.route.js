@@ -3,6 +3,9 @@ const router = express.Router();
 const {ensureAuth, ensureGuest} = require('../middleware/auth')
 // @desc Login/Landing page
 //@route GET /
+
+//const Student = require('../models/student.model')
+
 router.get('/',ensureGuest,(req, res) => {
         res.send('<a href="/auth/google"> Authenticate with Google </a>');
 });
@@ -11,8 +14,20 @@ function isLoggedIn(req, res, next) {
 }
 // @desc dashboard
 //@route GET /protected
-router.get('/protected', ensureAuth,(req, res) => {
-    res.send(`Hello ${req.user}`);
+router.get('/dashboard', ensureAuth,(req, res) => {
+  /*
+    try {
+        const students = await Student.find({ user: req.user.id }).lean()
+        res.render('dashboard', {
+          name: req.user.firstName,
+          students,
+        })
+      } catch (err) {
+        console.error(err)
+        res.render('error/500')
+      }
+      */
+      res.send(`Hello ${req.user}`);
 });
 
 // @desc Logout
