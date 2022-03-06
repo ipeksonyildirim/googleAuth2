@@ -12,10 +12,7 @@ const getAuthGoogle = async (req, res, next) => {
 
 const getAuthGoogleCallback = async (req, res, next) => {
     try {
-        passport.authenticate('google', { failureRedirect: '/auth/failure' }),
-        (req, res) => {
-          res.redirect('/dashboard')
-        }
+        passport.authenticate('google', { successRedirect:'/dashboard', failureRedirect: '/auth/failure' })(req, res,next)
     } catch (error) {
         return next(error);
     }
@@ -23,7 +20,7 @@ const getAuthGoogleCallback = async (req, res, next) => {
 
 const getAuthFailure = async (req, res, next) => {
     try {
-        res.send('something went wrong..');
+        res.json('something went wrong..');
     } catch (error) {
         return next(error);
     }

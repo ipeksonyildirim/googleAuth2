@@ -60,6 +60,7 @@ app.use(function (req, res, next) {
 // Routes
 app.use('/', require('./routes/index.route'))
 app.use('/auth', require('./routes/auth.route'))
+app.use('/student', require('./routes/student.route'))
 
 const PORT = process.env.PORT || 5000;
 
