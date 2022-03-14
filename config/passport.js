@@ -1,8 +1,8 @@
 var GoogleStrategy = require('passport-google-oauth20').Strategy;
 const mongoose = require('mongoose');
 const User = require('../models/user.model')
-GOOGLE_CLIENT_ID='275030795765-0nq6l468u7vho51icflops2o1vk74un1.apps.googleusercontent.com';
-GOOGLE_CLIENT_SECRET='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';
+GOOGLE_CLIENT_ID='275030795765-f97ci8qa16ntjjf5lkk4onbrpjfe3uii.apps.googleusercontent.com';
+GOOGLE_CLIENT_SECRET='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';
 module.exports = function (passport){
     passport.use(new GoogleStrategy({
         clientID: GOOGLE_CLIENT_ID,
@@ -11,24 +11,36 @@ module.exports = function (passport){
         passReqToCallback: true
       },
       async (req, token, refreshToken, profile, done)  => {
+        let admin = false;
+        if(profile.displayName === "Bi Ara")
+          admin = true;
           const newUser = {
               googleId: profile.id,
               displayName: profile.displayName,
               firstName: profile.name.givenName,
               lastName: profile.name.familyName,
-              image: profile.photos[0].value
+              image: profile.photos[0].value,
+              isAdmin: admin,
+              privileges: {
+                read: admin,
+                create: admin,
+                update: admin,
+                delete: admin
+              },
+              request: true
           }
           try {
               let user = await User.findOne( { googleId: profile.id} )
 
               if( user)
-              done(null, user);
+              return done(null, user);
               else{
                   user = await User.create(newUser)
-                  done(null, user);
+                  return done(null, user);
               }
           }catch(err){
             console.error(err)
+            return 
         }
       }
     )
@@ -37,15 +49,16 @@ module.exports = function (passport){
     
 // used to serialize the user for the session
 passport.serializeUser((user, done) => {
-    done(null, user.id)
+    return done(null, user.id)
   })
 
   passport.deserializeUser((id, done) => {
     if (id.match(/^[0-9a-fA-F]{24}$/)) {
         // Yes, it's a valid ObjectId, proceed with `findById` call.
         User.findById(id, (err, user) => done(err, user))
+        return
       }
-      done(null, id)
+      return done(null, id)
   })
 
 }

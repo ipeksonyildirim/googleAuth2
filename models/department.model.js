@@ -2,10 +2,6 @@ const mongoose = require("mongoose");
 var Float = require("mongoose-float").loadType(mongoose);
 
 const DepartmentSchema = new mongoose.Schema({
-  id: {
-    type: String,
-    required: true,
-  },
   name: {
     type: String,
     required: true,

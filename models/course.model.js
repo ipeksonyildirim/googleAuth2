@@ -1,5 +1,4 @@
 const mongoose = require('mongoose')
-var Float = require('mongoose-float').loadType(mongoose);
 
 const CourseSchema = new mongoose.Schema({
     shortCode: {
@@ -14,10 +13,6 @@ const CourseSchema = new mongoose.Schema({
         type: Number,
         required: true,
     },
-    lecturer: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Lecturer',
-    },
     department: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Department',
@@ -28,7 +23,7 @@ const CourseSchema = new mongoose.Schema({
     },
     termName: {
         type: String,
-        required: true,
+        required: true,day
     },
     lessonHours:[{
         day:  {

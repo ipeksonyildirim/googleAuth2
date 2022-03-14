@@ -7,6 +7,15 @@ const morgan = require('morgan');
 const exphbs = require('express-handlebars');
 const MongoStore = require('connect-mongo')(session);
 const connectDB = require('./config/db')
+const methodOverride = require('method-override');
+const flash = require('connect-flash');
+const bodyParser = require('body-parser');
+const path = require('path');
+const fs = require('fs');
+const breadcrumb = require('express-url-breadcrumb');
+const multer = require('multer');
+var faker = require('faker');
+
 //var cookieParser = require('cookie-parser');
 
 
@@ -40,6 +49,40 @@ app.use('/auth', require('./routes/auth'))
 const oneDay = 1000 * 60 * 60 * 24;
 var sessions;
 */
+
+
+// Load Helpers
+const {
+    paginate,
+    select,
+    if_eq,
+    select_course
+} = require('./helpers/customHelpers');
+app.engine('.handlebars', exphbs.engine({ extname: '.hbs', defaultLayout: "main",helpers: {
+    paginate: paginate,
+    select: select,
+    if_eq: if_eq,
+    select_course: select_course
+}}));
+
+
+app.set('view engine', '.handlebars');
+app.set('views', path.join(__dirname, 'views'));
+
+// Express URL Breadcrumbs
+app.use(breadcrumb());
+
+// Body Parser Middleware
+app.use(bodyParser.urlencoded({
+    extended: false
+}));
+
+app.use(bodyParser.json());
+
+// Method Override
+app.use(methodOverride('_method'));
+
+
 app.use(session({
     secret: 'cats', 
     resave: false,
@@ -53,10 +96,10 @@ app.use(passport.initialize());
 app.use(passport.session());
 //app.use(cookieParser());
 // Set global var
-app.use(function (req, res, next) {
-    res.locals.user = req.user || null
-    next()
-  })
+
+app.use(flash());
+
+
 // Routes
 app.use('/', require('./routes/index.route'))
 app.use('/auth', require('./routes/auth.route'))
