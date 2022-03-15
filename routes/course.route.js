@@ -20,7 +20,7 @@ const {
 } = require('../middleware/auth');
 const HttpError = require('../models/http-error.model');
 
-router.get('/getCourse/:dept', async (req, res, next) => {
+router.get('/:dept', async (req, res, next) => {
     let course;
     try{
         course = await Course.find({
@@ -55,15 +55,32 @@ router.get('/getCourse/:dept', async (req, res, next) => {
 
 router.get('/', [ensureAuthenticated, isAdmin, readAccessControl], async (req, res, next) => {
 
-    const perPage = 8;
-    const page = req.query.page || 1;
-    const skip = ((perPage * page) - perPage);
-
-    const dept = await Department.find();
-    const course = await Course.find().skip(skip).limit(perPage);
+    let dept;
+    let course;
+    try {
+        dept = await Department.find();
+        course = await Course.find();
+    }  catch (err) {
+        const error = new HttpError(
+          'Something went wrong, could not find a course.',
+          500
+        );
+        return next(error);
+      }
 
     if (dept &&  course) {
-        const pages = await Course.find().countDocuments();
+        let page;
+        try {
+            pages = await Course.find().countDocuments();
+
+        }  catch (err) {
+            const error = new HttpError(
+              'Something went wrong, could not find a course.',
+              500
+            );
+            return next(error);
+          }
+    
 
         res.render('courses/index', {
             title: 'Courses',
@@ -71,8 +88,7 @@ router.get('/', [ensureAuthenticated, isAdmin, readAccessControl], async (req, r
             search_bar: true,
             dept: dept,
             course: course,
-            current: parseInt(page),
-            pages: Math.ceil(pages / perPage)
+            pages: pages
         });
     } else if (dept) {
         res.render('courses/index', {
