@@ -32,7 +32,7 @@ connectDB();
 const app = express();
 
 //logger
-if(process.env.NODE_ENV = 'development'){
+if(process.env.NODE_ENV === 'development'){
     app.use(morgan('dev'));
 }
 
