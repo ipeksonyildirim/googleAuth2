@@ -50,6 +50,15 @@ const UserSchema = new mongoose.Schema({
       default: false,
     },
   },
+  appointments: [{
+    with: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+    },
+    date: Date,
+    isActive: Boolean,
+  }],
 
 });
 
