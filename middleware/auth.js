@@ -69,8 +69,8 @@ const updateAccessControl = (req, res, next) => {
     next();
     return;
   }
-
-  req.flash('error_msg', 'You do not have the required permissions to perform this action.');
+  // TODO handle error
+  // req.flash('error_msg', 'You do not have the required permissions to perform this action.');
   res.redirect('/');
 };
 
@@ -79,8 +79,8 @@ const deleteAccessControl = (req, res, next) => {
     next();
     return;
   }
-
-  req.flash('error_msg', 'You do not have the required permissions to perform this action.');
+  // TODO handle error
+  // req.flash('error_msg', 'You do not have the required permissions to perform this action.');
   res.redirect('/');
 };
 
