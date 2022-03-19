@@ -7,7 +7,6 @@ const morgan = require('morgan');
 const MongoStore = require('connect-mongo')(session);
 const methodOverride = require('method-override');
 const bodyParser = require('body-parser');
-const breadcrumb = require('express-url-breadcrumb');
 const connectDB = require('./config/db');
 
 require('./config/passport')(passport);
@@ -22,8 +21,6 @@ if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
 
-// Express URL Breadcrumbs
-app.use(breadcrumb());
 
 // Body Parser Middleware
 app.use(bodyParser.urlencoded({
