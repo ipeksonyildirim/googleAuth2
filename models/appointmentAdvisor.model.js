@@ -1,14 +1,13 @@
-const mongoose = require("mongoose");
-var Float = require("mongoose-float").loadType(mongoose);
+const mongoose = require('mongoose');
 
-const AppointmentAdvisor = new mongoose.Schema({
+const AppointmentAdvisorSchema = new mongoose.Schema({
   student: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Student",
+    ref: 'Student',
   },
   advisor: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Lecturer",
+    ref: 'Lecturer',
   },
   appointment: {
     type: Date,

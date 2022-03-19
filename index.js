@@ -49,7 +49,7 @@ app.use('/', require('./routes/index.route'));
 app.use('/auth', require('./routes/auth.route'));
 app.use('/student', require('./routes/student.route'));
 app.use('/lecturer', require('./routes/lecturer.route'));
-app.use('/personel', require('./routes/personel.route'));
+app.use('/personnel', require('./routes/personnel.route'));
 app.use('/department', require('./routes/department.route'));
 
 const PORT = process.env.PORT || 5000;

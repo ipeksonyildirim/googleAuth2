@@ -61,7 +61,7 @@ router.get('/', [ensureAuthenticated, isAdmin, readAccessControl], async (req, r
 });
 
 
-// Personel Detail's Route
+// Personnel Detail's Route
 router.get('/:id', [ensureAuthenticated, isAdmin, readAccessControl], async (req, res, next) => {
     let department;
     try{
@@ -90,7 +90,7 @@ router.get('/:id', [ensureAuthenticated, isAdmin, readAccessControl], async (req
 
 
 
-// Add Personel Form Route
+// Add Personnel Form Route
 router.get('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (req, res, next) => {
     res.render('department/add', {
         title: 'Add New Department',
@@ -170,8 +170,8 @@ router.get('/edit', [ensureAuthenticated, isAdmin, updateAccessControl], async (
           );
           return next(error);
     }
-    res.render('personel/edit', {
-        title: 'Edit Personel Details',
+    res.render('personnel/edit', {
+        title: 'Edit Personnel Details',
         breadcrumbs: true,
         dept: dept
     });

@@ -6,7 +6,7 @@ const randomString = require('randomstring');
 const { validationResult } = require('express-validator');
 
 
-const {Personel} = require('../models/personel.model');
+const {Personnel} = require('../models/personnel.model');
 
 const {
     Department
@@ -31,21 +31,21 @@ const {
 router.get('/', [ensureAuthenticated, isAdmin, readAccessControl], async (req, res, next) => {
 
    
-    let personel;
+    let personnel;
     try {
-        personel = await Personel.find({});
+        personnel = await Personnel.find({});
       } catch (err) {
         const error = new HttpError(
-          'Fetching personel failed, please try again later.',
+          'Fetching personnel failed, please try again later.',
           500
         );
         return next(error);
       }
 
-    if (personel.length > 0) {
+    if (personnel.length > 0) {
         let pages;
       try {
-          pages = await Personel.find().countDocuments();
+          pages = await Personnel.find().countDocuments();
 
       }  catch (err) {
           const error = new HttpError(
@@ -55,17 +55,17 @@ router.get('/', [ensureAuthenticated, isAdmin, readAccessControl], async (req, r
           return next(error);
         }
 
-        res.render('personel/index', {
-            title: 'Personel',
+        res.render('personnel/index', {
+            title: 'Personnel',
             breadcrumbs: true,
             search_bar: true,
-            personel: personel,
+            personnel: personnel,
             pages: pages
           
         });
     } else {
-        res.render('personel/index', {
-            title: 'Personel',
+        res.render('personnel/index', {
+            title: 'Personnel',
             breadcrumbs: true,
             search_bar: true
         });
@@ -73,26 +73,26 @@ router.get('/', [ensureAuthenticated, isAdmin, readAccessControl], async (req, r
 });
 
 
-// Personel Detail's Route
+// Personnel Detail's Route
 router.get('/:id', [ensureAuthenticated, isAdmin, readAccessControl], async (req, res, next) => {
-    let personel;
+    let personnel;
     try{
-        personel = await Personel.findOne({
+        personnel = await Personnel.findOne({
             _id: req.params.id
         });
     }
     catch (err) {
         const error = new HttpError(
-          'Personel is empty .',
+          'Personnel is empty .',
           500
         );
         return next(error);
       }
-    if (personel) {
-        res.render('personel/details', {
+    if (personnel) {
+        res.render('personnel/details', {
             title: 'Details',
             breadcrumbs: true,
-            personel: personel
+            personnel: personnel
         });
     } else {
         req.flash('error_msg', 'No records found...');
@@ -100,14 +100,14 @@ router.get('/:id', [ensureAuthenticated, isAdmin, readAccessControl], async (req
 });
 
 
-// Personel Dept's Route
+// Personnel Dept's Route
 router.get('/:dept', async (req, res, next) => {
-    let personel;
+    let personnel;
     try{
-        personel = await Personel.find({
+        personnel = await Personnel.find({
             department: req.params.dept
         }).select({
-          PersonelName: {
+          PersonnelName: {
             FirstName: 1,
             LastName: 1
         },
@@ -123,8 +123,8 @@ router.get('/:dept', async (req, res, next) => {
   }
     
   
-    if (personel)
-        res.send(personel);
+    if (personnel)
+        res.send(personnel);
     else
     {
         const error = new HttpError(
@@ -136,7 +136,7 @@ router.get('/:dept', async (req, res, next) => {
         
   });
 
-// Add Personel Form Route
+// Add Personnel Form Route
 router.get('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (req, res, next) => {
     let user;
     let dept;
@@ -152,8 +152,8 @@ router.get('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (r
       }
    
     if (dept && user ) {
-        res.render('personel/add', {
-            title: 'Add New Personel',
+        res.render('personnel/add', {
+            title: 'Add New Personnel',
             breadcrumbs: true,
             dept: dept,
             user: user
@@ -171,8 +171,8 @@ router.post('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (
     );
   }
   else {
-        const personel = new Personel({
-            PersonelName: {
+        const personnel = new Personnel({
+            PersonnelName: {
                 FirstName: req.body.FirstName,
                 LastName: req.body.LastName
             },
@@ -198,7 +198,7 @@ router.post('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (
 
         let result;
         try {
-            result = await Personel.findOne({
+            result = await Personnel.findOne({
                 'Email': req.body.Email
             });
             
@@ -213,11 +213,11 @@ router.post('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (
 
         if (!result) {
             try {
-                result = await personel.save();
+                result = await personnel.save();
 
                 if (result) {
                     req.flash('success_msg', 'Information saved successfully.');
-                    res.redirect('/personel');
+                    res.redirect('/personnel');
                 }
             } catch (ex) {
                 const error = new HttpError(
@@ -228,7 +228,7 @@ router.post('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (
             }
         } else {
                 const error = new HttpError(
-                    'Personel Already Exists.',
+                    'Personnel Already Exists.',
                     500
                   );
                   return next(error);
@@ -238,9 +238,9 @@ router.post('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (
 
 // Student Edit Form
 router.get('/edit', [ensureAuthenticated, isAdmin, updateAccessControl], async (req, res, next) => {
-    let personel;
+    let personnel;
     try {
-        personel = await Personel.findOne({
+        personnel = await Personnel.findOne({
             _id: req.params.id
         });
     } catch (err) {
@@ -264,11 +264,11 @@ router.get('/edit', [ensureAuthenticated, isAdmin, updateAccessControl], async (
         );
         return next(error);
       }
-    if (personel && user && dept ) {
-        res.render('personel/edit', {
-            title: 'Edit Personel Details',
+    if (personnel && user && dept ) {
+        res.render('personnel/edit', {
+            title: 'Edit Personnel Details',
             breadcrumbs: true,
-            personel: personel,
+            personnel: personnel,
             dept: dept,
             user: user
         });
@@ -277,7 +277,7 @@ router.get('/edit', [ensureAuthenticated, isAdmin, updateAccessControl], async (
 
 // Student Update Route
 router.put('/edit/:id', [ensureAuthenticated, isAdmin, updateAccessControl], async (req, res, next) => {
-    let personel;
+    let personnel;
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return next(
@@ -286,11 +286,11 @@ router.put('/edit/:id', [ensureAuthenticated, isAdmin, updateAccessControl], asy
       }
       else {
         try {
-            personel = await Personel.update({
+            personnel = await Personnel.update({
                 _id: req.params.id
             }, {
                 $set: {
-                  PersonelName: {
+                  PersonnelName: {
                     FirstName: req.body.FirstName,
                     LastName: req.body.LastName
                 },
@@ -320,9 +320,9 @@ router.put('/edit/:id', [ensureAuthenticated, isAdmin, updateAccessControl], asy
           }
        
 
-        if (personel) {
-            req.flash('success_msg', 'Personel Details Updated Successfully.');
-            res.redirect('/personel');
+        if (personnel) {
+            req.flash('success_msg', 'Personnel Details Updated Successfully.');
+            res.redirect('/personnel');
         }
     }
 });
@@ -330,7 +330,7 @@ router.put('/edit/:id', [ensureAuthenticated, isAdmin, updateAccessControl], asy
 router.delete('/:id', [ensureAuthenticated, isAdmin, deleteAccessControl], async (req, res, next) => {
     let result;
     try {
-        result = await Personel.remove({
+        result = await Personnel.remove({
             _id: req.params.id
         });
       } catch (err) {
@@ -344,7 +344,7 @@ router.delete('/:id', [ensureAuthenticated, isAdmin, deleteAccessControl], async
 
     if (result) {
         req.flash('success_msg', 'Record deleted successfully.');
-        res.send('/personel');
+        res.send('/personnel');
     } else {
         res.status(500).send();
     }
@@ -379,8 +379,8 @@ router.delete('/multiple/:id', async (req, res) => {
 // Faker
 router.get('/faker', async (req, res, next) => {
     for (let i = 0; i < 2; i++) {
-        const personel = new Personel({
-            PersonelName: {
+        const personnel = new Personnel({
+            PersonnelName: {
                 FirstName: faker.name.firstName(),
                 LastName: faker.name.lastName(),
             },
@@ -406,11 +406,11 @@ router.get('/faker', async (req, res, next) => {
 
       let result;
         try {
-        result = await personel.save();
+        result = await personnel.save();
 
         if (result) {
             req.flash('success_msg', 'Information saved successfully.');
-            res.redirect('/personel');
+            res.redirect('/personnel');
         }
     } catch (ex) {
         const error = new HttpError(

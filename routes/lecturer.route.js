@@ -36,7 +36,7 @@ router.get('/', [ensureAuthenticated, isAdmin, readAccessControl], async (req, r
         lecturer = await Lecturer.find({});
       } catch (err) {
         const error = new HttpError(
-          'Fetching personel failed, please try again later.',
+          'Fetching personnel failed, please try again later.',
           500
         );
         return next(error);
@@ -73,7 +73,7 @@ router.get('/', [ensureAuthenticated, isAdmin, readAccessControl], async (req, r
 });
 
 
-// Personel Detail's Route
+// Personnel Detail's Route
 router.get('/:id', [ensureAuthenticated, isAdmin, readAccessControl], async (req, res, next) => {
     let lecturer;
     try{
@@ -88,7 +88,7 @@ router.get('/:id', [ensureAuthenticated, isAdmin, readAccessControl], async (req
         );
         return next(error);
       }
-    if (personel) {
+    if (personnel) {
         res.render('lecturer/details', {
             title: 'Details',
             breadcrumbs: true,
@@ -100,7 +100,7 @@ router.get('/:id', [ensureAuthenticated, isAdmin, readAccessControl], async (req
 });
 
 
-// Personel Dept's Route
+// Personnel Dept's Route
 router.get('/:dept', async (req, res, next) => {
     let lecturer;
     try{
@@ -136,7 +136,7 @@ router.get('/:dept', async (req, res, next) => {
         
   });
 
-// Add Personel Form Route
+// Add Personnel Form Route
 router.get('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (req, res, next) => {
     let user;
     let dept;

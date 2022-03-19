@@ -1,12 +1,11 @@
-const mongoose = require("mongoose");
-var Float = require("mongoose-float").loadType(mongoose);
+const mongoose = require('mongoose');
 
 const DepartmentSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
   },
-  curriculum:{
+  curriculum: {
     type: String,
     required: false,
   },
