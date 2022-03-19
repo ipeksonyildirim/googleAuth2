@@ -4,23 +4,12 @@ const mongoose = require('mongoose');
 const session = require('express-session');
 require('dotenv').config();
 const morgan = require('morgan');
-const exphbs = require('express-handlebars');
 const MongoStore = require('connect-mongo')(session);
 const methodOverride = require('method-override');
-const flash = require('connect-flash');
 const bodyParser = require('body-parser');
-const path = require('path');
-const fs = require('fs');
 const breadcrumb = require('express-url-breadcrumb');
-const multer = require('multer');
-const faker = require('faker');
 const connectDB = require('./config/db');
 
-// var cookieParser = require('cookie-parser');
-
-// Load config
-
-// passport config
 require('./config/passport')(passport);
 
 // connection db
@@ -32,42 +21,6 @@ const app = express();
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
-
-// handlebars
-app.engine('.hbs', exphbs.engine({ defaulLayout: 'main', extname: '.hbs' }));
-app.set('view engine', '.hbs');
-/*
-//Routes
-app.use('/', require('./routes/index'))
-app.use('/auth', require('./routes/auth'))
-
-/*
-//cookies expiredTime
-const oneDay = 1000 * 60 * 60 * 24;
-var sessions;
-*/
-
-// Load Helpers
-const {
-  paginate,
-  select,
-  if_eq,
-  select_course,
-} = require('./helpers/customHelpers');
-
-app.engine('.handlebars', exphbs.engine({
-  extname: '.hbs',
-  defaultLayout: 'main',
-  helpers: {
-    paginate,
-    select,
-    if_eq,
-    select_course,
-  },
-}));
-
-app.set('view engine', '.handlebars');
-app.set('views', path.join(__dirname, 'views'));
 
 // Express URL Breadcrumbs
 app.use(breadcrumb());
@@ -93,10 +46,6 @@ app.use(session({
 // passport middleware
 app.use(passport.initialize());
 app.use(passport.session());
-// app.use(cookieParser());
-// Set global var
-
-app.use(flash());
 
 // Routes
 app.use('/', require('./routes/index.route'));
@@ -108,4 +57,9 @@ app.use('/department', require('./routes/department.route'));
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => console.log(`listening on: ${process.env.NODE_ENV} mode on port: ${process.env.PORT}`));
+app.listen(
+  PORT,
+  () => {
+    console.log(`listening on: ${process.env.NODE_ENV} mode on port: ${process.env.PORT}`);
+  },
+);
