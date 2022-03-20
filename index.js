@@ -7,9 +7,9 @@ const morgan = require('morgan');
 const MongoStore = require('connect-mongo')(session);
 const methodOverride = require('method-override');
 const bodyParser = require('body-parser');
-const connectDB = require('./config/db');
+const connectDB = require('./src/config/db');
 
-require('./config/passport')(passport);
+require('./src/config/passport')(passport);
 
 // connection db
 connectDB();
@@ -45,12 +45,12 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // Routes
-app.use('/', require('./routes/index.route'));
-app.use('/auth', require('./routes/auth.route'));
-app.use('/student', require('./routes/student.route'));
-app.use('/lecturer', require('./routes/lecturer.route'));
-app.use('/personnel', require('./routes/personnel.route'));
-app.use('/department', require('./routes/department.route'));
+app.use('/', require('./src/routes/index.route'));
+app.use('/auth', require('./src/routes/auth.route'));
+app.use('/student', require('./src/routes/student.route'));
+app.use('/lecturer', require('./src/routes/lecturer.route'));
+app.use('/personnel', require('./src/routes/personnel.route'));
+app.use('/department', require('./src/routes/department.route'));
 
 const PORT = process.env.PORT || 5000;
 
