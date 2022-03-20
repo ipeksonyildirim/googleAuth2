@@ -19,7 +19,7 @@ const CourseSchema = new mongoose.Schema({
     },
   ],
   students: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Student' }],
-  lecturers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Lecturer' }],
+  lecturers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Lecturer' }]
   
 });
 module.exports = mongoose.model('Course', CourseSchema);
