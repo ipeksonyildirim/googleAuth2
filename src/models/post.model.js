@@ -10,9 +10,6 @@ const postSchema = Schema({
     type: String,
     required: [true, "Please enter the post's content"],
   },
-  imagePath: {
-    type: String,
-  },
   course: {type: mongoose.Schema.ObjectId, ref: "Course", required: true },
   createdAt: { type: Date, default: Date.now, required: true },
   createdBy: { type: mongoose.Schema.ObjectId, ref: "User", required: true },

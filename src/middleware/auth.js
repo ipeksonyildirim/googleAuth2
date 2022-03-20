@@ -1,4 +1,8 @@
 const User = require('../models/user.model');
+const Student = require('../models/student.model');
+const Lecturer = require('../models/lecturer.model');
+const Post = require('../models/post.model');
+
 const HttpError = require('../models/http-error.model');
 
 const ensureAuthenticated = (req, res, next) => {
@@ -84,6 +88,70 @@ const deleteAccessControl = (req, res, next) => {
   res.redirect('/');
 };
 
+
+const inCourse = (req, res, next) => {
+
+
+  let student;
+  let lecturer;
+  try {
+      student = await Student.findOne({
+          user: req.user
+      });
+    } catch (err) {
+      const error = new HttpError(
+        'Fetching student failed, please try again later.',
+        500
+      );
+      return next(error);
+    }
+    try {
+      lecturer = await Lecturer.findOne({
+          user: req.user
+      });
+    } catch (err) {
+      const error = new HttpError(
+        'Fetching lecturer failed, please try again later.',
+        500
+      );
+      return next(error);
+    }
+  if (student || lecturer) {
+    next();
+    return;
+    }
+  // TODO handle error
+  // req.flash('error_msg', 'You do not have the required permissions to perform this action.');
+  res.redirect('/');
+};
+
+const isOwner = (req, res, next) => {
+
+  let post;
+  try {
+      post = await Post.findOne({
+          _id: req.params.id
+      });
+  } catch (err) {
+      const error = new HttpError(
+          'Something went wrong.',
+          500
+        );
+        return next(error);
+  }
+  if(post){
+    if(post.user === req.user){
+      next();
+      return;
+    }
+    
+  }
+  // TODO handle error
+  // req.flash('error_msg', 'You do not have the required permissions to perform this action.');
+  res.redirect('/');
+};
+
+
 module.exports = {
   ensureAuthenticated,
   isAdmin,
@@ -92,4 +160,6 @@ module.exports = {
   createAccessControl,
   updateAccessControl,
   deleteAccessControl,
+  inCourse,
+  isOwner
 };
