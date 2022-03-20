@@ -11,7 +11,6 @@ const DepartmentSchema = new mongoose.Schema({
         ],
       ],
     ],
-
   ],
 });
 

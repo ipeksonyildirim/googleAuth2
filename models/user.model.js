@@ -15,13 +15,11 @@ const UserSchema = new mongoose.Schema({
     update: Boolean,
     delete: Boolean,
   },
-
   appointments: [{
     with: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     date: { type: Date, required: true },
     isActive: Boolean,
   }],
-
   address: [{
     type: String,
     city: String,
@@ -29,7 +27,6 @@ const UserSchema = new mongoose.Schema({
     postalCode: String,
     country: String,
   }],
-
   contact: [{ type: String, value: String }],
 });
 
