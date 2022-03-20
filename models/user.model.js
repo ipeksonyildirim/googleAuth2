@@ -1,19 +1,12 @@
 const mongoose = require('mongoose');
 
 const UserSchema = new mongoose.Schema({
-  googleId: {
-    type: String,
-    required: true,
-  },
-  name: String,
-  email: String,
+  googleId: { type: String, required: true },
+  name: { type: String, required: true },
+  email: { type: String, required: true },
   // TODO first name last name has been removed, check controllers
-  image: String,
-  createdAt: {
-    type: Date,
-    default: Date.now(),
-  },
-
+  image: { type: String, required: true },
+  createdAt: { type: Date, default: Date.now() },
   isAdmin: Boolean,
   request: Boolean,
   privileges: {
@@ -24,12 +17,8 @@ const UserSchema = new mongoose.Schema({
   },
 
   appointments: [{
-    with: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-      required: true,
-    },
-    date: Date,
+    with: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    date: { type: Date, required: true },
     isActive: Boolean,
   }],
 
@@ -41,10 +30,7 @@ const UserSchema = new mongoose.Schema({
     country: String,
   }],
 
-  contact: [{
-    type: String,
-    value: String,
-  }],
+  contact: [{ type: String, value: String }],
 });
 
 module.exports = mongoose.model('User', UserSchema);
