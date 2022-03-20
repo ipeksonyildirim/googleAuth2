@@ -1,102 +1,17 @@
-const mongoose = require('mongoose')
-var Float = require('mongoose-float').loadType(mongoose);
-
+const mongoose = require('mongoose');
 
 const LecturerSchema = new mongoose.Schema({
-    id: {
-        type: String,
-        required: true,
-    },
-    name: {
-        type: String,
-        required: true,
-        trim: true,
-    },
-    lastName: {
-        type: String,
-        required: true,
-    },
-    email: {
-        type: String,
-        required: true,
-    },
-    status: {
-        type: String,
-        default: 'aktif',
-        enum: ['aktif', 'pasif'],
-        required: true,
-    },
-    user: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-    },
-    
-    department: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Department',
-    },
-    registerationDate: {
-        type: Date,
-        default: Date.now,
-    },
-    adress: [adressSchema],
-    contact: [contactSchema],
-})
-const adressSchema = new mongoose.Schema({
-    id: {
-        type: Number,
-        required: true,
-    },
-    addrType: {
-        type: String,
-        required: true,
-        trim: true,
+  // name and lastname will be inherited from user.
+  // dateOfAdmission will be inherited from user.createdAt
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  department: { type: mongoose.Schema.Types.ObjectId, ref: 'Department', required: true },
+  status: {
+    type: String, default: 'aktif', enum: ['aktif', 'pasif'], required: true,
+  },
+  // TODO add officeHours
+  // email will be inherited from user
+  // address will be inherited from user
+  // contact will be inherited from user
+});
 
-    },
-    address: {
-        type: String,
-        required: true,
-        trim: true,
-
-    },
-    city: {
-        type: String,
-        required: true,
-        trim: true,
-
-    },
-    district: {
-        type: String,
-        required: true,
-        trim: true,
-
-    },
-    postalCode: {
-        type: String,
-        required: true,
-
-    },
- });
-
- 
-
- const contactSchema = new mongoose.Schema({
-    id: {
-        type: Number,
-        required: true,
-    },
-    contactType: {
-        type: String,
-        required: true,
-        trim: true,
-
-    },
-    value: {
-        type: String,
-        required: true,
-
-    },
-
- });
-
- module.exports = mongoose.model('Lecturer', LecturerSchema);
+module.exports = mongoose.model('Lecturer', LecturerSchema);

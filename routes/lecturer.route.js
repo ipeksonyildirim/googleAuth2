@@ -6,9 +6,7 @@ const randomString = require('randomstring');
 const { validationResult } = require('express-validator');
 
 
-const {
-  Student
-} = require('../models/student.model');
+const {Lecturer} = require('../models/lecturer.model');
 
 const {
     Department
@@ -16,9 +14,7 @@ const {
 const {
   User
 } = require('../models/user.model');
-const {
-  Lecturer
-} = require('../models/lecturer.model');
+
 const HttpError = require('../models/http-error.model');
 
 const {
@@ -35,125 +31,125 @@ const {
 router.get('/', [ensureAuthenticated, isAdmin, readAccessControl], async (req, res, next) => {
 
    
-    let student;
+    let lecturer;
     try {
-        student = await Student.find({});
+        lecturer = await Lecturer.find({});
       } catch (err) {
         const error = new HttpError(
-          'Fetching users failed, please try again later.',
+          'Fetching personel failed, please try again later.',
           500
         );
         return next(error);
       }
 
-    if (student.length > 0) {
-      let pages;
+    if (lecturer.length > 0) {
+        let pages;
       try {
-          pages = await Student.find().countDocuments();
+          pages = await Lecturer.find().countDocuments();
 
       }  catch (err) {
           const error = new HttpError(
-            'Something went wrong, could not find a student.',
+            'Something went wrong, could not find a course.',
             500
           );
           return next(error);
         }
+
         res.json({ 
-          student: student.toObject({ getters: true }),
+          lecturer: lecturer.toObject({ getters: true }),
           pages: pages
         });
-    }
-    else{
-      res.redirect('/student/add');
-    }
-});
-
-
-// Student Dept's Route
-router.get('/:dept', async (req, res, next) => {
-  let student;
-  try{
-    student = await Student.find({
-          department: req.params.dept
-      }).select({
-        StudentName: {
-          FirstName: 1,
-          LastName: 1
-      },
-          _id: 0
+    } else {
+      res.json({ 
+        lecturer: lecturer.toObject({ getters: true }),
       });
-
-  }catch (err) {
-  const error = new HttpError(
-    'Something went wrong, could not find a department.',
-    500
-  );
-  return next(error);
-}
-  
-
-  if (student)
-  res.json({ 
-    student: student.toObject({ getters: true }),
-  });
-  else
-  {
-      const error = new HttpError(
-        'Could not find student for the provided department id.',
-          404
-        );
-        return next(error);
-  }
-      
+    }
 });
-// Search Student Route.//admin
-router.post('/', [ensureAuthenticated, isAdmin], async (req, res, next) => {
-    let key = req.body.searchInput;
-    let student;
-    try {
-        student = await Student.find({
-            'StudentId': key
+
+
+// Personel Detail's Route
+router.get('/:id', [ensureAuthenticated, isAdmin, readAccessControl], async (req, res, next) => {
+    let lecturer;
+    try{
+        lecturer = await Lecturer.findOne({
+            _id: req.params.id
         });
-    }catch (err) {
+    }
+    catch (err) {
         const error = new HttpError(
-          'User, Department or  Lecturer is empty .',
+          'Lecturer is empty .',
           500
         );
         return next(error);
       }
-
-    if (student.length > 0) {
+    if (personel) {
       res.json({ 
-        student: student.toObject({ getters: true }),
+        lecturer: lecturer.toObject({ getters: true }),
       });
     } else {
-        req.flash('error_msg', 'Record not found.');
-        res.redirect('/student');
+        req.flash('error_msg', 'No records found...');
     }
 });
 
-// Add Student Form Route
+
+// Personel Dept's Route
+router.get('/:dept', async (req, res, next) => {
+    let lecturer;
+    try{
+        lecturer = await Lecturer.find({
+            department: req.params.dept
+        }).select({
+          LecturerName: {
+            FirstName: 1,
+            LastName: 1
+        },
+            _id: 0
+        });
+  
+    }catch (err) {
+    const error = new HttpError(
+      'Something went wrong, could not find a department.',
+      500
+    );
+    return next(error);
+  }
+    
+  
+    if (lecturer){
+      res.json({ 
+        lecturer: lecturer.toObject({ getters: true }),
+      });
+    }
+    else
+    {
+        const error = new HttpError(
+          'Could not find lecturer for the provided department id.',
+            404
+          );
+          return next(error);
+    }
+        
+  });
+
+// Add Personel Form Route
 router.get('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (req, res, next) => {
     let user;
-    let lecturer;
     let dept;
     try {
         user = await User.find();
         dept = await Department.find();
-        lecturer = await Lecturer.find();
       } catch (err) {
         const error = new HttpError(
-          'User, Department or  Lecturer is empty .',
+          'User or Department is empty .',
           500
         );
         return next(error);
       }
    
-    if (dept && user && lecturer) {
+    if (dept && user ) {
       res.json({ 
-        user: user.toObject({ getters: true }),
         dept: dept.toObject({ getters: true }),
-        advisor: lecturer.toObject({ getters: true })
+        user: user.toObject({ getters: true })
       });
     }
 });
@@ -168,7 +164,7 @@ router.post('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (
     );
   }
   else {
-        const student = new Student({
+        const lecturer = new Lecturer({
             StudentName: {
                 FirstName: req.body.FirstName,
                 LastName: req.body.LastName
@@ -187,34 +183,21 @@ router.post('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (
               ContactType: req.body.ContactType,
               Value: req.body.Value,
           },
-            Internship: {
-            Year: req.body.Year,
-            Term: req.body.Term,
-            CompanyName: req.body.CompanyName,
-            StartDate: req.body.StartDate,
-            EndDate: req.body.EndDate
-          },
-            Scholarship: req.body.Scholarship,
-            Class: req.body.Class,
-            EducationTerm: req.body.EducationTerm,
-            Gpa: req.body.Gpa,
-            SecondForeignLanguage: req.body.SecondForeignLanguage,
             Department: req.body.Department,
             User: req.body.User,
-            Advisor: req.body.Advisor,
-            Credit: req.body.Credit,
-            StudentId: req.body.StudentId,
+          
             
         });
+
         let result;
         try {
-            result = await Student.findOne({
-                'StudentId': req.body.StudentId
+            result = await Lecturer.findOne({
+                'Email': req.body.Email
             });
             
         } catch (err) {
             const error = new HttpError(
-              'Something went wrong.',
+              'Something went wrong, could not find a department.',
               500
             );
             return next(error);
@@ -223,11 +206,11 @@ router.post('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (
 
         if (!result) {
             try {
-                result = await student.save();
+                result = await lecturer.save();
 
                 if (result) {
                     req.flash('success_msg', 'Information saved successfully.');
-                    res.redirect('/student');
+                    res.redirect('/lecturer');
                 }
             } catch (ex) {
                 const error = new HttpError(
@@ -238,7 +221,7 @@ router.post('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (
             }
         } else {
                 const error = new HttpError(
-                    'StudentId Already Exists.',
+                    'Lecturer Already Exists.',
                     500
                   );
                   return next(error);
@@ -248,9 +231,9 @@ router.post('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (
 
 // Student Edit Form
 router.get('/edit', [ensureAuthenticated, isAdmin, updateAccessControl], async (req, res, next) => {
-    let student;
+    let lecturer;
     try {
-        student = await Student.findOne({
+        lecturer = await Lecturer.findOne({
             _id: req.params.id
         });
     } catch (err) {
@@ -264,31 +247,28 @@ router.get('/edit', [ensureAuthenticated, isAdmin, updateAccessControl], async (
 
     let user;
     let dept;
-    let lecturer;
     try {
         user = await User.find();
         dept = await Department.find();
-        lecturer = await Lecturer.find();
       } catch (err) {
         const error = new HttpError(
-          'User, Department or  Lecturer is empty .',
+          'User or Department is empty .',
           500
         );
         return next(error);
       }
-    if (student && user && dept && lecturer) {
+    if (lecturer && user && dept ) {
       res.json({
-        student: student.toObject({ getters: true }),
-        user: user.toObject({ getters: true }),
+        lecturer: lecturer.toObject({ getters: true }),
         dept: dept.toObject({ getters: true }),
-        advisor: lecturer.toObject({ getters: true })
+        user: user.toObject({ getters: true })
       });
     }
 });
 
 // Student Update Route
 router.put('/edit/:id', [ensureAuthenticated, isAdmin, updateAccessControl], async (req, res, next) => {
-    let student;
+    let lecturer;
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return next(
@@ -297,11 +277,11 @@ router.put('/edit/:id', [ensureAuthenticated, isAdmin, updateAccessControl], asy
       }
       else {
         try {
-            student = await Student.update({
+            lecturer = await Lecturer.update({
                 _id: req.params.id
             }, {
                 $set: {
-                  StudentName: {
+                  LecturerName: {
                     FirstName: req.body.FirstName,
                     LastName: req.body.LastName
                 },
@@ -319,24 +299,8 @@ router.put('/edit/:id', [ensureAuthenticated, isAdmin, updateAccessControl], asy
                   ContactType: req.body.ContactType,
                   Value: req.body.Value,
               },
-                Internship: {
-                Year: req.body.Year,
-                Term: req.body.Term,
-                CompanyName: req.body.CompanyName,
-                StartDate: req.body.StartDate,
-                EndDate: req.body.EndDate
-              },
-                Scholarship: req.body.Scholarship,
-                Class: req.body.Class,
-                EducationTerm: req.body.EducationTerm,
-                Gpa: req.body.Gpa,
-                SecondForeignLanguage: req.body.SecondForeignLanguage,
                 Department: req.body.Department,
                 User: req.body.User,
-                Advisor: req.body.Advisor,
-                Credit: req.body.Credit,
-                StudentId: req.body.StudentId,
-                
             }});
           } catch (err) {
             const error = new HttpError(
@@ -347,9 +311,9 @@ router.put('/edit/:id', [ensureAuthenticated, isAdmin, updateAccessControl], asy
           }
        
 
-        if (student) {
-            req.flash('success_msg', 'Student Details Updated Successfully.');
-            res.redirect('/student');
+        if (lecturer) {
+            req.flash('success_msg', 'Lecturer Details Updated Successfully.');
+            res.redirect('/lecturer');
         }
     }
 });
@@ -357,7 +321,7 @@ router.put('/edit/:id', [ensureAuthenticated, isAdmin, updateAccessControl], asy
 router.delete('/:id', [ensureAuthenticated, isAdmin, deleteAccessControl], async (req, res, next) => {
     let result;
     try {
-        result = await Student.remove({
+        result = await Lecturer.remove({
             _id: req.params.id
         });
       } catch (err) {
@@ -371,7 +335,7 @@ router.delete('/:id', [ensureAuthenticated, isAdmin, deleteAccessControl], async
 
     if (result) {
         req.flash('success_msg', 'Record deleted successfully.');
-        res.redirect('/student');
+        res.redirect('/lecturer');
     } else {
         res.status(500).send();
     }
@@ -406,8 +370,8 @@ router.delete('/multiple/:id', async (req, res) => {
 // Faker
 router.get('/faker', async (req, res, next) => {
     for (let i = 0; i < 2; i++) {
-        const student = new Student({
-            StudentName: {
+        const lecturer = new Lecturer({
+            LecturerName: {
                 FirstName: faker.name.firstName(),
                 LastName: faker.name.lastName(),
             },
@@ -426,36 +390,18 @@ router.get('/faker', async (req, res, next) => {
             ContactType:'Cep Telefonu',
             Value: faker.phone.phoneNumber(),
         },
-          Internship: {
-          Year: 2019,
-          Term: 'Guz',
-          CompanyName: 'XYZ A.Ş.',
-          StartDate: '2019-12-05',
-          EndDate: '2019-30-08'
-        },
-          Scholarship: 75,
-          Class: 3,
-          EducationTerm: 6,
-          Gpa: 3.5,
-          SecondForeignLanguage: 'Almanca',
           Department: '',
-          User: '',
-          Advisor: '',
-          Credit: 42,
-          StudentId: randomString.generate({
-            length: 9,
-            charset: 'numeric'
-        }),
+          User: ''
           
       });
 
       let result;
         try {
-        result = await student.save();
+        result = await lecturer.save();
 
         if (result) {
             req.flash('success_msg', 'Information saved successfully.');
-            res.redirect('/student');
+            res.redirect('/lecturer');
         }
     } catch (ex) {
         const error = new HttpError(

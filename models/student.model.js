@@ -1,179 +1,41 @@
-const mongoose = require('mongoose')
-var Float = require('mongoose-float').loadType(mongoose);
+const mongoose = require('mongoose');
 
 const StudentSchema = new mongoose.Schema({
-    id: {
-        type: String,
-        required: true,
-    },
-    name: {
-        type: String,
-        required: true,
-        trim: true,
-    },
-    lastName: {
-        type: String,
-        required: true,
-    },
-    email: {
-        type: String,
-        required: true,
-    },
-    status: {
-        type: String,
-        default: 'aktif',
-        enum: ['aktif', 'pasif', 'mezun'],
-        required: true,
-    },
-    
-    scholarship: {
-        type: Float,
-        required: true,
-    },
+  // FIXME student name has been removed, it'll inherit from user. Check controllers
+  // FIXME dateOfAdmission has been removed, user.createdAt will be used instead.
+  // FIXME email has been migrated to user.
+  // FIXME address has been migrated to user.
+  // FIXME contact has been migrated to user.
 
-    educationTerm: {
-        type: Number,
-        required: true,
-        default: 1,
+  id: { type: Number, required: true },
+  status: {
+    type: String, default: 'aktif', enum: ['aktif', 'pasif', 'mezun'], required: true,
+  },
+  internship: [{
+    year: Number, term: String, company: String, startDate: Date, endDate: Date,
+  }],
+  // TODO this has been changed from class to grade. Find controllers and fix
+  scholarship: { type: Number, required: true },
+  grade: { type: String, required: true, enum: ['1', '2', '3', '4'] },
+  term: { type: Number, required: true },
+  gpa: { type: Number, required: true },
+  secondForeignLanguage: { type: String, required: true },
+  department: { type: mongoose.Schema.Types.ObjectId, ref: 'Department' },
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  advisor: { type: mongoose.Schema.Types.ObjectId, ref: 'Lecturer' },
+  credit: { type: Number, required: true },
+  assignments: [
+    {
+      assignment: { type: mongoose.Schema.Types.ObjectId, ref: 'Assignment', required: true },
+      isActive: Boolean,
     },
-    gpa: {
-        type: Float,
-        required: true,
+  ],
+  courses: [
+    {
+      course: { type: mongoose.Schema.Types.ObjectId, ref: 'Course', required: true },
+      grade: String,
     },
-    degree: {
-        type: Number,
-        required: true,
-        default: 1,
-    },
-    secondForeignLanguage:{
-        id: {
-            type: Number,
-            required: true,
-        },
-        value:{
-            type: String,
-            required: true,
-        }
-    },
-    user: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-    },
-    advisor: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Lecturer',
-    },
-    department: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Department',
-    },
-    registerationDate: {
-        type: Date,
-        default: Date.now,
-    },
-    credit: {
-        type: Number,
-        required: true,
-        default: 1,
-    },
+  ],
+});
 
-    adress: [adressSchema],
-    contact: [contactSchema],
-    internship: [internshipSchema],
-})
-const adressSchema = new mongoose.Schema({
-    id: {
-        type: Number,
-        required: true,
-    },
-    addrType: {
-        type: String,
-        required: true,
-        trim: true,
-
-    },
-    address: {
-        type: String,
-        required: true,
-        trim: true,
-
-    },
-    city: {
-        type: String,
-        required: true,
-        trim: true,
-
-    },
-    district: {
-        type: String,
-        required: true,
-        trim: true,
-
-    },
-    postalCode: {
-        type: String,
-        required: true,
-
-    },
- });
-
- const internshipSchema = new mongoose.Schema({
-    id: {
-        type: String,
-        required: true,
-    },
-    year: {
-        type: Number,
-        required: true,
-
-    },
-    term: {
-        type: String,
-        required: true,
-
-    },
-    companyName: {
-        type: String,
-        required: true,
-
-    },
-    startDate: {
-        type: String,
-        required: true,
-        trim: true,
-
-    },
-    endDate: {
-        type: String,
-        required: true,
-
-    },
-    grade: {
-        type: Boolean,
-        required: true,
-
-    },
- });
-
- const contactSchema = new mongoose.Schema({
-    id: {
-        type: Number,
-        required: true,
-    },
-    contactType: {
-        type: String,
-        required: true,
-        trim: true,
-
-    },
-    value: {
-        type: String,
-        required: true,
-
-    },
-
- });
-
-
-
-module.exports = mongoose.model('Student', StudentSchema)
+module.exports = mongoose.model('Student', StudentSchema);

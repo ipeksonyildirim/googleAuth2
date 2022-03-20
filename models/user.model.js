@@ -1,33 +1,30 @@
 const mongoose = require('mongoose');
-const {Schema, Model} = mongoose
 
-const UserSchema = new Schema({
-    name: String,
-    email: {type: String, unique: true},
-    image: {type: String},
-    createdAt: {type: Date, default: Date.now()},
-    courses: [{
-        type: Schema.Types.ObjectId,
-        ref: 'Course'
-    }],
-    gpa: Number,
-    addresses: [{String}],
-    role: {
-        type: String,
-        enum: ['student', 'academic'],
-        default: ['student']
-    },
-    appointments: [{
-        date: Date,
-        from: {
-            type: Schema.Types.ObjectId,
-            ref: 'User'
-        }
-    }],
-    faculty: String,
-    major: String,
-    token: String,
-    active: Boolean
-})
+const UserSchema = new mongoose.Schema({
+  googleId: { type: String, required: true },
+  name: { type: String, required: true },
+  email: { type: String, required: true },
+  // TODO first name last name has been removed, check controllers
+  image: { type: String, required: true },
+  createdAt: { type: Date, default: Date.now() },
+  isAdmin: Boolean,
+  request: Boolean,
+  privileges: {
+    read: Boolean, create: Boolean, update: Boolean, delete: Boolean,
+  },
+  appointments: [{
+    with: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    date: { type: Date, required: true },
+    isActive: Boolean,
+  }],
+  address: [{
+    type: String,
+    city: String,
+    state: String,
+    postalCode: String,
+    country: String,
+  }],
+  contact: [{ name: String, value: String }],
+});
 
-module.exports = new Model('User', UserSchema)
+module.exports = mongoose.model('User', UserSchema);

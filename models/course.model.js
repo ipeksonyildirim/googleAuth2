@@ -1,60 +1,23 @@
-const mongoose = require('mongoose')
-var Float = require('mongoose-float').loadType(mongoose);
+const mongoose = require('mongoose');
 
 const CourseSchema = new mongoose.Schema({
-    shortCode: {
-        type: String,
-        required: true,
+  code: { type: String, required: true },
+  name: { type: String, required: true },
+  credit: { type: Number, required: true },
+  department: { type: mongoose.Schema.Types.ObjectId, ref: 'Department' },
+  terms: [{ type: String, required: true }],
+  schedule: [{
+    day: String,
+    time: String,
+    location: String,
+    zoomId: String,
+  }],
+  assignments: [
+    {
+      assignment: { type: mongoose.Schema.Types.ObjectId, ref: 'Assignment', required: true },
+      isActive: Boolean,
     },
-    name: {
-        type: String,
-        required: true,
-    },
-    credit: {
-        type: Number,
-        required: true,
-    },
-    lecturer: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Lecturer',
-    },
-    department: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Department',
-    },
-    termYear: {
-        type: String,
-        required: true,
-    },
-    termName: {
-        type: String,
-        required: true,
-    },
-    lessonHours:[{
-        day:  {
-            type: String,
-            required: true,
-        },
-        startedHours: {
-            type: Number,
-            required: true,
-        },
-        finishedHours: {
-            type: Number,
-            required: true,
-        },
-        location: {
-            type: String,
-            required: true,
-        },
-        zoomId: {
-            type: String,
-            required: true,
-        },
-        
-    }],
-    
-
-    
+  ],
+  students: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Student' }],
 });
 module.exports = mongoose.model('Course', CourseSchema);
