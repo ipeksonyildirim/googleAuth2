@@ -5,6 +5,7 @@ const { validationResult } = require('express-validator');
 
 const HttpError = require('../models/http-error.model');
 const Department = require('../models/department.model');
+const DepartmentController = require('../controllers/department.controller');
 
 const {
   ensureAuthenticated,
@@ -16,6 +17,14 @@ const {
   deleteAccessControl,
 } = require('../middleware/auth');
 
+router.get('/name=:name', async (req, res, next) => {
+  const result = await DepartmentController.findByName(req.params.name);
+  if (!result) {
+    next(result);
+    return;
+  }
+  res.json(result);
+});
 // Students Home Route
 router.get('/', [ensureAuthenticated, isAdmin, readAccessControl], async (req, res, next) => {
   let department;

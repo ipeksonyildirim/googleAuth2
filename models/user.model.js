@@ -5,18 +5,15 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  displayName: {
+  name: {
     type: String,
     required: true,
   },
-  firstName: {
+  email: {
     type: String,
     required: true,
   },
-  lastName: {
-    type: String,
-    required: true,
-  },
+  // TODO first name last name has been removed, check controllers
   image: {
     type: String,
   },
@@ -59,7 +56,43 @@ const UserSchema = new mongoose.Schema({
     date: Date,
     isActive: Boolean,
   }],
+  Address: [{
+    AddrType: {
+      type: String,
+      required: true,
+      trim: true,
 
+    },
+    City: {
+      type: String,
+      required: true,
+    },
+    State: {
+      type: String,
+      required: true,
+    },
+    PostalCode: {
+      type: String,
+      required: true,
+    },
+    Country: {
+      type: String,
+      required: true,
+    },
+  }],
+  Contact: [{
+    ContactType: {
+      type: String,
+      required: true,
+      trim: true,
+
+    },
+    Value: {
+      type: String,
+      required: true,
+
+    },
+  }],
 });
 
 module.exports = mongoose.model('User', UserSchema);

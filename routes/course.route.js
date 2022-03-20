@@ -1,16 +1,8 @@
 const express = require('express');
-
-const router = express.Router();
-const moment = require('moment');
 const { validationResult } = require('express-validator');
-
-const {
-  Department,
-} = require('../models/department.model');
-const {
-  Course,
-} = require('../models/course.model');
-
+const Department = require('../models/department.model');
+const Course = require('../models/course.model');
+const HttpError = require('../models/http-error.model');
 const {
   ensureAuthenticated,
   isAdmin,
@@ -19,7 +11,8 @@ const {
   updateAccessControl,
   deleteAccessControl,
 } = require('../middleware/auth');
-const HttpError = require('../models/http-error.model');
+
+const router = express.Router();
 
 router.get('/:dept', async (req, res, next) => {
   let course;

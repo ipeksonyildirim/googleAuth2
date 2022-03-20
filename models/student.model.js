@@ -1,136 +1,83 @@
 const mongoose = require('mongoose');
 
 const StudentSchema = new mongoose.Schema({
-  StudentName: {
-    FirstName: {
-      type: String,
-      required: true,
-    },
-    LastName: {
-      type: String,
-      required: true,
-    },
-  },
-  DateOfAdmission: {
-    type: Date,
-    required: true,
-  },
-  Status: {
+  // FIXME student name has been removed, it'll inherit from user. Check controllers
+  // FIXME dateOfAdmission has been removed, user.createdAt will be used instead.
+  status: {
     type: String,
     default: 'aktif',
     enum: ['aktif', 'pasif', 'mezun'],
     required: true,
   },
-  Email: {
-    type: String,
-    required: true,
-  },
-  Address: [{
-    AddrType: {
-      type: String,
-      required: true,
-      trim: true,
-
-    },
-    City: {
-      type: String,
-      required: true,
-    },
-    State: {
-      type: String,
-      required: true,
-    },
-    PostalCode: {
-      type: String,
-      required: true,
-    },
-    Country: {
-      type: String,
-      required: true,
-    },
-  }],
-  Contact: [{
-    ContactType: {
-      type: String,
-      required: true,
-      trim: true,
-
-    },
-    Value: {
-      type: String,
-      required: true,
-
-    },
-  }],
-  Internship: [{
-    Year: {
+  // FIXME email has been migrated to user.
+  // FIXME address has been migrated to user.
+  // FIXME contact has been migrated to user.
+  internship: [{
+    year: {
       type: Number,
       required: true,
 
     },
-    Term: {
+    term: {
+      type: String,
+      enum: ['guz', 'bahar', 'yaz'],
+      required: true,
+    },
+    companyName: {
       type: String,
       required: true,
-
     },
-    CompanyName: {
-      type: String,
-      required: true,
-
-    },
-    StartDate: {
+    startDate: {
       type: String,
       required: true,
       trim: true,
-
     },
-    EndDate: {
+    endDate: {
       type: String,
       required: true,
-
     },
   }],
-  Scholarship: {
+  scholarship: {
     type: Number,
     required: true,
   },
-
-  Class: {
+  // TODO this has been changed from class to grade. Find controllers and fix
+  grade: {
     type: String,
     required: true,
     enum: ['1', '2', '3', '4'],
   },
-  EducationTerm: {
+  term: {
     type: Number,
     required: true,
     default: 1,
   },
-  Gpa: {
+  gpa: {
     type: Number,
     required: true,
   },
-  SecondForeignLanguage: {
+  secondForeignLanguage: {
     type: String,
     required: true,
   },
-  Department: {
+  department: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Department',
   },
-  User: {
+  user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
   },
-  Advisor: {
+  advisor: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Lecturer',
   },
-  Credit: {
+  credit: {
     type: Number,
     required: true,
     default: 1,
   },
-  StudentId: {
+  studentId: {
     type: Number,
     required: true,
   },
