@@ -10,10 +10,7 @@ const UserSchema = new mongoose.Schema({
   isAdmin: Boolean,
   request: Boolean,
   privileges: {
-    read: Boolean,
-    create: Boolean,
-    update: Boolean,
-    delete: Boolean,
+    read: Boolean, create: Boolean, update: Boolean, delete: Boolean,
   },
   appointments: [{
     with: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
@@ -27,7 +24,7 @@ const UserSchema = new mongoose.Schema({
     postalCode: String,
     country: String,
   }],
-  contact: [{ type: String, value: String }],
+  contact: [{ name: String, value: String }],
 });
 
 module.exports = mongoose.model('User', UserSchema);
