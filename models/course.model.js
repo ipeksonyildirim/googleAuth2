@@ -24,7 +24,6 @@ const CourseSchema = new mongoose.Schema({
   termName: {
     type: String,
     required: true,
-    // day,
   },
   lessonHours: [{
     day: {

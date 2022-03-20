@@ -3,7 +3,6 @@ const express = require('express');
 const router = express.Router();
 const faker = require('faker');
 const moment = require('moment');
-const randomString = require('randomstring');
 const { validationResult } = require('express-validator');
 
 const { Personnel } = require('../models/personnel.model');
