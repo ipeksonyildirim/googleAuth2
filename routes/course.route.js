@@ -41,7 +41,7 @@ router.get('/:dept', async (req, res, next) => {
     
 
     if (course)
-        res.send(course);
+    res.json({ course: course.toObject({ getters: true }) });
     else
     {
         const error = new HttpError(
@@ -69,7 +69,7 @@ router.get('/', [ensureAuthenticated, isAdmin, readAccessControl], async (req, r
       }
 
     if (dept &&  course) {
-        let page;
+        let pages;
         try {
             pages = await Course.find().countDocuments();
 
@@ -80,23 +80,17 @@ router.get('/', [ensureAuthenticated, isAdmin, readAccessControl], async (req, r
             );
             return next(error);
           }
-    
-
-        res.render('courses/index', {
-            title: 'Courses',
-            breadcrumbs: true,
-            search_bar: true,
-            dept: dept,
-            course: course,
-            pages: pages
+  
+        res.json({ 
+          course: course.toObject({ getters: true }),
+          dept: dept.toObject({ getters: true }),
+          pages: pages
         });
     } else if (dept) {
-        res.render('courses/index', {
-            title: 'Courses',
-            breadcrumbs: true,
-            search_bar: true,
-            dept: dept
-        });
+      res.json({ 
+        dept: dept.toObject({ getters: true }),
+        pages: pages
+      });
     } else {
         const error = new HttpError(
             'Something went wrong, could not find a department.',
@@ -118,16 +112,11 @@ router.get('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (r
         return next(error);
       }
     if (dept) {
-        res.render('courses/add', {
-            title: 'Add New Course',
-            breadcrumbs: true,
-            dept: dept
-        });
+      res.json({ dept: dept.toObject({ getters: true })});
     }
 });
 
 router.post('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (req, res, next) => {
-    const dept = await Department.find();
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -158,7 +147,7 @@ router.post('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (
 
             if (result) {
                 req.flash('success_msg', 'Course saved successfully.');
-                res.redirect('/courses');
+                res.redirect('/course');
             }
         } catch (ex) {
             const error = new HttpError(
@@ -176,7 +165,7 @@ router.get('/edit', [ensureAuthenticated, isAdmin, updateAccessControl], async (
     try {
         dept = await Department.find();
         course = await Course.findOne({
-            _id: req.param.id
+            _id: req.params.id
         });
     
       } catch (err) {
@@ -188,12 +177,10 @@ router.get('/edit', [ensureAuthenticated, isAdmin, updateAccessControl], async (
       }
     
     if (course && dept) {
-        res.render('courses/edit', {
-            title: 'Edit Course',
-            breadcrumbs: true,
-            dept: dept,
-            course: course
-        });
+      res.json({ 
+        dept: dept.toObject({ getters: true }),
+        course: course.toObject({ getters: true }),
+    });
     }
 });
 
@@ -201,10 +188,10 @@ router.put('/edit/:id', [ensureAuthenticated, isAdmin, updateAccessControl], asy
     let course;
     try {
         course = await Course.update({
-            _id: req.param.id
+            _id: req.params.id
         }, {
             $set: {
-                shortCode: req.body.shortCode,
+            shortCode: req.body.shortCode,
             name: req.body.name,
             credit: req.body.credit,
             department: req.body.department,
@@ -231,7 +218,7 @@ router.put('/edit/:id', [ensureAuthenticated, isAdmin, updateAccessControl], asy
     
     if (course) {
         req.flash('success_msg', 'Course Updated Successfully.');
-        res.redirect('/courses');
+        res.redirect('/course');
     } 
 });
 
@@ -253,7 +240,7 @@ router.delete('/:id', [ensureAuthenticated, isAdmin, deleteAccessControl], async
 
     if (result) {
         req.flash('success_msg', 'Record deleted successfully.');
-        res.send('/courses');
+        res.redirect('/course');
     }
 });
 

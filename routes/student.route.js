@@ -6,7 +6,9 @@ const randomString = require('randomstring');
 const { validationResult } = require('express-validator');
 
 
-const {Student} = require('../models/student.model');
+const {
+  Student
+} = require('../models/student.model');
 
 const {
     Department
@@ -51,25 +53,18 @@ router.get('/', [ensureAuthenticated, isAdmin, readAccessControl], async (req, r
 
       }  catch (err) {
           const error = new HttpError(
-            'Something went wrong, could not find a course.',
+            'Something went wrong, could not find a student.',
             500
           );
           return next(error);
         }
-
-        res.render('students/index', {
-            title: 'Students',
-            breadcrumbs: true,
-            search_bar: true,
-            students: student,
-            pages: pages
+        res.json({ 
+          student: student.toObject({ getters: true }),
+          pages: pages
         });
-    } else {
-        res.render('students/index', {
-            title: 'Students',
-            breadcrumbs: true,
-            search_bar: true
-        });
+    }
+    else{
+      res.redirect('/student/add');
     }
 });
 
@@ -98,7 +93,9 @@ router.get('/:dept', async (req, res, next) => {
   
 
   if (student)
-      res.send(student);
+  res.json({ 
+    student: student.toObject({ getters: true }),
+  });
   else
   {
       const error = new HttpError(
@@ -126,15 +123,12 @@ router.post('/', [ensureAuthenticated, isAdmin], async (req, res, next) => {
       }
 
     if (student.length > 0) {
-        res.render('students/index', {
-            title: 'Student',
-            breadcrumbs: true,
-            search_bar: true,
-            students: student
-        });
+      res.json({ 
+        student: student.toObject({ getters: true }),
+      });
     } else {
         req.flash('error_msg', 'Record not found.');
-        res.redirect('/students');
+        res.redirect('/student');
     }
 });
 
@@ -156,13 +150,11 @@ router.get('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (r
       }
    
     if (dept && user && lecturer) {
-        res.render('students/add', {
-            title: 'Add New Student',
-            breadcrumbs: true,
-            dept: dept,
-            user: user,
-            lecturer: lecturer
-        });
+      res.json({ 
+        user: user.toObject({ getters: true }),
+        dept: dept.toObject({ getters: true }),
+        advisor: lecturer.toObject({ getters: true })
+      });
     }
 });
 
@@ -235,7 +227,7 @@ router.post('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (
 
                 if (result) {
                     req.flash('success_msg', 'Information saved successfully.');
-                    res.redirect('/students');
+                    res.redirect('/student');
                 }
             } catch (ex) {
                 const error = new HttpError(
@@ -285,14 +277,12 @@ router.get('/edit', [ensureAuthenticated, isAdmin, updateAccessControl], async (
         return next(error);
       }
     if (student && user && dept && lecturer) {
-        res.render('students/edit', {
-            title: 'Edit Student Details',
-            breadcrumbs: true,
-            student: student,
-            dept: dept,
-            user: user,
-            advisor: lecturer
-        });
+      res.json({
+        student: student.toObject({ getters: true }),
+        user: user.toObject({ getters: true }),
+        dept: dept.toObject({ getters: true }),
+        advisor: lecturer.toObject({ getters: true })
+      });
     }
 });
 
@@ -359,7 +349,7 @@ router.put('/edit/:id', [ensureAuthenticated, isAdmin, updateAccessControl], asy
 
         if (student) {
             req.flash('success_msg', 'Student Details Updated Successfully.');
-            res.redirect('/students');
+            res.redirect('/student');
         }
     }
 });
@@ -381,7 +371,7 @@ router.delete('/:id', [ensureAuthenticated, isAdmin, deleteAccessControl], async
 
     if (result) {
         req.flash('success_msg', 'Record deleted successfully.');
-        res.send('/students');
+        res.redirect('/student');
     } else {
         res.status(500).send();
     }
@@ -465,7 +455,7 @@ router.get('/faker', async (req, res, next) => {
 
         if (result) {
             req.flash('success_msg', 'Information saved successfully.');
-            res.redirect('/students');
+            res.redirect('/student');
         }
     } catch (ex) {
         const error = new HttpError(

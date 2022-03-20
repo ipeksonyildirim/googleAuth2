@@ -43,59 +43,46 @@ router.get('/', [ensureAuthenticated, isAdmin, readAccessControl], async (req, r
           return next(error);
         }
 
-        res.render('department/index', {
-            title: 'Department',
-            breadcrumbs: true,
-            search_bar: true,
+        res.json({ 
             department: department,
             pages: pages
-          
-        });
-    } else {
-        res.render('department/index', {
-            title: 'Department',
-            breadcrumbs: true,
-            search_bar: true
-        });
+          });
+    }
+    else{
+      res.redirect('/department/add');
     }
 });
-
 
 // Personel Detail's Route
 router.get('/:id', [ensureAuthenticated, isAdmin, readAccessControl], async (req, res, next) => {
-    let department;
-    try{
-        department = await Department.findOne({
-            _id: req.params.id
-        });
+  let department;
+  try{
+      department = await Department.findOne({
+          _id: req.params.id
+      });
+  }
+  catch (err) {
+      const error = new HttpError(
+        'Department is empty .',
+        500
+      );
+      return next(error);
     }
-    catch (err) {
-        const error = new HttpError(
-          'Department is empty .',
-          500
-        );
-        return next(error);
-      }
-    if (department) {
-        res.render('department/details', {
-            title: 'Details',
-            breadcrumbs: true,
-            department: department
+  if (department) {
+      res.json({ 
+          department: department.toObject({ getters: true }),
         });
-    } else {
-        req.flash('error_msg', 'No records found...');
-    }
+  } else {
+      req.flash('error_msg', 'No records found...');
+  }
 });
+
 
 
 
 
 // Add Personel Form Route
 router.get('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (req, res, next) => {
-    res.render('department/add', {
-        title: 'Add New Department',
-        breadcrumbs: true
-    });
 });
 
 // Process Students Form Data And Insert Into Database.
@@ -170,11 +157,7 @@ router.get('/edit', [ensureAuthenticated, isAdmin, updateAccessControl], async (
           );
           return next(error);
     }
-    res.render('personel/edit', {
-        title: 'Edit Personel Details',
-        breadcrumbs: true,
-        dept: dept
-    });
+    res.json({ dept: dept.toObject({ getters: true })});
   
 });
 
@@ -229,7 +212,7 @@ router.delete('/:id', [ensureAuthenticated, isAdmin, deleteAccessControl], async
 
     if (result) {
         req.flash('success_msg', 'Record deleted successfully.');
-        res.send('/department');
+        res.redirect('/department');
     } else {
         res.status(500).send();
     }

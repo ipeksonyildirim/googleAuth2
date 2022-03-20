@@ -21,7 +21,7 @@ const HttpError = require('../models/http-error.model');
       }
       } catch (err) {
         const error = new HttpError(
-            'Fetching users failed, please try again later.',
+            'Fetching admin failed, please try again later.',
             500
           );
           return next(error);

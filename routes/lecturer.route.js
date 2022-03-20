@@ -55,20 +55,14 @@ router.get('/', [ensureAuthenticated, isAdmin, readAccessControl], async (req, r
           return next(error);
         }
 
-        res.render('lecturer/index', {
-            title: 'Lecturer',
-            breadcrumbs: true,
-            search_bar: true,
-            lecturer: lecturer,
-            pages: pages
-          
+        res.json({ 
+          lecturer: lecturer.toObject({ getters: true }),
+          pages: pages
         });
     } else {
-        res.render('lecturer/index', {
-            title: 'Lecturer',
-            breadcrumbs: true,
-            search_bar: true
-        });
+      res.json({ 
+        lecturer: lecturer.toObject({ getters: true }),
+      });
     }
 });
 
@@ -89,11 +83,9 @@ router.get('/:id', [ensureAuthenticated, isAdmin, readAccessControl], async (req
         return next(error);
       }
     if (personel) {
-        res.render('lecturer/details', {
-            title: 'Details',
-            breadcrumbs: true,
-            lecturer: lecturer
-        });
+      res.json({ 
+        lecturer: lecturer.toObject({ getters: true }),
+      });
     } else {
         req.flash('error_msg', 'No records found...');
     }
@@ -123,8 +115,11 @@ router.get('/:dept', async (req, res, next) => {
   }
     
   
-    if (lecturer)
-        res.send(lecturer);
+    if (lecturer){
+      res.json({ 
+        lecturer: lecturer.toObject({ getters: true }),
+      });
+    }
     else
     {
         const error = new HttpError(
@@ -152,12 +147,10 @@ router.get('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (r
       }
    
     if (dept && user ) {
-        res.render('lecturer/add', {
-            title: 'Add New Lecturer',
-            breadcrumbs: true,
-            dept: dept,
-            user: user
-        });
+      res.json({ 
+        dept: dept.toObject({ getters: true }),
+        user: user.toObject({ getters: true })
+      });
     }
 });
 
@@ -265,13 +258,11 @@ router.get('/edit', [ensureAuthenticated, isAdmin, updateAccessControl], async (
         return next(error);
       }
     if (lecturer && user && dept ) {
-        res.render('lecturer/edit', {
-            title: 'Edit Lecturer Details',
-            breadcrumbs: true,
-            lecturer: lecturer,
-            dept: dept,
-            user: user
-        });
+      res.json({
+        lecturer: lecturer.toObject({ getters: true }),
+        dept: dept.toObject({ getters: true }),
+        user: user.toObject({ getters: true })
+      });
     }
 });
 
@@ -344,7 +335,7 @@ router.delete('/:id', [ensureAuthenticated, isAdmin, deleteAccessControl], async
 
     if (result) {
         req.flash('success_msg', 'Record deleted successfully.');
-        res.send('/lecturer');
+        res.redirect('/lecturer');
     } else {
         res.status(500).send();
     }

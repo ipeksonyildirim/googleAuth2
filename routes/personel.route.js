@@ -29,8 +29,6 @@ const {
 
 // Students Home Route
 router.get('/', [ensureAuthenticated, isAdmin, readAccessControl], async (req, res, next) => {
-
-   
     let personel;
     try {
         personel = await Personel.find({});
@@ -55,20 +53,12 @@ router.get('/', [ensureAuthenticated, isAdmin, readAccessControl], async (req, r
           return next(error);
         }
 
-        res.render('personel/index', {
-            title: 'Personel',
-            breadcrumbs: true,
-            search_bar: true,
-            personel: personel,
-            pages: pages
-          
+        res.json({ 
+          personel: personel.toObject({ getters: true }),
+          pages: pages
         });
     } else {
-        res.render('personel/index', {
-            title: 'Personel',
-            breadcrumbs: true,
-            search_bar: true
-        });
+      res.json({ personel: personel.toObject({ getters: true })});
     }
 });
 
@@ -89,11 +79,7 @@ router.get('/:id', [ensureAuthenticated, isAdmin, readAccessControl], async (req
         return next(error);
       }
     if (personel) {
-        res.render('personel/details', {
-            title: 'Details',
-            breadcrumbs: true,
-            personel: personel
-        });
+      res.json({ personel: personel.toObject({ getters: true })});
     } else {
         req.flash('error_msg', 'No records found...');
     }
@@ -124,7 +110,7 @@ router.get('/:dept', async (req, res, next) => {
     
   
     if (personel)
-        res.send(personel);
+    res.json({ personel: personel.toObject({ getters: true })});
     else
     {
         const error = new HttpError(
@@ -152,12 +138,10 @@ router.get('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (r
       }
    
     if (dept && user ) {
-        res.render('personel/add', {
-            title: 'Add New Personel',
-            breadcrumbs: true,
-            dept: dept,
-            user: user
-        });
+      res.json({ 
+        dept: dept.toObject({ getters: true }),
+        user: user.toObject({ getters: true })
+      });
     }
 });
 
@@ -265,13 +249,11 @@ router.get('/edit', [ensureAuthenticated, isAdmin, updateAccessControl], async (
         return next(error);
       }
     if (personel && user && dept ) {
-        res.render('personel/edit', {
-            title: 'Edit Personel Details',
-            breadcrumbs: true,
-            personel: personel,
-            dept: dept,
-            user: user
-        });
+      res.json({ 
+        personel: personel.toObject({ getters: true }),
+        dept: dept.toObject({ getters: true }),
+        user: user.toObject({ getters: true })
+      });
     }
 });
 
@@ -344,7 +326,7 @@ router.delete('/:id', [ensureAuthenticated, isAdmin, deleteAccessControl], async
 
     if (result) {
         req.flash('success_msg', 'Record deleted successfully.');
-        res.send('/personel');
+        res.redirect('/personel');
     } else {
         res.status(500).send();
     }

@@ -107,6 +107,8 @@ app.use('/student', require('./routes/student.route'))
 app.use('/lecturer', require('./routes/lecturer.route'))
 app.use('/personel', require('./routes/personel.route'))
 app.use('/department', require('./routes/department.route'))
+app.use('/grade', require('./routes/grade.route'))
+app.use('/course', require('./routes/course.route'))
 
 const PORT = process.env.PORT || 5000;
 

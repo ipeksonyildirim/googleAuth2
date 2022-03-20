@@ -61,13 +61,15 @@ router.get('/user', [ensureAuthenticated, isAdmin], async (req, res, next) => {
     );
     return next(error);
   }
-  return res.json({users: users.map(user => user.toObject({ getters: true }))});
+  res.json({users: users.map(user => user.toObject({ getters: true }))});
    
 });
+
+
 router.get('/user/:id', [ensureAuthenticated, isAdmin, readAccessControl], async (req, res, next) => {
-  let users;
+  let user;
   try {
-    users = await User.find({_id: req.params.id});
+    user = await User.find({_id: req.params.id});
   } catch (err) {
     const error = new HttpError(
       'Fetching users failed, please try again later.',
@@ -75,17 +77,36 @@ router.get('/user/:id', [ensureAuthenticated, isAdmin, readAccessControl], async
     );
     return next(error);
   }
-  return res.json({users: users.map(user => user.toObject({ getters: true }))});
+  if(user){
+    res.json({
+      user: user
+    });
+  }
+  
    
 });
+
+
 router.delete('/user/:id', [ensureAuthenticated, isAdmin, deleteAccessControl], async (req, res) => {
-    const result = await User.remove({
-        _id: req.params.id
+    let user;
+    
+    try {
+      user = await User.remove({
+        _id: req.param.id
     });
 
+    } catch (err) {
+      const error = new HttpError(
+        'Something went wrong.',
+        500
+      );
+      return next(error);
+    }
+    
+    
     if (result) {
         req.flash('success_msg', 'Record deleted successfully.');
-        res.send('/users');
+        res.redirect('/user');
     }
 });
 
@@ -95,23 +116,30 @@ router.delete('/user/:id', [ensureAuthenticated, isAdmin, deleteAccessControl], 
 // Edit User Account.
 
 router.get('/user/edit/:id', [ensureAuthenticated, isAdmin, updateAccessControl], async (req, res) => {
-    const result = await User.findOne({
-        _id: req.params.id
-    }).select({
-        isAdmin: 1,
-        privileges: 1
-    });
 
-    if (result) {
-        res.send(result);
-    } else {
-        res.status(400).send('Resource not found...');
-    }
+  let user;
+  try {
+    user = await User.find({_id: req.params.id});
+  } catch (err) {
+    const error = new HttpError(
+      'Fetching users failed, please try again later.',
+      500
+    );
+    return next(error);
+  }
+  if(user){
+    res.json({
+      user: user
+    });
+  }
+
 });
 
 router.put('/user/edit/:id', [ensureAuthenticated, isAdmin, updateAccessControl], async (req, res) => {
-    const result = await User.update({
-        _id: req.params.id
+    let user;
+    try {
+      user = await User.update({
+        _id: req.param.id
     }, {
         $set: {
             isAdmin: req.body.isAdmin,
@@ -121,14 +149,20 @@ router.put('/user/edit/:id', [ensureAuthenticated, isAdmin, updateAccessControl]
             'privileges.delete': req.body.delete
         }
     });
-
-    if (result) {
-        req.flash('success_msg', 'User account updated successfully.');
-        res.json('/users');
-    } else {
-        req.flash('error_msg', 'Error creating user.');
-        res.status(500).json('/users');
+    } catch (err) {
+      const error = new HttpError(
+        'Something went wrong.',
+        500
+      );
+      return next(error);
     }
+
+    
+
+    if (user) {
+        req.flash('success_msg', 'User account updated successfully.');
+        res.redirect('/user');
+    } 
 });
 
 module.exports = router;
