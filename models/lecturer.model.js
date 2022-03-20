@@ -8,6 +8,11 @@ const LecturerSchema = new mongoose.Schema({
   status: {
     type: String, default: 'aktif', enum: ['aktif', 'pasif'], required: true,
   },
+  courses: [
+    {
+      course: { type: mongoose.Schema.Types.ObjectId, ref: 'Course', required: true },
+    },
+  ],
   // TODO add officeHours
   // email will be inherited from user
   // address will be inherited from user
