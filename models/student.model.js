@@ -24,6 +24,18 @@ const StudentSchema = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   advisor: { type: mongoose.Schema.Types.ObjectId, ref: 'Lecturer' },
   credit: { type: Number, required: true },
+  assignments: [
+    {
+      assignment: { type: mongoose.Schema.Types.ObjectId, ref: 'Assignment', required: true },
+      isActive: Boolean,
+    },
+  ],
+  courses: [
+    {
+      course: { type: mongoose.Schema.Types.ObjectId, ref: 'Course', required: true },
+      grade: String,
+    },
+  ],
 });
 
 module.exports = mongoose.model('Student', StudentSchema);

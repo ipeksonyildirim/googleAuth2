@@ -12,6 +12,12 @@ const CourseSchema = new mongoose.Schema({
     location: String,
     zoomId: String,
   }],
-
+  assignments: [
+    {
+      assignment: { type: mongoose.Schema.Types.ObjectId, ref: 'Assignment', required: true },
+      isActive: Boolean,
+    },
+  ],
+  students: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Student' }],
 });
 module.exports = mongoose.model('Course', CourseSchema);
