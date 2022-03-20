@@ -5,48 +5,24 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  name: {
-    type: String,
-    required: true,
-  },
-  email: {
-    type: String,
-    required: true,
-  },
+  name: String,
+  email: String,
   // TODO first name last name has been removed, check controllers
-  image: {
-    type: String,
-  },
+  image: String,
   createdAt: {
     type: Date,
     default: Date.now(),
   },
-  isAdmin: {
-    type: Boolean,
-    default: false,
-  },
-  request: {
-    type: Boolean,
-    default: false,
-  },
+
+  isAdmin: Boolean,
+  request: Boolean,
   privileges: {
-    read: {
-      type: Boolean,
-      default: false,
-    },
-    create: {
-      type: Boolean,
-      default: false,
-    },
-    update: {
-      type: Boolean,
-      default: false,
-    },
-    delete: {
-      type: Boolean,
-      default: false,
-    },
+    read: Boolean,
+    create: Boolean,
+    update: Boolean,
+    delete: Boolean,
   },
+
   appointments: [{
     with: {
       type: mongoose.Schema.Types.ObjectId,
@@ -56,42 +32,18 @@ const UserSchema = new mongoose.Schema({
     date: Date,
     isActive: Boolean,
   }],
-  Address: [{
-    AddrType: {
-      type: String,
-      required: true,
-      trim: true,
 
-    },
-    City: {
-      type: String,
-      required: true,
-    },
-    State: {
-      type: String,
-      required: true,
-    },
-    PostalCode: {
-      type: String,
-      required: true,
-    },
-    Country: {
-      type: String,
-      required: true,
-    },
+  address: [{
+    type: String,
+    city: String,
+    state: String,
+    postalCode: String,
+    country: String,
   }],
-  Contact: [{
-    ContactType: {
-      type: String,
-      required: true,
-      trim: true,
 
-    },
-    Value: {
-      type: String,
-      required: true,
-
-    },
+  contact: [{
+    type: String,
+    value: String,
   }],
 });
 
