@@ -6,9 +6,7 @@ const randomString = require('randomstring');
 const { validationResult } = require('express-validator');
 
 
-const {
-  Student
-} = require('../models/student.model');
+const Student = require('../models/student.model');
 
 const {
     Department
@@ -24,7 +22,6 @@ const HttpError = require('../models/http-error.model');
 const {
     ensureAuthenticated,
     isAdmin,
-    isLoggedIn,
     createAccessControl,
     readAccessControl,
     updateAccessControl,
@@ -70,17 +67,14 @@ router.get('/', [ensureAuthenticated, isAdmin, readAccessControl], async (req, r
 
 
 // Student Dept's Route
-router.get('/:dept', async (req, res, next) => {
+router.get('/dept=:dept', async (req, res, next) => {
   let student;
   try{
     student = await Student.find({
           department: req.params.dept
-      }).select({
-        StudentName: {
-          FirstName: 1,
-          LastName: 1
-      },
-          _id: 0
+      }).populate('user').select({
+        name:1,
+        _id: 0
       });
 
   }catch (err) {
@@ -112,7 +106,7 @@ router.post('/', [ensureAuthenticated, isAdmin], async (req, res, next) => {
     let student;
     try {
         student = await Student.find({
-            'StudentId': key
+            'id': key
         });
     }catch (err) {
         const error = new HttpError(
@@ -169,47 +163,32 @@ router.post('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (
   }
   else {
         const student = new Student({
-            StudentName: {
-                FirstName: req.body.FirstName,
-                LastName: req.body.LastName
+            id: req.body.id,
+            status: req.body.status,
+            internship: {
+              year: req.body.year,
+              term: req.body.term,
+              companyName: req.body.companyName,
+              startDate: req.body.startDate,
+              endDate: req.body.endDate
             },
-            DateOfAdmission: req.body.DateOfAdmission,
-            Status: req.body.Status,
-            Email: req.body.Email,
-            Address: {
-                AddrType: req.body.AddrType,
-                City: req.body.City,
-                State: req.body.State,
-                PostalCode: req.body.PostalCode,
-                Country: req.body.Country
-            },
-            Contact: {
-              ContactType: req.body.ContactType,
-              Value: req.body.Value,
-          },
-            Internship: {
-            Year: req.body.Year,
-            Term: req.body.Term,
-            CompanyName: req.body.CompanyName,
-            StartDate: req.body.StartDate,
-            EndDate: req.body.EndDate
-          },
-            Scholarship: req.body.Scholarship,
-            Class: req.body.Class,
-            EducationTerm: req.body.EducationTerm,
-            Gpa: req.body.Gpa,
-            SecondForeignLanguage: req.body.SecondForeignLanguage,
-            Department: req.body.Department,
-            User: req.body.User,
-            Advisor: req.body.Advisor,
-            Credit: req.body.Credit,
-            StudentId: req.body.StudentId,
+            scholarship: req.body.scholarship,
+            grade: req.body.grade,
+            term: req.body.term,
+            gpa: req.body.gpa,
+            secondForeignLanguage: req.body.secondForeignLanguage,
+            department: req.body.department,
+            user: req.body.user,
+            advisor: req.body.advisors,
+            credit: req.body.credit,
+            assignments: req.body.assignments,
+            courses: req.body.courses
             
         });
         let result;
         try {
             result = await Student.findOne({
-                'StudentId': req.body.StudentId
+                'id': req.body.id
             });
             
         } catch (err) {
@@ -301,41 +280,26 @@ router.put('/edit/:id', [ensureAuthenticated, isAdmin, updateAccessControl], asy
                 _id: req.params.id
             }, {
                 $set: {
-                  StudentName: {
-                    FirstName: req.body.FirstName,
-                    LastName: req.body.LastName
-                },
-                DateOfAdmission: req.body.DateOfAdmission,
-                Status: req.body.Status,
-                Email: req.body.Email,
-                Address: {
-                    AddrType: req.body.AddrType,
-                    City: req.body.City,
-                    State: req.body.State,
-                    PostalCode: req.body.PostalCode,
-                    Country: req.body.Country
-                },
-                Contact: {
-                  ContactType: req.body.ContactType,
-                  Value: req.body.Value,
-              },
-                Internship: {
-                Year: req.body.Year,
-                Term: req.body.Term,
-                CompanyName: req.body.CompanyName,
-                StartDate: req.body.StartDate,
-                EndDate: req.body.EndDate
-              },
-                Scholarship: req.body.Scholarship,
-                Class: req.body.Class,
-                EducationTerm: req.body.EducationTerm,
-                Gpa: req.body.Gpa,
-                SecondForeignLanguage: req.body.SecondForeignLanguage,
-                Department: req.body.Department,
-                User: req.body.User,
-                Advisor: req.body.Advisor,
-                Credit: req.body.Credit,
-                StudentId: req.body.StudentId,
+                  id: req.body.id,
+                  status: req.body.status,
+                  internship: {
+                    year: req.body.year,
+                    term: req.body.term,
+                    companyName: req.body.companyName,
+                    startDate: req.body.startDate,
+                    endDate: req.body.endDate
+                  },
+                  scholarship: req.body.scholarship,
+                  grade: req.body.grade,
+                  term: req.body.term,
+                  gpa: req.body.gpa,
+                  secondForeignLanguage: req.body.secondForeignLanguage,
+                  department: req.body.department,
+                  user: req.body.user,
+                  advisor: req.body.advisors,
+                  credit: req.body.credit,
+                  assignments: req.body.assignments,
+                  courses: req.body.courses
                 
             }});
           } catch (err) {
@@ -377,87 +341,45 @@ router.delete('/:id', [ensureAuthenticated, isAdmin, deleteAccessControl], async
     }
 });
 
-/*
-router.delete('/multiple/:id', async (req, res) => {
-    let str = req.params.id;
-
-    for (i in str) {
-        console.log(i);
-    }
-
-    const result = await Student.find({
-        _id: {
-            $in: []
-        }
-    });
-    console.log(result);
-    if (result) {
-        req.flash('success_msg', 'Records deleted successfully.');
-        res.send('/students');
-    } else {
-        res.status(500).send();
-    }
-
-    //let str = '[' + req.params.id + ']';
-    //console.log(str);
-});*/
 
 
 // Faker
 router.get('/faker', async (req, res, next) => {
-    for (let i = 0; i < 2; i++) {
         const student = new Student({
-            StudentName: {
-                FirstName: faker.name.firstName(),
-                LastName: faker.name.lastName(),
-            },
-          
-          DateOfAdmission: moment(faker.date.recent()).format('LL'),
-          Status: 'aktif',
-          Email: faker.internet.email(),
-          Address: {
-              AddrType: 'Ev Adresi',
-              City: faker.address.city(),
-              State: faker.address.state(),
-              PostalCode: faker.address.zipCode(),
-              Country: faker.address.country()
+          id: 123456,
+          status: 'aktif',
+          internship: {
+          year: 2019,
+          term: 'Guz',
+          companyName: 'XYZ A.Ş.',
+          startDate: '2019-12-05',
+          endDate: '2019-03-08',
           },
-          Contact: {
-            ContactType:'Cep Telefonu',
-            Value: faker.phone.phoneNumber(),
-        },
-          Internship: {
-          Year: 2019,
-          Term: 'Guz',
-          CompanyName: 'XYZ A.Ş.',
-          StartDate: '2019-12-05',
-          EndDate: '2019-30-08'
-        },
-          Scholarship: 75,
-          Class: 3,
-          EducationTerm: 6,
-          Gpa: 3.5,
-          SecondForeignLanguage: 'Almanca',
-          Department: '',
-          User: '',
-          Advisor: '',
-          Credit: 42,
-          StudentId: randomString.generate({
-            length: 9,
-            charset: 'numeric'
-        }),
+          scholarship: 75,
+          grade: '3',
+          term: 6,
+          gpa: 3.5,
+          secondForeignLanguage: 'Almanca',
+          department: null,
+          user: req.user,
+          advisor: null,
+          credit: 42,
+          assignments: [],
+          courses: []
           
       });
 
       let result;
         try {
+          console.log(req.user)
         result = await student.save();
 
         if (result) {
-            req.flash('success_msg', 'Information saved successfully.');
+            //req.flash('success_msg', 'Information saved successfully.');
             res.redirect('/student');
         }
     } catch (ex) {
+      console.log(ex)
         const error = new HttpError(
             'Something went wrong.',
             500
@@ -465,7 +387,7 @@ router.get('/faker', async (req, res, next) => {
           return next(error);
     }
 
-  }});
+  });
 
 
 module.exports = router;

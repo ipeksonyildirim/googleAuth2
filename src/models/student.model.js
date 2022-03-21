@@ -20,19 +20,20 @@ const StudentSchema = new mongoose.Schema({
   term: { type: Number, required: true },
   gpa: { type: Number, required: true },
   secondForeignLanguage: { type: String, required: true },
-  department: { type: mongoose.Schema.Types.ObjectId, ref: 'Department' },
+  //department: { type: mongoose.Schema.Types.ObjectId, ref: 'Department' },
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-  advisor: { type: mongoose.Schema.Types.ObjectId, ref: 'Lecturer' },
+  //advisor: { type: mongoose.Schema.Types.ObjectId, ref: 'Lecturer' },
   credit: { type: Number, required: true },
   assignments: [
     {
-      assignment: { type: mongoose.Schema.Types.ObjectId, ref: 'Assignment', required: true },
+      assignment: { type: mongoose.Schema.Types.ObjectId, ref: 'Assignment', required: false },
       isActive: Boolean,
+      file: { type: String },
     },
   ],
   courses: [
     {
-      course: { type: mongoose.Schema.Types.ObjectId, ref: 'Course', required: true },
+      course: { type: mongoose.Schema.Types.ObjectId, ref: 'Course', required: false },
       grade: String,
     },
   ],

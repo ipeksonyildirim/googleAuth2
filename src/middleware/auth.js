@@ -90,7 +90,7 @@ const deleteAccessControl = (req, res, next) => {
 };
 
 
-const inCourse = (req, res, next) => {
+const inCourse = async(req, res, next) => {
 
 
   let student;
@@ -154,7 +154,7 @@ const inCourse = (req, res, next) => {
   res.redirect('/');
 };
 
-const isOwner = (req, res, next) => {
+const isOwner = async(req, res, next) => {
 
   let post;
   try {
