@@ -50,7 +50,10 @@ app.use('/auth', require('./src/routes/auth.route'));
 app.use('/student', require('./src/routes/student.route'));
 app.use('/lecturer', require('./src/routes/lecturer.route'));
 app.use('/personnel', require('./src/routes/personnel.route'));
+app.use('/course', require('./src/routes/course.route'));
 app.use('/department', require('./src/routes/department.route'));
+app.use('/post', require('./src/routes/post.route'));
+app.use('/comment', require('./src/routes/comment.route'));
 
 const PORT = process.env.PORT || 5000;
 

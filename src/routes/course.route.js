@@ -3,12 +3,8 @@ const router = express.Router();
 const moment = require('moment');
 const { validationResult } = require('express-validator');
 
-const {
-    Department
-} = require('../models/department.model');
-const {
-    Course
-} = require('../models/course.model');
+const Department = require('../models/department.model');
+const Course = require('../models/course.model');
 
 const {
     ensureAuthenticated,
@@ -35,7 +31,7 @@ router.get('/', [ensureAuthenticated, isAdmin, readAccessControl], async (req, r
       return next(error);
     }
 
-  if (dept &&  course) {
+  if (dept.length>0 &&  course.length>0) {
       let pages;
       try {
           pages = await Course.find().countDocuments();
@@ -49,13 +45,13 @@ router.get('/', [ensureAuthenticated, isAdmin, readAccessControl], async (req, r
         }
 
       res.json({ 
-        course: course.toObject({ getters: true }),
-        dept: dept.toObject({ getters: true }),
+        course: course.toObject(),
+        dept: dept.toObject(),
         pages: pages
       });
   } else if (dept) {
     res.json({ 
-      dept: dept.toObject({ getters: true }),
+      dept: dept.toObject(),
       pages: pages
     });
   } else {
@@ -79,7 +75,7 @@ router.get('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (r
       return next(error);
     }
   if (dept.length > 0) {
-    res.json({ dept: dept.toObject({ getters: true })});
+    res.json({ dept: dept.toObject()});
   }
 });
 router.post('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (req, res, next) => {
@@ -93,19 +89,23 @@ router.post('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (
   else {
      
       const course = new Course({
-          shortCode: req.body.shortCode,
+          code: req.body.code,
           name: req.body.name,
           credit: req.body.credit,
           department: req.body.department,
-          termYear: req.body.termYear,
-          termName: req.body.termName,
-          lessonHours: {
+          terms: req.body.terms,
+          schedule: {
               day: req.body.day,
-              startedHours: req.body.startedHours,
-              finishedHours: req.body.finishedHours,
+              time: req.body.time,
               location: req.body.location,
               zoomId: req.body.zoomId
           },
+          assignments: {
+            assignment: req.body.assignment,
+            isActive: req.body.isActive
+        },
+        students: req.body.students,
+        lecturers: req.body.lecturers,
       });
 
       try {
@@ -142,10 +142,10 @@ router.get('/edit', [ensureAuthenticated, isAdmin, updateAccessControl], async (
       return next(error);
     }
   
-  if (course && dept) {
+  if (course && dept.length>0) {
     res.json({ 
-      dept: dept.toObject({ getters: true }),
-      course: course.toObject({ getters: true }),
+      dept: dept.toObject(),
+      course: course.toObject(),
   });
   }
 });
@@ -157,19 +157,23 @@ router.put('/edit/:id', [ensureAuthenticated, isAdmin, updateAccessControl], asy
           _id: req.params.id
       }, {
           $set: {
-          shortCode: req.body.shortCode,
-          name: req.body.name,
-          credit: req.body.credit,
-          department: req.body.department,
-          termYear: req.body.termYear,
-          termName: req.body.termName,
-          lessonHours: {
-              day: req.body.day,
-              startedHours: req.body.startedHours,
-              finishedHours: req.body.finishedHours,
-              location: req.body.location,
-              zoomId: req.body.zoomId
-          }
+            code: req.body.code,
+            name: req.body.name,
+            credit: req.body.credit,
+            department: req.body.department,
+            terms: req.body.terms,
+            schedule: {
+                day: req.body.day,
+                time: req.body.time,
+                location: req.body.location,
+                zoomId: req.body.zoomId
+            },
+            assignments: {
+              assignment: req.body.assignment,
+              isActive: req.body.isActive
+          },
+          students: req.body.students,
+          lecturers: req.body.lecturers,
           }
       });
   
@@ -188,13 +192,13 @@ router.put('/edit/:id', [ensureAuthenticated, isAdmin, updateAccessControl], asy
   } 
 });
 
-router.get('/:dept', async (req, res, next) => {
+router.get('/dept=:dept', async (req, res, next) => {
     let course;
     try{
         course = await Course.find({
             department: req.params.dept
         }).select({
-            shortCode: 1,
+            code: 1,
             name: 1,
             _id: 0
         });
@@ -208,8 +212,8 @@ router.get('/:dept', async (req, res, next) => {
   }
     
 
-    if (course)
-    res.json({ course: course.toObject({ getters: true }) });
+    if (course.length>0)
+    res.json({ course: course.toObject() });
     else
     {
         const error = new HttpError(

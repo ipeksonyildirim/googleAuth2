@@ -54,7 +54,7 @@ router.get('/', [ensureAuthenticated, isAdmin, readAccessControl], async (req, r
 });
 
 // Personel Detail's Route
-router.get('/:id', [ensureAuthenticated, isAdmin, readAccessControl], async (req, res, next) => {
+router.get('/id=:id', [ensureAuthenticated, isAdmin, readAccessControl], async (req, res, next) => {
   let department;
   try{
       department = await Department.findOne({
@@ -70,7 +70,7 @@ router.get('/:id', [ensureAuthenticated, isAdmin, readAccessControl], async (req
     }
   if (department) {
       res.json({ 
-          department: department.toObject({ getters: true }),
+          department: department.toObject(),
         });
   } else {
       req.flash('error_msg', 'No records found...');
@@ -157,7 +157,7 @@ router.get('/edit', [ensureAuthenticated, isAdmin, updateAccessControl], async (
           );
           return next(error);
     }
-    res.json({ dept: dept.toObject({ getters: true })});
+    res.json({ dept: dept.toObject()});
   
 });
 
@@ -217,32 +217,6 @@ router.delete('/:id', [ensureAuthenticated, isAdmin, deleteAccessControl], async
         res.status(500).send();
     }
 });
-
-/*
-router.delete('/multiple/:id', async (req, res) => {
-    let str = req.params.id;
-
-    for (i in str) {
-        console.log(i);
-    }
-
-    const result = await Student.find({
-        _id: {
-            $in: []
-        }
-    });
-    console.log(result);
-    if (result) {
-        req.flash('success_msg', 'Records deleted successfully.');
-        res.send('/students');
-    } else {
-        res.status(500).send();
-    }
-
-    //let str = '[' + req.params.id + ']';
-    //console.log(str);
-});*/
-
 
 
 

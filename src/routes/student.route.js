@@ -8,15 +8,9 @@ const { validationResult } = require('express-validator');
 
 const Student = require('../models/student.model');
 
-const {
-    Department
-} = require('../models/department.model');
-const {
-  User
-} = require('../models/user.model');
-const {
-  Lecturer
-} = require('../models/lecturer.model');
+const Department= require('../models/department.model');
+const User= require('../models/user.model');
+const Lecturer = require('../models/lecturer.model');
 const HttpError = require('../models/http-error.model');
 
 const {
@@ -56,7 +50,7 @@ router.get('/', [ensureAuthenticated, isAdmin, readAccessControl], async (req, r
           return next(error);
         }
         res.json({ 
-          student: student.toObject({ getters: true }),
+          student: student.toObject(),
           pages: pages
         });
     }
@@ -65,6 +59,32 @@ router.get('/', [ensureAuthenticated, isAdmin, readAccessControl], async (req, r
     }
 });
 
+
+// Search Student Route.//admin
+router.post('/', [ensureAuthenticated, isAdmin], async (req, res, next) => {
+    let key = req.body.searchInput;
+    let student;
+    try {
+        student = await Student.find({
+            'id': key
+        });
+    }catch (err) {
+        const error = new HttpError(
+          'User, Department or  Lecturer is empty .',
+          500
+        );
+        return next(error);
+      }
+
+    if (student.length > 0) {
+      res.json({ 
+        student: student.toObject(),
+      });
+    } else {
+        req.flash('error_msg', 'Record not found.');
+        res.redirect('/student');
+    }
+});
 
 // Student Dept's Route
 router.get('/dept=:dept', async (req, res, next) => {
@@ -88,7 +108,7 @@ router.get('/dept=:dept', async (req, res, next) => {
 
   if (student)
   res.json({ 
-    student: student.toObject({ getters: true }),
+    student: student.toObject(),
   });
   else
   {
@@ -99,31 +119,6 @@ router.get('/dept=:dept', async (req, res, next) => {
         return next(error);
   }
       
-});
-// Search Student Route.//admin
-router.post('/', [ensureAuthenticated, isAdmin], async (req, res, next) => {
-    let key = req.body.searchInput;
-    let student;
-    try {
-        student = await Student.find({
-            'id': key
-        });
-    }catch (err) {
-        const error = new HttpError(
-          'User, Department or  Lecturer is empty .',
-          500
-        );
-        return next(error);
-      }
-
-    if (student.length > 0) {
-      res.json({ 
-        student: student.toObject({ getters: true }),
-      });
-    } else {
-        req.flash('error_msg', 'Record not found.');
-        res.redirect('/student');
-    }
 });
 
 // Add Student Form Route
@@ -145,9 +140,9 @@ router.get('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (r
    
     if (dept && user && lecturer) {
       res.json({ 
-        user: user.toObject({ getters: true }),
-        dept: dept.toObject({ getters: true }),
-        advisor: lecturer.toObject({ getters: true })
+        user: user.toObject(),
+        dept: dept.toObject(),
+        advisor: lecturer.toObject()
       });
     }
 });
@@ -257,10 +252,10 @@ router.get('/edit', [ensureAuthenticated, isAdmin, updateAccessControl], async (
       }
     if (student && user && dept && lecturer) {
       res.json({
-        student: student.toObject({ getters: true }),
-        user: user.toObject({ getters: true }),
-        dept: dept.toObject({ getters: true }),
-        advisor: lecturer.toObject({ getters: true })
+        student: student.toObject(),
+        user: user.toObject(),
+        dept: dept.toObject(),
+        advisor: lecturer.toObject()
       });
     }
 });

@@ -61,7 +61,7 @@ router.get('/user', [ensureAuthenticated, isAdmin], async (req, res, next) => {
     );
     return next(error);
   }
-  res.json({users: users.map(user => user.toObject({ getters: true }))});
+  res.json({users: users.map(user => user.toObject())});
    
 });
 
@@ -77,7 +77,7 @@ router.get('/user/:id', [ensureAuthenticated, isAdmin, readAccessControl], async
     );
     return next(error);
   }
-  if(user){
+  if(user.length>0){
     res.json({
       user: user
     });
@@ -127,7 +127,7 @@ router.get('/user/edit/:id', [ensureAuthenticated, isAdmin, updateAccessControl]
     );
     return next(error);
   }
-  if(user){
+  if(user.length>0){
     res.json({
       user: user
     });

@@ -2,19 +2,12 @@ const express = require('express')
 const router = express.Router()
 var faker = require('faker');
 const moment = require('moment');
-const randomString = require('randomstring');
 const { validationResult } = require('express-validator');
 
 
-const {Lecturer} = require('../models/lecturer.model');
-
-const {
-    Department
-} = require('../models/department.model');
-const {
-  User
-} = require('../models/user.model');
-
+const Lecturer = require('../models/lecturer.model');
+const Department= require('../models/department.model');
+const User = require('../models/user.model');
 const HttpError = require('../models/http-error.model');
 
 const {
@@ -56,19 +49,19 @@ router.get('/', [ensureAuthenticated, isAdmin, readAccessControl], async (req, r
         }
 
         res.json({ 
-          lecturer: lecturer.toObject({ getters: true }),
+          lecturer: lecturer.toObject(),
           pages: pages
         });
     } else {
       res.json({ 
-        lecturer: lecturer.toObject({ getters: true }),
+        lecturer: lecturer.toObject(),
       });
     }
 });
 
 
 // Personel Detail's Route
-router.get('/:id', [ensureAuthenticated, isAdmin, readAccessControl], async (req, res, next) => {
+router.get('/id=:id', [ensureAuthenticated, isAdmin, readAccessControl], async (req, res, next) => {
     let lecturer;
     try{
         lecturer = await Lecturer.findOne({
@@ -82,9 +75,9 @@ router.get('/:id', [ensureAuthenticated, isAdmin, readAccessControl], async (req
         );
         return next(error);
       }
-    if (personel) {
+    if (lecturer) {
       res.json({ 
-        lecturer: lecturer.toObject({ getters: true }),
+        lecturer: lecturer.toObject(),
       });
     } else {
         req.flash('error_msg', 'No records found...');
@@ -93,18 +86,15 @@ router.get('/:id', [ensureAuthenticated, isAdmin, readAccessControl], async (req
 
 
 // Personel Dept's Route
-router.get('/:dept', async (req, res, next) => {
+router.get('/dept=:dept', async (req, res, next) => {
     let lecturer;
     try{
         lecturer = await Lecturer.find({
             department: req.params.dept
-        }).select({
-          LecturerName: {
-            FirstName: 1,
-            LastName: 1
-        },
+          }).populate('user').select({
+            name:1,
             _id: 0
-        });
+          });
   
     }catch (err) {
     const error = new HttpError(
@@ -115,9 +105,9 @@ router.get('/:dept', async (req, res, next) => {
   }
     
   
-    if (lecturer){
+    if (lecturer.length>0){
       res.json({ 
-        lecturer: lecturer.toObject({ getters: true }),
+        lecturer: lecturer.toObject(),
       });
     }
     else
@@ -146,10 +136,10 @@ router.get('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (r
         return next(error);
       }
    
-    if (dept && user ) {
+    if (dept.length>0 && user.length>0 ) {
       res.json({ 
-        dept: dept.toObject({ getters: true }),
-        user: user.toObject({ getters: true })
+        dept: dept.toObject(),
+        user: user.toObject()
       });
     }
 });
@@ -164,35 +154,17 @@ router.post('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (
     );
   }
   else {
-        const lecturer = new Lecturer({
-            StudentName: {
-                FirstName: req.body.FirstName,
-                LastName: req.body.LastName
-            },
-            DateOfAdmission: req.body.DateOfAdmission,
-            Status: req.body.Status,
-            Email: req.body.Email,
-            Address: {
-                AddrType: req.body.AddrType,
-                City: req.body.City,
-                State: req.body.State,
-                PostalCode: req.body.PostalCode,
-                Country: req.body.Country
-            },
-            Contact: {
-              ContactType: req.body.ContactType,
-              Value: req.body.Value,
-          },
-            Department: req.body.Department,
-            User: req.body.User,
-          
-            
+        const lecturer = new Lecturer({            
+            user: req.body.user,
+            department: req.body.department,
+            status: req.body.status,
+            courses: req.body.courses    
         });
 
         let result;
         try {
             result = await Lecturer.findOne({
-                'Email': req.body.Email
+                'user': req.body.user
             });
             
         } catch (err) {
@@ -257,11 +229,11 @@ router.get('/edit', [ensureAuthenticated, isAdmin, updateAccessControl], async (
         );
         return next(error);
       }
-    if (lecturer && user && dept ) {
+    if (lecturer && user.length>0 && dept.length>0 ) {
       res.json({
-        lecturer: lecturer.toObject({ getters: true }),
-        dept: dept.toObject({ getters: true }),
-        user: user.toObject({ getters: true })
+        lecturer: lecturer.toObject(),
+        dept: dept.toObject(),
+        user: user.toObject()
       });
     }
 });
@@ -281,26 +253,10 @@ router.put('/edit/:id', [ensureAuthenticated, isAdmin, updateAccessControl], asy
                 _id: req.params.id
             }, {
                 $set: {
-                  LecturerName: {
-                    FirstName: req.body.FirstName,
-                    LastName: req.body.LastName
-                },
-                DateOfAdmission: req.body.DateOfAdmission,
-                Status: req.body.Status,
-                Email: req.body.Email,
-                Address: {
-                    AddrType: req.body.AddrType,
-                    City: req.body.City,
-                    State: req.body.State,
-                    PostalCode: req.body.PostalCode,
-                    Country: req.body.Country
-                },
-                Contact: {
-                  ContactType: req.body.ContactType,
-                  Value: req.body.Value,
-              },
-                Department: req.body.Department,
-                User: req.body.User,
+                  user: req.body.user,
+            department: req.body.department,
+            status: req.body.status,
+            courses: req.body.courses   
             }});
           } catch (err) {
             const error = new HttpError(
@@ -341,57 +297,16 @@ router.delete('/:id', [ensureAuthenticated, isAdmin, deleteAccessControl], async
     }
 });
 
-/*
-router.delete('/multiple/:id', async (req, res) => {
-    let str = req.params.id;
-
-    for (i in str) {
-        console.log(i);
-    }
-
-    const result = await Student.find({
-        _id: {
-            $in: []
-        }
-    });
-    console.log(result);
-    if (result) {
-        req.flash('success_msg', 'Records deleted successfully.');
-        res.send('/students');
-    } else {
-        res.status(500).send();
-    }
-
-    //let str = '[' + req.params.id + ']';
-    //console.log(str);
-});*/
 
 
 // Faker
 router.get('/faker', async (req, res, next) => {
-    for (let i = 0; i < 2; i++) {
+    
         const lecturer = new Lecturer({
-            LecturerName: {
-                FirstName: faker.name.firstName(),
-                LastName: faker.name.lastName(),
-            },
-          
-          DateOfAdmission: moment(faker.date.recent()).format('LL'),
-          Status: 'aktif',
-          Email: faker.internet.email(),
-          Address: {
-              AddrType: 'Ev Adresi',
-              City: faker.address.city(),
-              State: faker.address.state(),
-              PostalCode: faker.address.zipCode(),
-              Country: faker.address.country()
-          },
-          Contact: {
-            ContactType:'Cep Telefonu',
-            Value: faker.phone.phoneNumber(),
-        },
-          Department: '',
-          User: ''
+          user: req.user,
+          department: '',
+          status: 'aktif',
+          courses: ''  
           
       });
 
@@ -411,7 +326,7 @@ router.get('/faker', async (req, res, next) => {
           return next(error);
     }
 
-  }});
+  });
 
 
 module.exports = router;
