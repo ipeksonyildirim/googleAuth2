@@ -2,6 +2,7 @@ const User = require('../models/user.model');
 const Student = require('../models/student.model');
 const Lecturer = require('../models/lecturer.model');
 const Post = require('../models/post.model');
+const Course = require('../models/course.model');
 
 const HttpError = require('../models/http-error.model');
 
@@ -116,9 +117,37 @@ const inCourse = (req, res, next) => {
       );
       return next(error);
     }
-  if (student || lecturer) {
-    next();
-    return;
+  let course;
+  if (student) {
+    try {
+      course = await Course.findOne({
+        _id: req.body.course,
+        students: { "$in" : [student]} });
+    } catch (err) {
+      const error = new HttpError('Failed, please try again', 500);
+      return next(error);
+    }
+    if (course) {
+      next();
+      return;    
+    }
+
+   
+    }
+
+    else if (lecturer) {
+      try {
+        course = await Course.findOne({
+          _id: req.body.course,
+          lecturers: { "$in" : [lecturer]} });
+      } catch (err) {
+        const error = new HttpError('Failed, please try again', 500);
+        return next(error);
+      }
+      if (course) {
+        next();
+        return;    
+      }
     }
   // TODO handle error
   // req.flash('error_msg', 'You do not have the required permissions to perform this action.');

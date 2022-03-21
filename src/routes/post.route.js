@@ -9,14 +9,38 @@ const Post = require('../models/post.model');
 
 const {
     ensureAuthenticated,
-    isAdmin,
-    isLoggedIn,
-    createAccessControl,
-    readAccessControl,
-    updateAccessControl,
-    deleteAccessControl,
-    inCourse
+    inCourse,
+    isOwner
 } = require('../middleware/auth');
+
+// Get Post Route
+router.get('/id=:id', [ensureAuthenticated, inCourse], async (req, res, next) => {
+
+    let post;
+    try{
+        post = await Post.find({
+            id: req.params._id
+        })
+
+    }catch (err) {
+    const error = new HttpError(
+        'Something went wrong, could not find a post.',
+        500
+    );
+    return next(error);
+    }
+
+    if (post)
+        res.json({ post: post });
+    else
+    {
+    const error = new HttpError(
+        'Could not find a post for the provided id.',
+        404
+        );
+        return next(error);
+    }
+});
 
 // Course's Posts Route
 router.get('/code=:code', [ensureAuthenticated, inCourse], async (req, res, next) => {
@@ -246,7 +270,6 @@ router.delete('/:id', [ensureAuthenticated, isOwner], async (req, res, next) => 
         res.status(500).send();
     }
 });
-
 
 
 
