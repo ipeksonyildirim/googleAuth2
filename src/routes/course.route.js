@@ -45,13 +45,13 @@ router.get('/', [ensureAuthenticated, isAdmin, readAccessControl], async (req, r
         }
 
       res.json({ 
-        course: course.toObject(),
-        dept: dept.toObject(),
+        course: course,
+        dept: dept,
         pages: pages
       });
   } else if (dept) {
     res.json({ 
-      dept: dept.toObject(),
+      dept: dept,
       pages: pages
     });
   } else {
@@ -75,7 +75,7 @@ router.get('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (r
       return next(error);
     }
   if (dept.length > 0) {
-    res.json({ dept: dept.toObject()});
+    res.json({ dept: dept});
   }
 });
 router.post('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (req, res, next) => {
@@ -144,8 +144,8 @@ router.get('/edit', [ensureAuthenticated, isAdmin, updateAccessControl], async (
   
   if (course && dept.length>0) {
     res.json({ 
-      dept: dept.toObject(),
-      course: course.toObject(),
+      dept: dept,
+      course: course,
   });
   }
 });
@@ -213,7 +213,7 @@ router.get('/dept=:dept', async (req, res, next) => {
     
 
     if (course.length>0)
-    res.json({ course: course.toObject() });
+    res.json({ course: course });
     else
     {
         const error = new HttpError(

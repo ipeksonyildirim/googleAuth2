@@ -49,12 +49,12 @@ router.get('/', [ensureAuthenticated, isAdmin, readAccessControl], async (req, r
         }
 
         res.json({ 
-          lecturer: lecturer.toObject(),
+          lecturer: lecturer,
           pages: pages
         });
     } else {
       res.json({ 
-        lecturer: lecturer.toObject(),
+        lecturer: lecturer,
       });
     }
 });
@@ -77,7 +77,7 @@ router.get('/id=:id', [ensureAuthenticated, isAdmin, readAccessControl], async (
       }
     if (lecturer) {
       res.json({ 
-        lecturer: lecturer.toObject(),
+        lecturer: lecturer,
       });
     } else {
         req.flash('error_msg', 'No records found...');
@@ -107,7 +107,7 @@ router.get('/dept=:dept', async (req, res, next) => {
   
     if (lecturer.length>0){
       res.json({ 
-        lecturer: lecturer.toObject(),
+        lecturer: lecturer,
       });
     }
     else
@@ -138,8 +138,8 @@ router.get('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (r
    
     if (dept.length>0 && user.length>0 ) {
       res.json({ 
-        dept: dept.toObject(),
-        user: user.toObject()
+        dept: dept,
+        user: user
       });
     }
 });
@@ -231,9 +231,9 @@ router.get('/edit', [ensureAuthenticated, isAdmin, updateAccessControl], async (
       }
     if (lecturer && user.length>0 && dept.length>0 ) {
       res.json({
-        lecturer: lecturer.toObject(),
-        dept: dept.toObject(),
-        user: user.toObject()
+        lecturer: lecturer,
+        dept: dept,
+        user: user
       });
     }
 });

@@ -61,7 +61,7 @@ router.get('/user', [ensureAuthenticated, isAdmin], async (req, res, next) => {
     );
     return next(error);
   }
-  res.json({users: users.map(user => user.toObject())});
+  res.json({users: users.map(user => user)});
    
 });
 

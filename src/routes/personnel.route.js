@@ -45,12 +45,12 @@ router.get('/', [ensureAuthenticated, isAdmin, readAccessControl], async (req, r
     }
 
     res.json({ 
-      personnel: personnel.toObject(),
+      personnel: personnel,
       pages: pages
     });
 } else {
   res.json({ 
-    personnel: personnel.toObject(),
+    personnel: personnel,
   });
 }
 });
@@ -71,7 +71,7 @@ router.get('/id=:id', [ensureAuthenticated, isAdmin, readAccessControl], async (
   }
   if (personnel) {
     res.json({ 
-      personnel: personnel.toObject(),
+      personnel: personnel,
     });
   } else {
       req.flash('error_msg', 'No records found...');
@@ -98,7 +98,7 @@ router.get('/dept=:dept', async (req, res, next) => {
 
   if (personnel.length>0){
     res.json({ 
-      personnel: personnel.toObject(),
+      personnel: personnel,
     });
     }  
     else {
@@ -127,8 +127,8 @@ router.get('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (r
 
   if (dept.length>0 && user.length>0) {
     res.json({ 
-      dept: dept.toObject(),
-      user: user.toObject()
+      dept: dept,
+      user: user
     });
   }
 });
@@ -214,9 +214,9 @@ router.get('/edit', [ensureAuthenticated, isAdmin, updateAccessControl], async (
   }
   if (personnel && user.length>0 && dept.length>0) {
     res.json({
-      personnel: personnel.toObject(),
-      dept: dept.toObject(),
-      user: user.toObject()
+      personnel: personnel,
+      dept: dept,
+      user: user
     });
   }
 });

@@ -54,6 +54,7 @@ app.use('/course', require('./src/routes/course.route'));
 app.use('/department', require('./src/routes/department.route'));
 app.use('/post', require('./src/routes/post.route'));
 app.use('/comment', require('./src/routes/comment.route'));
+app.use('/assignment', require('./src/routes/assignment.route'));
 
 const PORT = process.env.PORT || 5000;
 

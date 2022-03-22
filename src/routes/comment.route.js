@@ -65,7 +65,7 @@ router.put('/editComment/:id', [ensureAuthenticated, isOwner], async (req, res, 
       }
       else {
         try {
-            comment = await Post.updateOne({
+            comment = await Comment.updateOne({
                 _id: req.params.id
             }, {
 

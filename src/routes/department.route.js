@@ -70,7 +70,7 @@ router.get('/id=:id', [ensureAuthenticated, isAdmin, readAccessControl], async (
     }
   if (department) {
       res.json({ 
-          department: department.toObject(),
+          department: department,
         });
   } else {
       req.flash('error_msg', 'No records found...');
@@ -157,7 +157,7 @@ router.get('/edit', [ensureAuthenticated, isAdmin, updateAccessControl], async (
           );
           return next(error);
     }
-    res.json({ dept: dept.toObject()});
+    res.json({ dept: dept});
   
 });
 
