@@ -14,9 +14,10 @@ const postSchema = Schema({
   createdAt: { type: Date, default: Date.now, required: true },
   createdBy: { type: mongoose.Schema.ObjectId, ref: "User", required: true },
   comments: [{
+    id: { type: Number, required: true },
     content: String,
-    createdAt: { type: Date, default: Date.now, required: true },
-    createdBy: { type: mongoose.Schema.ObjectId, ref: "User", required: true },
+    createdAt: { type: Date, default: Date.now },
+    createdBy: { type: mongoose.Schema.ObjectId, ref: "User" },
   }],
 });
   

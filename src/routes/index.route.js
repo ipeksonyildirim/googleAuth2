@@ -105,7 +105,7 @@ router.delete('/user/:id', [ensureAuthenticated, isAdmin, deleteAccessControl], 
     
     
     if (result) {
-        req.flash('success_msg', 'Record deleted successfully.');
+        //req.flash('success_msg', 'Record deleted successfully.');
         res.redirect('/user');
     }
 });
@@ -160,7 +160,7 @@ router.put('/user/edit/:id', [ensureAuthenticated, isAdmin, updateAccessControl]
     
 
     if (user) {
-        req.flash('success_msg', 'User account updated successfully.');
+        //req.flash('success_msg', 'User account updated successfully.');
         res.redirect('/user');
     } 
 });

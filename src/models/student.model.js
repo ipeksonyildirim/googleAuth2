@@ -26,12 +26,12 @@ const StudentSchema = new mongoose.Schema({
   credit: { type: Number, required: true },
   assignments: [
     {
-      assignment: { type: mongoose.Schema.Types.ObjectId, ref: 'Assignment', required: true },
+      assignment: { type: mongoose.Schema.Types.ObjectId, ref: 'Assignment'},
     },
   ],
   courses: [
     {
-      course: { type: mongoose.Schema.Types.ObjectId, ref: 'Course', required: true },
+      course: { type: mongoose.Schema.Types.ObjectId, ref: 'Course' },
       grade: String,
     },
   ],

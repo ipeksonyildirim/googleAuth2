@@ -73,7 +73,7 @@ router.post('/', [ensureAuthenticated, isAdmin], async (req, res, next) => {
       student: student,
     });
   } else {
-    req.flash('error_msg', 'Record not found.');
+    //req.flash('error_msg', 'Record not found.');
     res.redirect('/student');
   }
 });
@@ -108,6 +108,38 @@ router.get('/dept=:dept', async (req, res, next) => {
     return next(error);
   }
 });
+
+// Student Id's Route
+router.get('/id=:id', async (req, res, next) => {
+  let student;
+  try {
+    student = await Student.find({
+      _id: req.params.id,
+    }).populate('user').select({
+      name: 1,
+      _id: 0,
+    });
+  } catch (err) {
+    const error = new HttpError(
+      'Something went wrong, could not find a department.',
+      500,
+    );
+    return next(error);
+  }
+
+  if (student) {
+    res.json({
+      student,
+    });
+  } else {
+    const error = new HttpError(
+      'Could not find student for the provided department id.',
+      404,
+    );
+    return next(error);
+  }
+});
+
 
 // Add Student Form Route
 router.get('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (req, res, next) => {
@@ -185,7 +217,7 @@ router.post('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (
       result = await student.save();
 
       if (result) {
-        req.flash('success_msg', 'Information saved successfully.');
+        //req.flash('success_msg', 'Information saved successfully.');
         res.redirect('/student');
       }
     } catch (ex) {
@@ -205,7 +237,7 @@ router.post('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (
 });
 
 // Student Edit Form
-router.get('/edit', [ensureAuthenticated, isAdmin, updateAccessControl], async (req, res, next) => {
+router.get('/edit/:id', [ensureAuthenticated, isAdmin, updateAccessControl], async (req, res, next) => {
   let student;
   try {
     student = await Student.findOne({
@@ -290,11 +322,12 @@ router.put('/edit/:id', [ensureAuthenticated, isAdmin, updateAccessControl], asy
   }
 
   if (student) {
-    req.flash('success_msg', 'Student Details Updated Successfully.');
+    //req.flash('success_msg', 'Student Details Updated Successfully.');
     res.redirect('/student');
   }
 });
 
+// Student Delete Route
 router.delete('/:id', [ensureAuthenticated, isAdmin, deleteAccessControl], async (req, res, next) => {
   let result;
   try {
@@ -310,7 +343,7 @@ router.delete('/:id', [ensureAuthenticated, isAdmin, deleteAccessControl], async
   }
 
   if (result) {
-    req.flash('success_msg', 'Record deleted successfully.');
+    //req.flash('success_msg', 'Record deleted successfully.');
     res.redirect('/student');
   } else {
     res.status(500).send();
@@ -362,7 +395,7 @@ router.get('/faker', async (req, res, next) => {
     result = await student.save();
 
     if (result) {
-      // req.flash('success_msg', 'Information saved successfully.');
+      // //req.flash('success_msg', 'Information saved successfully.');
       res.redirect('/student');
     }
   } catch (ex) {

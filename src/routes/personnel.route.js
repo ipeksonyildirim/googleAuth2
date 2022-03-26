@@ -19,7 +19,7 @@ const {
   deleteAccessControl,
 } = require('../middleware/auth');
 
-// Students Home Route
+// Personnel Home Route
 router.get('/', [ensureAuthenticated, isAdmin, readAccessControl], async (req, res, next) => {
   let personnel;
   try {
@@ -74,7 +74,7 @@ router.get('/id=:id', [ensureAuthenticated, isAdmin, readAccessControl], async (
       personnel: personnel,
     });
   } else {
-      req.flash('error_msg', 'No records found...');
+      //req.flash('error_msg', 'No records found...');
   }
 });
 
@@ -133,7 +133,7 @@ router.get('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (r
   }
 });
 
-// Process Students Form Data And Insert Into Database.
+// Process Personnel Form Data And Insert Into Database.
 router.post('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -166,7 +166,7 @@ router.post('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (
       result = await personnel.save();
 
       if (result) {
-        req.flash('success_msg', 'Information saved successfully.');
+        //req.flash('success_msg', 'Information saved successfully.');
         res.redirect('/personnel');
       }
     } catch (ex) {
@@ -185,8 +185,8 @@ router.post('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (
   }
 });
 
-// Student Edit Form
-router.get('/edit', [ensureAuthenticated, isAdmin, updateAccessControl], async (req, res, next) => {
+// Personnel Edit Form
+router.get('/edit/:id', [ensureAuthenticated, isAdmin, updateAccessControl], async (req, res, next) => {
   let personnel;
   try {
     personnel = await Personnel.findOne({
@@ -221,7 +221,7 @@ router.get('/edit', [ensureAuthenticated, isAdmin, updateAccessControl], async (
   }
 });
 
-// Student Update Route
+// Personnel Update Route
 router.put('/edit/:id', [ensureAuthenticated, isAdmin, updateAccessControl], async (req, res, next) => {
   let personnel;
   const errors = validationResult(req);
@@ -249,11 +249,12 @@ router.put('/edit/:id', [ensureAuthenticated, isAdmin, updateAccessControl], asy
   }
 
   if (personnel) {
-    req.flash('success_msg', 'Personnel Details Updated Successfully.');
+    //req.flash('success_msg', 'Personnel Details Updated Successfully.');
     res.redirect('/personnel');
   }
 });
 
+//Personnel Delete Route
 router.delete('/:id', [ensureAuthenticated, isAdmin, deleteAccessControl], async (req, res, next) => {
   let result;
   try {
@@ -269,7 +270,7 @@ router.delete('/:id', [ensureAuthenticated, isAdmin, deleteAccessControl], async
   }
 
   if (result) {
-    req.flash('success_msg', 'Record deleted successfully.');
+    //req.flash('success_msg', 'Record deleted successfully.');
     res.redirect('/personnel');
   } else {
     res.status(500).send();
@@ -277,7 +278,7 @@ router.delete('/:id', [ensureAuthenticated, isAdmin, deleteAccessControl], async
 });
 
 
-// Faker
+// Personnel Faker
 router.get('/faker', async (req, res, next) => {
   for (let i = 0; i < 2; i++) {
     const personnel = new Personnel({
@@ -291,7 +292,7 @@ router.get('/faker', async (req, res, next) => {
       result = await personnel.save();
 
       if (result) {
-        req.flash('success_msg', 'Information saved successfully.');
+        //req.flash('success_msg', 'Information saved successfully.');
         res.redirect('/personnel');
       }
     } catch (ex) {

@@ -16,12 +16,11 @@ const {
 } = require('../middleware/auth');
 const HttpError = require('../models/http-error.model');
 
-router.get('/', [ensureAuthenticated, isAdmin, readAccessControl], async (req, res, next) => {
+// Course Home Route
+router.get('/',[ensureAuthenticated, isAdmin, readAccessControl], async (req, res, next) => {
 
-  let dept;
   let course;
   try {
-      dept = await Department.find();
       course = await Course.find();
   }  catch (err) {
       const error = new HttpError(
@@ -31,7 +30,7 @@ router.get('/', [ensureAuthenticated, isAdmin, readAccessControl], async (req, r
       return next(error);
     }
 
-  if (dept.length>0 &&  course.length>0) {
+  if (course.length>0) {
       let pages;
       try {
           pages = await Course.find().countDocuments();
@@ -46,14 +45,8 @@ router.get('/', [ensureAuthenticated, isAdmin, readAccessControl], async (req, r
 
       res.json({ 
         course: course,
-        dept: dept,
         pages: pages
       });
-  } else if (dept) {
-    res.json({ 
-      dept: dept,
-      pages: pages
-    });
   } else {
       const error = new HttpError(
           'Something went wrong, could not find a department.',
@@ -63,7 +56,8 @@ router.get('/', [ensureAuthenticated, isAdmin, readAccessControl], async (req, r
   }
 });
 
-router.get('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (req, res, next) => {
+// Add Course Form Route
+router.get('/add',[ensureAuthenticated, isAdmin, createAccessControl], async (req, res, next) => {
   let dept;
   try {
       dept = await Department.find();
@@ -78,7 +72,9 @@ router.get('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (r
     res.json({ dept: dept});
   }
 });
-router.post('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (req, res, next) => {
+
+// Process Student Form Data And Insert Into Database.
+router.post('/add',[ensureAuthenticated, isAdmin, createAccessControl], async (req, res, next) => {
 
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -102,17 +98,15 @@ router.post('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (
           },
           assignments: {
             assignment: req.body.assignment,
-            isActive: req.body.isActive
         },
         students: req.body.students,
         lecturers: req.body.lecturers,
       });
 
       try {
-          const result = await course.save();
+          const result =  course.save();
 
           if (result) {
-              req.flash('success_msg', 'Course saved successfully.');
               res.redirect('/course');
           }
       } catch (ex) {
@@ -125,7 +119,8 @@ router.post('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (
   }
 });
 
-router.get('/edit', [ensureAuthenticated, isAdmin, updateAccessControl], async (req, res, next) => {
+// Course Edit Form
+router.get('/edit/:id',  [ensureAuthenticated, isAdmin, updateAccessControl], async (req, res, next) => {
   let dept;
   let course;
   try {
@@ -150,7 +145,8 @@ router.get('/edit', [ensureAuthenticated, isAdmin, updateAccessControl], async (
   }
 });
 
-router.put('/edit/:id', [ensureAuthenticated, isAdmin, updateAccessControl], async (req, res, next) => {
+// Course Update Route
+router.put('/edit/:id',[ensureAuthenticated, isAdmin, updateAccessControl], async (req, res, next) => {
   let course;
   try {
       course = await Course.update({
@@ -170,7 +166,6 @@ router.put('/edit/:id', [ensureAuthenticated, isAdmin, updateAccessControl], asy
             },
             assignments: {
               assignment: req.body.assignment,
-              isActive: req.body.isActive
           },
           students: req.body.students,
           lecturers: req.body.lecturers,
@@ -187,12 +182,13 @@ router.put('/edit/:id', [ensureAuthenticated, isAdmin, updateAccessControl], asy
     }
   
   if (course) {
-      req.flash('success_msg', 'Course Updated Successfully.');
+      //req.flash('success_msg', 'Course Updated Successfully.');
       res.redirect('/course');
   } 
 });
 
-router.get('/dept=:dept', async (req, res, next) => {
+// Course Search by dept id's Route
+router.get('/dept=:dept',[ensureAuthenticated], async (req, res, next) => {
     let course;
     try{
         course = await Course.find({
@@ -225,7 +221,8 @@ router.get('/dept=:dept', async (req, res, next) => {
         
 });
 
-router.delete('/:id', [ensureAuthenticated, isAdmin, deleteAccessControl], async (req, res, next) => {
+// Course Delete Route
+router.delete('/:id',[ensureAuthenticated, isAdmin, deleteAccessControl], async (req, res, next) => {
     let result;
     try {
         result = await Course.remove({
@@ -242,7 +239,7 @@ router.delete('/:id', [ensureAuthenticated, isAdmin, deleteAccessControl], async
     
 
     if (result) {
-        req.flash('success_msg', 'Record deleted successfully.');
+        //req.flash('success_msg', 'Record deleted successfully.');
         res.redirect('/course');
     }
 });

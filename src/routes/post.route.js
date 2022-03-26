@@ -169,7 +169,8 @@ router.post('/add', [ensureAuthenticated, inCourse], async (req, res, next) => {
                 result = await post.save();
 
                 if (result) {
-                    req.flash('success_msg', 'Information saved successfully.');
+                  console.log(result);
+                    //req.flash('success_msg', 'Information saved successfully.');
                     res.redirect('/post/code=req.body.course.code');
                 }
             } catch (ex) {
@@ -190,7 +191,7 @@ router.post('/add', [ensureAuthenticated, inCourse], async (req, res, next) => {
 });
 
 // Post Edit Form
-router.get('/edit', [ensureAuthenticated, isOwner], async (req, res, next) => {
+router.get('/edit/:id', [ensureAuthenticated, isOwner], async (req, res, next) => {
     let post;
     let course;
     try {
@@ -241,7 +242,7 @@ router.put('/edit/:id', [ensureAuthenticated, isOwner], async (req, res, next) =
        
 
         if (post) {
-            req.flash('success_msg', 'Post Details Updated Successfully.');
+            //req.flash('success_msg', 'Post Details Updated Successfully.');
             res.redirect('/post/code=req.body.course.code');
         }
     }
@@ -264,7 +265,7 @@ router.delete('/:id', [ensureAuthenticated, isOwner], async (req, res, next) => 
     
 
     if (result) {
-        req.flash('success_msg', 'Record deleted successfully.');
+        //req.flash('success_msg', 'Record deleted successfully.');
         res.redirect('/post/code=result.course.code');
     } else {
         res.status(500).send();

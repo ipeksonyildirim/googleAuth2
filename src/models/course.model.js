@@ -14,7 +14,7 @@ const CourseSchema = new mongoose.Schema({
   }],
   assignments: [
     {
-      assignment: { type: mongoose.Schema.Types.ObjectId, ref: 'Assignment', required: true },
+      assignment: { type: mongoose.Schema.Types.ObjectId, ref: 'Assignment' },
     },
   ],
   students: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Student' }],

@@ -20,7 +20,7 @@ const {
     deleteAccessControl
 } = require('../middleware/auth');
 
-// Students Home Route
+// Lecturer Home Route
 router.get('/', [ensureAuthenticated, isAdmin, readAccessControl], async (req, res, next) => {
 
    
@@ -60,7 +60,7 @@ router.get('/', [ensureAuthenticated, isAdmin, readAccessControl], async (req, r
 });
 
 
-// Personel Detail's Route
+// Lecturer Detail's Route
 router.get('/id=:id', [ensureAuthenticated, isAdmin, readAccessControl], async (req, res, next) => {
     let lecturer;
     try{
@@ -80,12 +80,12 @@ router.get('/id=:id', [ensureAuthenticated, isAdmin, readAccessControl], async (
         lecturer: lecturer,
       });
     } else {
-        req.flash('error_msg', 'No records found...');
+        //req.flash('error_msg', 'No records found...');
     }
 });
 
 
-// Personel Dept's Route
+// Lecturer Dept's Route
 router.get('/dept=:dept', async (req, res, next) => {
     let lecturer;
     try{
@@ -121,7 +121,7 @@ router.get('/dept=:dept', async (req, res, next) => {
         
   });
 
-// Add Personel Form Route
+// Add Lecturer Form Route
 router.get('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (req, res, next) => {
     let user;
     let dept;
@@ -144,7 +144,7 @@ router.get('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (r
     }
 });
 
-// Process Students Form Data And Insert Into Database.
+// Process Lecturer Form Data And Insert Into Database.
 router.post('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (req, res, next) => {
   
   const errors = validationResult(req);
@@ -181,7 +181,7 @@ router.post('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (
                 result = await lecturer.save();
 
                 if (result) {
-                    req.flash('success_msg', 'Information saved successfully.');
+                    //req.flash('success_msg', 'Information saved successfully.');
                     res.redirect('/lecturer');
                 }
             } catch (ex) {
@@ -201,8 +201,8 @@ router.post('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (
     }
 });
 
-// Student Edit Form
-router.get('/edit', [ensureAuthenticated, isAdmin, updateAccessControl], async (req, res, next) => {
+// Lecturer Edit Form
+router.get('/edit/:id', [ensureAuthenticated, isAdmin, updateAccessControl], async (req, res, next) => {
     let lecturer;
     try {
         lecturer = await Lecturer.findOne({
@@ -238,7 +238,7 @@ router.get('/edit', [ensureAuthenticated, isAdmin, updateAccessControl], async (
     }
 });
 
-// Student Update Route
+// Lecturer Update Route
 router.put('/edit/:id', [ensureAuthenticated, isAdmin, updateAccessControl], async (req, res, next) => {
     let lecturer;
     const errors = validationResult(req);
@@ -268,12 +268,13 @@ router.put('/edit/:id', [ensureAuthenticated, isAdmin, updateAccessControl], asy
        
 
         if (lecturer) {
-            req.flash('success_msg', 'Lecturer Details Updated Successfully.');
+            //req.flash('success_msg', 'Lecturer Details Updated Successfully.');
             res.redirect('/lecturer');
         }
     }
 });
 
+//Lecturer delete route
 router.delete('/:id', [ensureAuthenticated, isAdmin, deleteAccessControl], async (req, res, next) => {
     let result;
     try {
@@ -290,7 +291,7 @@ router.delete('/:id', [ensureAuthenticated, isAdmin, deleteAccessControl], async
     
 
     if (result) {
-        req.flash('success_msg', 'Record deleted successfully.');
+        //req.flash('success_msg', 'Record deleted successfully.');
         res.redirect('/lecturer');
     } else {
         res.status(500).send();
@@ -298,8 +299,7 @@ router.delete('/:id', [ensureAuthenticated, isAdmin, deleteAccessControl], async
 });
 
 
-
-// Faker
+// Lecturer Faker
 router.get('/faker', async (req, res, next) => {
     
         const lecturer = new Lecturer({
@@ -315,7 +315,7 @@ router.get('/faker', async (req, res, next) => {
         result = await lecturer.save();
 
         if (result) {
-            req.flash('success_msg', 'Information saved successfully.');
+            //req.flash('success_msg', 'Information saved successfully.');
             res.redirect('/lecturer');
         }
     } catch (ex) {

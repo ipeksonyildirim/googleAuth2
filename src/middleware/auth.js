@@ -12,7 +12,7 @@ const ensureAuthenticated = (req, res, next) => {
     return;
   }
   // TODO handle error
-  // req.flash('error_msg', 'You must login first');
+  // //req.flash('error_msg', 'You must login first');
   res.redirect('/');
 };
 
@@ -65,7 +65,7 @@ const createAccessControl = (req, res, next) => {
     return;
   }
   // TODO handle error
-  // req.flash('error_msg', 'You do not have the required permissions to perform this action.');
+  // //req.flash('error_msg', 'You do not have the required permissions to perform this action.');
   res.redirect('/');
 };
 
@@ -75,7 +75,7 @@ const updateAccessControl = (req, res, next) => {
     return;
   }
   // TODO handle error
-  // req.flash('error_msg', 'You do not have the required permissions to perform this action.');
+  // //req.flash('error_msg', 'You do not have the required permissions to perform this action.');
   res.redirect('/');
 };
 
@@ -85,7 +85,7 @@ const deleteAccessControl = (req, res, next) => {
     return;
   }
   // TODO handle error
-  // req.flash('error_msg', 'You do not have the required permissions to perform this action.');
+  // //req.flash('error_msg', 'You do not have the required permissions to perform this action.');
   res.redirect('/');
 };
 
@@ -150,7 +150,7 @@ const inCourse = async(req, res, next) => {
       }
     }
   // TODO handle error
-  // req.flash('error_msg', 'You do not have the required permissions to perform this action.');
+  // //req.flash('error_msg', 'You do not have the required permissions to perform this action.');
   res.redirect('/');
 };
 
@@ -176,7 +176,7 @@ const isOwner = async(req, res, next) => {
     
   }
   // TODO handle error
-  // req.flash('error_msg', 'You do not have the required permissions to perform this action.');
+  // //req.flash('error_msg', 'You do not have the required permissions to perform this action.');
   res.redirect('/');
 };
 
