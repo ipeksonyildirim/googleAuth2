@@ -12,7 +12,7 @@ const StudentSchema = new mongoose.Schema({
     type: String, default: 'aktif', enum: ['aktif', 'pasif', 'mezun'], required: true,
   },
   internship: [{
-    year: Number, term: String, company: String, startDate: Date, endDate: Date,
+    code:String, year: Number, term: String, company: String, startDate: Date, endDate: Date,
   }],
   // TODO this has been changed from class to grade. Find controllers and fix
   scholarship: { type: Number, required: true },
@@ -33,8 +33,14 @@ const StudentSchema = new mongoose.Schema({
     {
       course: { type: mongoose.Schema.Types.ObjectId, ref: 'Course' },
       grade: String,
+      year:Number,
+      term: { type: String, required: true, enum: ['guz', 'bahar', 'yaz']},
+      status: { type: String, required: true, enum: ['basarili', 'basarisiz']}
     },
   ],
+  approvement:{type: Boolean, default:false},
 });
+
+
 
 module.exports = mongoose.model('Student', StudentSchema);

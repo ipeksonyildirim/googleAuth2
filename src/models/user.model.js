@@ -4,7 +4,6 @@ const UserSchema = new mongoose.Schema({
   googleId: { type: String, required: true },
   name: { type: String, required: true },
   email: { type: String, required: true },
-  // TODO first name last name has been removed, check controllers
   image: { type: String, required: true },
   createdAt: { type: Date, default: Date.now() },
   isAdmin: Boolean,

@@ -45,6 +45,17 @@ router.post("/upload/cid=:cid", async (req, res, next) => {
               return next(error);
           }
 
+         /* assignment1 = new Assignment({
+            course: course,
+            title: req.body.title,
+            file: { type: String },
+            fileExtension: { type:String, required: true },
+            directory: { type: String, required: true },
+            description: { type: String },
+            date: { type: Date },
+            
+        });*/
+
         
             const courseId = course1.code;
             const upload_path = assignment1.directory + courseId;

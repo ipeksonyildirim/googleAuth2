@@ -4,6 +4,7 @@ const router = express.Router();
 const { validationResult } = require('express-validator');
 
 const Student = require('../models/student.model');
+const Course = require('../models/course.model');
 
 const Department = require('../models/department.model');
 const User = require('../models/user.model');
@@ -195,8 +196,14 @@ router.post('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (
     user: req.body.user,
     advisor: req.body.advisors,
     credit: req.body.credit,
-    assignments: req.body.assignments,
-    courses: req.body.courses,
+    assignments:{assignment: req.body.assignments},
+    courses: {
+      course: req.body.course,
+      grade: req.body.grade,
+      year:req.body.year,
+      term: req.body.term
+    }
+
 
   });
   let result;
@@ -408,4 +415,146 @@ router.get('/faker', async (req, res, next) => {
   }
 });
 
+//Add course - ders secimi
+router.post('/addCourse/sid=:sid/cid=:cid',  async (req, res, next) => {
+    
+  let student;
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+      return next(
+        new HttpError('Invalid inputs passed, please check your data.', 422)
+      );
+    }
+    else {
+      let course;
+      try{
+        course = await Course.find({
+            _id: req.params.cid
+        });
+
+      }catch (err) {
+    const error = new HttpError(
+      'Something went wrong, could not find a department.',
+      500
+    );
+    return next(error);
+      }
+    
+      if (course.length>0){
+        try{
+
+          var dateObj = new Date();
+          var month = dateObj.getUTCMonth() + 1;
+          let term1;
+          if(month<=4)
+            term1 = "bahar"
+          else if(month<=8)
+            term1 = "yaz"
+          else
+            term1 = "guz"
+          student =  await Student.updateOne(
+            {_id: req.params.sid} ,
+             { $push: { courses: {
+                          "course": course,
+                          "grade": "-",
+                          "year": dateObj.getUTCFullYear(),
+                          "term": term1 
+              }
+           }
+         });
+         course =  await Course.updateOne(
+          {_id: req.params.cid} ,
+           { $push: { students: student } ,
+       });
+        }catch (err) {
+            const error = new HttpError(
+              'Something went wrong .',
+              500
+            );
+            return next(error);
+        }  
+      }
+      else
+      {
+        const error = new HttpError(
+            'Could not find a course for the provided id.',
+            404
+          );
+          return next(error);
+      } 
+          
+     
+      if (student) {
+        res.redirect('/student/id=req.params.sid');
+
+      }
+  }
+});
+
+//Ders onayi
+router.post('/giveApprove/sid=:sid',  async (req, res, next) => {
+  let student;
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+      return next(
+        new HttpError('Invalid inputs passed, please check your data.', 422)
+      );
+    }
+    else {
+      try{
+        student =  await Student.updateOne(
+          {_id: req.params.sid} ,
+           { $set: { 
+              approvement: true
+            }
+       });
+       
+      }catch (err) {
+          const error = new HttpError(
+            'Something went wrong .',
+            500
+          );
+          return next(error);
+      }
+      if (student) {
+        res.redirect('/student/id=req.params.sid');
+      }
+  }
+});
+
+// Student gpa's Route
+router.get('/getGpa/id=:id', async (req, res, next) => {
+  let student;
+  try {
+    student = await Student.find({
+      _id: req.params.id,
+    })
+  } catch (err) {
+    const error = new HttpError(
+      'Something went wrong, could not find a department.',
+      500,
+    );
+    return next(error);
+  }
+
+  if (student) {
+    let gpa = 0.0;
+    for (const course of student.courses) {
+      console.log(course.status);
+      if(course.status === 'basarili'){
+        gpa = gpa + course.course.credit*course.grade;
+      }
+    }
+    res.json({
+      gpa
+    });
+    
+  } else {
+    const error = new HttpError(
+      'Could not find student for the provided department id.',
+      404,
+    );
+    return next(error);
+  }
+});
 module.exports = router;
