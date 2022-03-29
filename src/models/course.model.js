@@ -7,7 +7,7 @@ const CourseSchema = new mongoose.Schema({
   department: { type: mongoose.Schema.Types.ObjectId, ref: 'Department' },
   terms: [{ type: String, required: true }],
   schedule: [{
-    day: String,
+    day: Number,
     time: String,
     location: String,
     zoomId: String,
@@ -18,8 +18,22 @@ const CourseSchema = new mongoose.Schema({
     },
   ],
   students: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Student' }],
-  lecturers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Lecturer' }]
-  
+  lecturers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Lecturer' }],
+  finalExam:{
+    date:Date,
+    time:String,
+    location:String
+  },
+  midterm:{
+    date:Date,
+    time:String,
+    location:String
+  },
+  makeUpExam:{
+    date:Date,
+    time:String,
+    location:String
+  }
 });
 module.exports = mongoose.model('Course', CourseSchema);
 

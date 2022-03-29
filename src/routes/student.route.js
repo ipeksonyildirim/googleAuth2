@@ -526,7 +526,7 @@ router.post('/giveApprove/sid=:sid',  async (req, res, next) => {
 router.get('/getGpa/id=:id', async (req, res, next) => {
   let student;
   try {
-    student = await Student.find({
+    student = await Student.findOne({
       _id: req.params.id,
     })
   } catch (err) {
@@ -545,16 +545,373 @@ router.get('/getGpa/id=:id', async (req, res, next) => {
         gpa = gpa + course.course.credit*course.grade;
       }
     }
+    var dateObj = new Date();
+    var month = dateObj.getUTCMonth() + 1;
+    let term1;
+    if(month<=4)
+      term1 = "bahar"
+    else if(month<=8)
+      term1 = "yaz"
+    else
+      term1 = "guz"
+    student =  await Student.updateOne(
+      {_id: req.params.sid} ,
+      { $push: { gpas: {
+                  "gpa": gpa,
+                  "year": dateObj.getUTCFullYear(),
+                  "term": term1 
+                }
+              }
+      });
+      let gpas = student.gpas;
     res.json({
-      gpa
+      gpas:gpas
     });
     
   } else {
     const error = new HttpError(
-      'Could not find student for the provided department id.',
+      'Could not find student for the provided id.',
       404,
     );
     return next(error);
   }
 });
+
+//Student dersler
+router.get('/getCourses/id=:id', async (req, res, next) => {
+  let student;
+  try {
+    student = await Student.findOne({
+      _id: req.params.id,
+    })
+  } catch (err) {
+    const error = new HttpError(
+      'Something went wrong, could not find a department.',
+      500,
+    );
+    return next(error);
+  }
+
+  if (student) {
+    
+      let courses = student.courses;
+    res.json({
+      courses:courses
+    });
+    
+  } else {
+    const error = new HttpError(
+      'Could not find student for the provided id.',
+      404,
+    );
+    return next(error);
+  }
+});
+
+//Student yaklasan dersler
+router.get('/getIncomingCourses/id=:id', async (req, res, next) => {
+  let student;
+  try {
+    student = await Student.findOne({
+      _id: req.params.id,
+    })
+  } catch (err) {
+    const error = new HttpError(
+      'Something went wrong, could not find a department.',
+      500,
+    );
+    return next(error);
+  }
+
+  if (student) {
+    //let courses = student.courses;
+    var dateObj = new Date();
+    var day = dateObj.getUTCDay(); // 0 - sunday 6 -saturday
+    var incomingCourses;
+    for (const course of student.courses) {
+      if(course.schedule.day === day || course.schedule.day === day+1){
+        incomingCourses.push(course);
+      }
+    }
+    
+      
+    res.json({
+      courses:incomingCourses
+    });
+    
+  } else {
+    const error = new HttpError(
+      'Could not find student for the provided id.',
+      404,
+    );
+    return next(error);
+  }
+});
+
+//Student ikinci yabanci dil
+router.get('/getSFLanguafe/id=:id', async (req, res, next) => {
+
+  let student;
+  try {
+    student = await Student.findOne({
+      _id: req.params.id,
+    })
+  } catch (err) {
+    const error = new HttpError(
+      'Something went wrong, could not find a department.',
+      500,
+    );
+    return next(error);
+  }
+  if (student) {
+    let sfLanguage;
+    let totalPages;
+    let almPages;
+    let arapPages;
+    let cinPages;
+    let frPages;
+    let ispPages;
+    let itlPages;
+    let japPages;
+    let rusPages;
+    try {
+      totalPages = await Student.find().countDocuments();
+      almPages = await Student.countDocuments({secondForeignLanguage: 'Almanca'})
+      arapPages = await Student.countDocuments({secondForeignLanguage: 'Arapça'})
+      cinPages = await Student.countDocuments({secondForeignLanguage: 'Çince'})
+      frPages = await Student.countDocuments({secondForeignLanguage: 'Fransızca'})
+      ispPages = await Student.countDocuments({secondForeignLanguage: 'İspanyolca'})
+      itlPages = await Student.countDocuments({secondForeignLanguage: 'İtalyanca'})
+      japPages = await Student.countDocuments({secondForeignLanguage: 'Japonca'})
+      rusPages = await Student.countDocuments({secondForeignLanguage: 'Rusça'})
+
+      sfLanguage = student.secondForeignLanguage;
+
+
+
+    } catch (err) {
+      const error = new HttpError(
+        'Something went wrong, could not find a student.',
+        500,
+      );
+      return next(error);
+    }
+      
+    res.json({
+      total:totalPages,
+      alm: almPages,
+      arap: arapPages,
+      cin: cinPages,
+      fr: frPages,
+      isp: ispPages,
+      itl: itlPages,
+      jap: japPages,
+      rus: rusPages,
+      sfLanguage: sfLanguage
+
+    });
+    
+  } else {
+    const error = new HttpError(
+      'Could not find student for the provided id.',
+      404,
+    );
+    return next(error);
+  }
+});
+
+//Student ikinci yabanci dil secimi - diller
+router.get('/setSFLanguage/sid=:sid',  async (req, res, next) => {
+  let languages;
+
+  languages.push('Almanca')
+  languages.push('Çince')
+  languages.push('Fransızca')
+  languages.push('İspanyolca')
+  languages.push('İtalyanca')
+  languages.push('Japonca')
+  languages.push('Rusça')
+  res.json({
+    languages: languages
+
+  });
+
+
+});
+
+//Student ikinci yabanci dil secimi
+router.post('/setSFLanguage/sid=:sid',  async (req, res, next) => {
+  
+  let student;
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+      return next(
+        new HttpError('Invalid inputs passed, please check your data.', 422)
+      );
+    }
+    else {
+      try{
+        student =  await Student.updateOne(
+          {_id: req.params.sid} ,
+           { $set: { 
+              secondForeignLanguage: req.body.secondForeignLanguage
+            }
+       });
+       
+      }catch (err) {
+          const error = new HttpError(
+            'Something went wrong .',
+            500
+          );
+          return next(error);
+      }
+      if (student) {
+        res.redirect('/student/id=req.params.sid');
+      }
+  }
+});
+
+//Student ortak egitim
+router.get('/getinternship/id=:id', async (req, res, next) => {
+
+  let student;
+  try {
+    student = await Student.findOne({
+      _id: req.params.id,
+    })
+  } catch (err) {
+    const error = new HttpError(
+      'Something went wrong, could not find a department.',
+      500,
+    );
+    return next(error);
+  }
+  if (student) {
+    
+
+      internship = student.internships;
+      
+    res.json({
+    
+      internship: internship
+
+    });
+    
+  } else {
+    const error = new HttpError(
+      'Could not find student for the provided id.',
+      404,
+    );
+    return next(error);
+  }
+});
+
+//Student iletisim
+router.get('/getAddress/id=:id', async (req, res, next) => {
+
+  let student;
+  let address;
+    try{
+        student = await Student.find({
+            _id: req.params.id
+          }).populate('user').select({
+            address:1,
+            _id: 0
+          });
+  
+    }catch (err) {
+    const error = new HttpError(
+      'Something went wrong, could not find a department.',
+      500
+    );
+    return next(error);
+  }
+  if (student) {
+    address = student.user.address;
+      
+    res.json({
+      addresses: address
+    });
+    
+  } else {
+    const error = new HttpError(
+      'Could not find student for the provided id.',
+      404,
+    );
+    return next(error);
+  }
+});
+
+//Student odeme
+router.get('/getFeeInfo/id=:id', async (req, res, next) => {
+
+  let student;
+  let feeInfos;
+    try{
+        student = await Student.find({
+            _id: req.params.id
+          })
+  
+    }catch (err) {
+    const error = new HttpError(
+      'Something went wrong, could not find a department.',
+      500
+    );
+    return next(error);
+  }
+  if (student) {
+    feeInfos = student.feeInfos;
+      
+    res.json({
+      feeInfo: feeInfos
+    });
+    
+  } else {
+    const error = new HttpError(
+      'Could not find student for the provided id.',
+      404,
+    );
+    return next(error);
+  }
+});
+
+//Student iletisim
+router.get('/getExamInfo/id=:id', async (req, res, next) => {
+
+  let student;
+  let finalExam;
+  let midterm;
+  let makeUpExam;
+    try{
+        student = await Student.find({
+            _id: req.params.id
+          }).populate('courses.course')
+  
+    }catch (err) {
+    const error = new HttpError(
+      'Something went wrong, could not find a department.',
+      500
+    );
+    return next(error);
+  }
+  if (student) {
+    finalExam = student.courses.course.finalExam;
+    midterm = student.courses.course.midterm;
+    makeUpExam = student.courses.course.makeUpExam;
+
+    res.json({
+      midterm: midterm,
+      finalExam: finalExam,
+      makeUpExam: makeUpExam
+    });
+    
+  } else {
+    const error = new HttpError(
+      'Could not find student for the provided id.',
+      404,
+    );
+    return next(error);
+  }
+});
+
 module.exports = router;

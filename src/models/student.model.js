@@ -6,6 +6,11 @@ const StudentSchema = new mongoose.Schema({
   // FIXME email has been migrated to user.
   // FIXME address has been migrated to user.
   // FIXME contact has been migrated to user.
+//TODO add appointment
+//TODO lecturer onay
+//TODO lecturer give grades
+//TODO odeme, staj tercihi, ikinci yabancı dil bilgileri secimi
+//dersin sinavlarini don
 
   id: { type: Number, required: true },
   status: {
@@ -18,12 +23,17 @@ const StudentSchema = new mongoose.Schema({
   scholarship: { type: Number, required: true },
   grade: { type: String, required: true, enum: ['1', '2', '3', '4'] },
   term: { type: Number, required: true },
-  gpa: { type: Number, required: true },
-  secondForeignLanguage: { type: String, required: true },
+  gpas:[ 
+    {
+      gpa:Number,
+      year:Number,
+      term: { type: String, enum: ['guz', 'bahar', 'yaz']},
+    }],
+  secondForeignLanguage: { type: String },
   department: { type: mongoose.Schema.Types.ObjectId, ref: 'Department' },
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   advisor: { type: mongoose.Schema.Types.ObjectId, ref: 'Lecturer' },
-  credit: { type: Number, required: true },
+  credit: { type: Number},
   assignments: [
     {
       assignment: { type: mongoose.Schema.Types.ObjectId, ref: 'Assignment'},
@@ -34,9 +44,19 @@ const StudentSchema = new mongoose.Schema({
       course: { type: mongoose.Schema.Types.ObjectId, ref: 'Course' },
       grade: String,
       year:Number,
-      term: { type: String, required: true, enum: ['guz', 'bahar', 'yaz']},
-      status: { type: String, required: true, enum: ['basarili', 'basarisiz']}
+      term: { type: String, enum: ['guz', 'bahar', 'yaz']},
+      status: { type: String, enum: ['basarili', 'basarisiz']}
     },
+  ],
+  feeInfos: [
+    {
+      
+      year:Number,
+      term: { type: String, enum: ['guz', 'bahar', 'yaz']},
+      type: String,
+      fee: Number,
+      collection: Number
+    }
   ],
   approvement:{type: Boolean, default:false},
 });
