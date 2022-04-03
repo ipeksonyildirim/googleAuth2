@@ -110,9 +110,6 @@ router.delete('/user/:id', [ensureAuthenticated, isAdmin, deleteAccessControl], 
     }
 });
 
-
-
-
 // Edit User Account.
 
 router.get('/user/edit/:id', [ensureAuthenticated, isAdmin, updateAccessControl], async (req, res) => {

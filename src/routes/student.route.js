@@ -21,7 +21,7 @@ const {
 } = require('../middleware/auth');
 
 // Students Home Route
-router.get('/', [ensureAuthenticated, isAdmin, readAccessControl], async (req, res, next) => {
+router.get('/',  async (req, res, next) => {
   let student;
   try {
     student = await Student.find({});
@@ -54,7 +54,7 @@ router.get('/', [ensureAuthenticated, isAdmin, readAccessControl], async (req, r
 });
 
 // Search Student Route.//admin
-router.post('/', [ensureAuthenticated, isAdmin], async (req, res, next) => {
+router.post('/',  async (req, res, next) => {
   const key = req.body.searchInput;
   let student;
   try {
@@ -113,16 +113,14 @@ router.get('/dept=:dept', async (req, res, next) => {
 // Student Id's Route
 router.get('/id=:id', async (req, res, next) => {
   let student;
+  console.log(req.params.id)
   try {
     student = await Student.find({
       _id: req.params.id,
-    }).populate('user').select({
-      name: 1,
-      _id: 0,
-    });
+    }).populate('user')
   } catch (err) {
     const error = new HttpError(
-      'Something went wrong, could not find a department.',
+      'Something went wrong, could not find a student.',
       500,
     );
     return next(error);
@@ -143,7 +141,7 @@ router.get('/id=:id', async (req, res, next) => {
 
 
 // Add Student Form Route
-router.get('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (req, res, next) => {
+router.get('/add', async (req, res, next) => {
   let user;
   let lecturer;
   let dept;
@@ -169,7 +167,7 @@ router.get('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (r
 });
 
 // Process Students Form Data And Insert Into Database.
-router.post('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (req, res, next) => {
+router.post('/add',  async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return next(
@@ -244,7 +242,7 @@ router.post('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (
 });
 
 // Student Edit Form
-router.get('/edit/:id', [ensureAuthenticated, isAdmin, updateAccessControl], async (req, res, next) => {
+router.get('/edit/:id',  async (req, res, next) => {
   let student;
   try {
     student = await Student.findOne({
@@ -283,7 +281,7 @@ router.get('/edit/:id', [ensureAuthenticated, isAdmin, updateAccessControl], asy
 });
 
 // Student Update Route
-router.put('/edit/:id', [ensureAuthenticated, isAdmin, updateAccessControl], async (req, res, next) => {
+router.put('/edit/:id',  async (req, res, next) => {
   let student;
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -335,7 +333,7 @@ router.put('/edit/:id', [ensureAuthenticated, isAdmin, updateAccessControl], asy
 });
 
 // Student Delete Route
-router.delete('/:id', [ensureAuthenticated, isAdmin, deleteAccessControl], async (req, res, next) => {
+router.delete('/:id',  async (req, res, next) => {
   let result;
   try {
     result = await Student.remove({
@@ -428,10 +426,12 @@ router.post('/addCourse/sid=:sid/cid=:cid',  async (req, res, next) => {
     else {
       let course;
       try{
-        course = await Course.find({
+        course = await Course.findOne({
             _id: req.params.cid
         });
-
+        student = await Student.findOne({
+          _id: req.params.sid
+      });
       }catch (err) {
     const error = new HttpError(
       'Something went wrong, could not find a department.',
@@ -440,9 +440,9 @@ router.post('/addCourse/sid=:sid/cid=:cid',  async (req, res, next) => {
     return next(error);
       }
     
-      if (course.length>0){
+      if (course && student){
         try{
-
+          let course1, student1;
           var dateObj = new Date();
           var month = dateObj.getUTCMonth() + 1;
           let term1;
@@ -452,20 +452,28 @@ router.post('/addCourse/sid=:sid/cid=:cid',  async (req, res, next) => {
             term1 = "yaz"
           else
             term1 = "guz"
-          student =  await Student.updateOne(
-            {_id: req.params.sid} ,
-             { $push: { courses: {
-                          "course": course,
-                          "grade": "-",
-                          "year": dateObj.getUTCFullYear(),
-                          "term": term1 
-              }
-           }
+          course1 =  await Course.updateOne(
+            {_id: req.params.cid} ,
+             { $push: { students: student } ,
          });
-         course =  await Course.updateOne(
-          {_id: req.params.cid} ,
-           { $push: { students: student } ,
-       });
+         var courseVar ={
+          "course": course,
+          "grade": '-',
+          "year":dateObj.getUTCFullYear(),
+          "term": term1,
+          "status":'-'
+      };
+
+      console.log(courseVar)
+
+          student1 =  await Student.updateOne(
+            {_id: req.params.sid} ,
+            {$push: { courses: courseVar } ,
+          });
+         console.log(student)
+        
+         
+         
         }catch (err) {
             const error = new HttpError(
               'Something went wrong .',
@@ -485,7 +493,9 @@ router.post('/addCourse/sid=:sid/cid=:cid',  async (req, res, next) => {
           
      
       if (student) {
-        res.redirect('/student/id=req.params.sid');
+        var id= req.params.sid
+        console.log(id)
+        res.redirect('/student/id='+student._id);
 
       }
   }
@@ -517,7 +527,7 @@ router.post('/giveApprove/sid=:sid',  async (req, res, next) => {
           return next(error);
       }
       if (student) {
-        res.redirect('/student/id=req.params.sid');
+        res.redirect('/student/id='+req.params.sid);
       }
   }
 });
@@ -627,14 +637,31 @@ router.get('/getIncomingCourses/id=:id', async (req, res, next) => {
     //let courses = student.courses;
     var dateObj = new Date();
     var day = dateObj.getUTCDay(); // 0 - sunday 6 -saturday
-    var incomingCourses;
-    for (const course of student.courses) {
-      if(course.schedule.day === day || course.schedule.day === day+1){
-        incomingCourses.push(course);
+    var incomingCourses = [];
+    var course;
+    for (const courses of student.courses) {
+      try {
+        course = await Course.findOne({
+          _id: courses.course,
+        })
+      } catch (err) {
+        const error = new HttpError(
+          'Something went wrong, could not find a department.',
+          500,
+        );
+        return next(error);
       }
-    }
-    
+      if(course){
+        console.log(course.schedule)
+        for (const schedule of course.schedule) {
+          if(schedule.day === day || schedule.day === day+1){
+            incomingCourses.push(course);
+            break;
+          }
+        }
+      }
       
+      }
     res.json({
       courses:incomingCourses
     });
@@ -649,7 +676,7 @@ router.get('/getIncomingCourses/id=:id', async (req, res, next) => {
 });
 
 //Student ikinci yabanci dil
-router.get('/getSFLanguafe/id=:id', async (req, res, next) => {
+router.get('/getSFLanguage/id=:id', async (req, res, next) => {
 
   let student;
   try {
@@ -722,7 +749,7 @@ router.get('/getSFLanguafe/id=:id', async (req, res, next) => {
 
 //Student ikinci yabanci dil secimi - diller
 router.get('/setSFLanguage/sid=:sid',  async (req, res, next) => {
-  let languages;
+  let languages = [];
 
   languages.push('Almanca')
   languages.push('Çince')
@@ -766,22 +793,23 @@ router.post('/setSFLanguage/sid=:sid',  async (req, res, next) => {
           return next(error);
       }
       if (student) {
-        res.redirect('/student/id=req.params.sid');
+        res.redirect('/student/id='+req.params.sid);
       }
   }
 });
 
 //Student ortak egitim
-router.get('/getinternship/id=:id', async (req, res, next) => {
+router.get('/getInternship/id=:id', async (req, res, next) => {
 
   let student;
+  let internship;
   try {
     student = await Student.findOne({
       _id: req.params.id,
     })
   } catch (err) {
     const error = new HttpError(
-      'Something went wrong, could not find a department.',
+      'Something went wrong, could not find a student.',
       500,
     );
     return next(error);
@@ -806,13 +834,116 @@ router.get('/getinternship/id=:id', async (req, res, next) => {
   }
 });
 
+//Student ortak egitim
+router.get('/getInternshipSelection/id=:id', async (req, res, next) => {
+
+  let student;
+  let internship;
+  try {
+    student = await Student.findOne({
+      _id: req.params.id,
+    })
+  } catch (err) {
+    const error = new HttpError(
+      'Something went wrong, could not find internship .',
+      500,
+    );
+    return next(error);
+  }
+  if (student) {
+    
+
+      internship = student.internshipSelection;
+      
+    res.json({
+    
+      internship: internship
+
+    });
+    
+  } else {
+    const error = new HttpError(
+      'Could not find student for the provided id.',
+      404,
+    );
+    return next(error);
+  }
+});
+
+//Student ortak egitim
+router.get('/setInternshipSelection/id=:id', async (req, res, next) => {
+
+  let student;
+  let internfirms;
+  try {
+    student = await Student.findOne({
+      _id: req.params.id,
+    })
+  } catch (err) {
+    const error = new HttpError(
+      'Something went wrong, could not find internship .',
+      500,
+    );
+    return next(error);
+  }
+  if (student) {
+      internfirms = student.department.internFirm;
+      
+    res.json({
+    
+      internfirms: internfirms
+
+    });
+    
+  } else {
+    const error = new HttpError(
+      'Could not find student for the provided id.',
+      404,
+    );
+    return next(error);
+  }
+});
+//Student ortak egitim
+router.post('/setInternshipSelection/id=:id', async (req, res, next) => {
+
+  let student;
+  let internfirms;
+  try {
+    student =  await Student.updateOne(
+      {_id: req.params.id} ,
+       { $set: { internshipSelection: {
+                    "rank": req.body.rank,
+                    "company": req.body.company
+        }
+     }
+   });
+
+  } catch (err) {
+    const error = new HttpError(
+      'Something went wrong, could not find internship .',
+      500,
+    );
+    return next(error);
+  }
+  if (student) {
+    res.redirect('/student/getInternshipSelection/id='+req.params.id);
+    
+  } else {
+    const error = new HttpError(
+      'Could not find student for the provided id.',
+      404,
+    );
+    return next(error);
+  }
+});
+
 //Student iletisim
 router.get('/getAddress/id=:id', async (req, res, next) => {
 
   let student;
   let address;
     try{
-        student = await Student.find({
+        student = await Student.findOne({
             _id: req.params.id
           }).populate('user').select({
             address:1,
@@ -827,6 +958,7 @@ router.get('/getAddress/id=:id', async (req, res, next) => {
     return next(error);
   }
   if (student) {
+    console.log(student.user.address)
     address = student.user.address;
       
     res.json({
@@ -879,13 +1011,13 @@ router.get('/getFeeInfo/id=:id', async (req, res, next) => {
 router.get('/getExamInfo/id=:id', async (req, res, next) => {
 
   let student;
-  let finalExam;
-  let midterm;
-  let makeUpExam;
+  let finalExam = [];
+  let midterm = [];
+  let makeUpExam = [];
     try{
-        student = await Student.find({
+        student = await Student.findOne({
             _id: req.params.id
-          }).populate('courses.course')
+          })
   
     }catch (err) {
     const error = new HttpError(
@@ -895,10 +1027,28 @@ router.get('/getExamInfo/id=:id', async (req, res, next) => {
     return next(error);
   }
   if (student) {
-    finalExam = student.courses.course.finalExam;
-    midterm = student.courses.course.midterm;
-    makeUpExam = student.courses.course.makeUpExam;
-
+    console.log(student.courses)
+    let course;
+    for (const courses of student.courses) {
+      try {
+        course = await Course.findOne({
+          _id: courses.course,
+        })
+      } catch (err) {
+        const error = new HttpError(
+          'Something went wrong, could not find a course.',
+          500,
+        );
+        return next(error);
+      }
+      if(course){
+        finalExam.push(course.finalExam);
+        midterm.push(course.midterm);
+        makeUpExam.push(course.makeUpExam);
+        break;
+          }
+        }
+      
     res.json({
       midterm: midterm,
       finalExam: finalExam,
@@ -913,5 +1063,7 @@ router.get('/getExamInfo/id=:id', async (req, res, next) => {
     return next(error);
   }
 });
+
+
 
 module.exports = router;

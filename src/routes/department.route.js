@@ -16,7 +16,7 @@ const {
 } = require('../middleware/auth');
 
 // Department Home Route
-router.get('/',[ensureAuthenticated, isAdmin, readAccessControl],async (req, res, next) => {
+router.get('/',async (req, res, next) => {
 
    
     let department;
@@ -54,7 +54,7 @@ router.get('/',[ensureAuthenticated, isAdmin, readAccessControl],async (req, res
 });
 
 // Department Search by id's Route
-router.get('/id=:id', [ensureAuthenticated, isAdmin, readAccessControl],async (req, res, next) => {
+router.get('/id=:id',async (req, res, next) => {
   let department;
   try{
       department = await Department.findOne({
@@ -103,12 +103,12 @@ router.get('/name=:name', async (req, res, next) => {
 });
 
 // Add Department Form Route
-router.get('/add',[ensureAuthenticated, isAdmin, createAccessControl],async (req, res, next) => {
+router.get('/add',async (req, res, next) => {
   res.status(200).send();
 });
 
 // Process Department Form Data And Insert Into Database.
-router.post('/add',[ensureAuthenticated, isAdmin, createAccessControl], async (req, res, next) => {
+router.post('/add', async (req, res, next) => {
   console.log(req.body);
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -166,7 +166,7 @@ router.post('/add',[ensureAuthenticated, isAdmin, createAccessControl], async (r
 });
 
 // Department Edit Form
-router.get('/edit',[ensureAuthenticated, isAdmin, updateAccessControl], async (req, res, next) => {
+router.get('/edit', async (req, res, next) => {
     let dept;
     try {
         dept = await Department.find({
@@ -184,7 +184,7 @@ router.get('/edit',[ensureAuthenticated, isAdmin, updateAccessControl], async (r
 });
 
 // Department Update Route
-router.put('/edit/:id', [ensureAuthenticated, isAdmin, updateAccessControl],async (req, res, next) => {
+router.put('/edit/:id', async (req, res, next) => {
     let department;
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -218,7 +218,7 @@ router.put('/edit/:id', [ensureAuthenticated, isAdmin, updateAccessControl],asyn
 });
 
 // Department Delete Route
-router.delete('/:id', [ensureAuthenticated, isAdmin, deleteAccessControl], async (req, res, next) => {
+router.delete('/:id', async (req, res, next) => {
     let result;
     try {
         result = await Department.remove({

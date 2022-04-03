@@ -16,6 +16,11 @@ const UserSchema = new mongoose.Schema({
     date: { type: Date, required: true },
     isActive: Boolean,
   }],
+  availableDates:[{ 
+    date:{type: Date, required: true},
+
+  }
+  ],
   address: [{
     type: String,
     city: String,

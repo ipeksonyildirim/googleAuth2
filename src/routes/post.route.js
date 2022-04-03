@@ -14,7 +14,7 @@ const {
 } = require('../middleware/auth');
 
 // Get Post Route
-router.get('/id=:id', [ensureAuthenticated, inCourse], async (req, res, next) => {
+router.get('/id=:id',  async (req, res, next) => {
 
     let post;
     try{
@@ -43,7 +43,7 @@ router.get('/id=:id', [ensureAuthenticated, inCourse], async (req, res, next) =>
 });
 
 // Course's Posts Route
-router.get('/code=:code', [ensureAuthenticated, inCourse], async (req, res, next) => {
+router.get('/code=:code',  async (req, res, next) => {
     let course1;
     try {
         course1 = await Course.findOne({
@@ -89,7 +89,7 @@ router.get('/code=:code', [ensureAuthenticated, inCourse], async (req, res, next
 });
 
 // Post get Title Route
-router.get('/title=:title', [ensureAuthenticated, inCourse], async (req, res, next) => {
+router.get('/title=:title', async (req, res, next) => {
     let post;
     try {
         post = await Post.findOne({
@@ -112,7 +112,7 @@ router.get('/title=:title', [ensureAuthenticated, inCourse], async (req, res, ne
 });
 
 // Add Post 
-router.get('/add', [ensureAuthenticated, inCourse], async (req, res, next) => {
+router.get('/add', async (req, res, next) => {
     let course;
   try {
       course = await Course.find();
@@ -129,7 +129,7 @@ router.get('/add', [ensureAuthenticated, inCourse], async (req, res, next) => {
 });
 
 // Add Post
-router.post('/add', [ensureAuthenticated, inCourse], async (req, res, next) => {
+router.post('/add', async (req, res, next) => {
   
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -144,7 +144,7 @@ router.post('/add', [ensureAuthenticated, inCourse], async (req, res, next) => {
             content: req.body.content,
             course: req.body.course,
             createdAt: Date.now(),
-            createdBy: req.user,
+            createdBy: req.body.createdBy,
           
             
         });
@@ -166,6 +166,7 @@ router.post('/add', [ensureAuthenticated, inCourse], async (req, res, next) => {
 
         if (!result) {
             try {
+              console.log(post);
                 result = await post.save();
 
                 if (result) {
@@ -191,7 +192,7 @@ router.post('/add', [ensureAuthenticated, inCourse], async (req, res, next) => {
 });
 
 // Post Edit Form
-router.get('/edit/:id', [ensureAuthenticated, isOwner], async (req, res, next) => {
+router.get('/edit/:id', async (req, res, next) => {
     let post;
     let course;
     try {
@@ -211,7 +212,7 @@ router.get('/edit/:id', [ensureAuthenticated, isOwner], async (req, res, next) =
 });
 
 // Post Update Route
-router.put('/edit/:id', [ensureAuthenticated, isOwner], async (req, res, next) => {
+router.put('/edit/:id',  async (req, res, next) => {
     let post;
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -249,7 +250,7 @@ router.put('/edit/:id', [ensureAuthenticated, isOwner], async (req, res, next) =
 });
 
 //Post is removed by its owner
-router.delete('/:id', [ensureAuthenticated, isOwner], async (req, res, next) => {
+router.delete('/:id',  async (req, res, next) => {
     let result;
     try {
         result = await Post.remove({

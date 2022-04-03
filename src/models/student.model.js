@@ -7,10 +7,10 @@ const StudentSchema = new mongoose.Schema({
   // FIXME address has been migrated to user.
   // FIXME contact has been migrated to user.
 //TODO add appointment
-//TODO lecturer onay
 //TODO lecturer give grades
-//TODO odeme, staj tercihi, ikinci yabancı dil bilgileri secimi
+//TODO staj tercihi, ikinci yabancı dil bilgileri secimi yapma
 //dersin sinavlarini don
+//assignment, post blog
 
   id: { type: Number, required: true },
   status: {
@@ -45,7 +45,7 @@ const StudentSchema = new mongoose.Schema({
       grade: String,
       year:Number,
       term: { type: String, enum: ['guz', 'bahar', 'yaz']},
-      status: { type: String, enum: ['basarili', 'basarisiz']}
+      status: { type: String, enum: ['basarili', 'basarisiz','-']}
     },
   ],
   feeInfos: [
@@ -59,6 +59,10 @@ const StudentSchema = new mongoose.Schema({
     }
   ],
   approvement:{type: Boolean, default:false},
+  lecturerApprovement: {type: Boolean, default:false},
+  internshipSelection:[{
+    rank:Number, company: String,
+  }]
 });
 
 

@@ -10,7 +10,7 @@ const LecturerSchema = new mongoose.Schema({
   },
   courses: [
     {
-      course: { type: mongoose.Schema.Types.ObjectId, ref: 'Course', required: true },
+      course: { type: mongoose.Schema.Types.ObjectId, ref: 'Course'},
     }
   ],
   // TODO add officeHours

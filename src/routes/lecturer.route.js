@@ -9,6 +9,8 @@ const Lecturer = require('../models/lecturer.model');
 const Department= require('../models/department.model');
 const User = require('../models/user.model');
 const HttpError = require('../models/http-error.model');
+const Student = require('../models/student.model')
+const Course = require('../models/course.model')
 
 const {
     ensureAuthenticated,
@@ -21,7 +23,7 @@ const {
 } = require('../middleware/auth');
 
 // Lecturer Home Route
-router.get('/', [ensureAuthenticated, isAdmin, readAccessControl], async (req, res, next) => {
+router.get('/', async (req, res, next) => {
 
    
     let lecturer;
@@ -61,7 +63,7 @@ router.get('/', [ensureAuthenticated, isAdmin, readAccessControl], async (req, r
 
 
 // Lecturer Detail's Route
-router.get('/id=:id', [ensureAuthenticated, isAdmin, readAccessControl], async (req, res, next) => {
+router.get('/id=:id', async (req, res, next) => {
     let lecturer;
     try{
         lecturer = await Lecturer.findOne({
@@ -122,7 +124,7 @@ router.get('/dept=:dept', async (req, res, next) => {
   });
 
 // Add Lecturer Form Route
-router.get('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (req, res, next) => {
+router.get('/add',  async (req, res, next) => {
     let user;
     let dept;
     try {
@@ -145,7 +147,7 @@ router.get('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (r
 });
 
 // Process Lecturer Form Data And Insert Into Database.
-router.post('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (req, res, next) => {
+router.post('/add',  async (req, res, next) => {
   
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -178,6 +180,7 @@ router.post('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (
 
         if (!result) {
             try {
+              console.log(lecturer)
                 result = await lecturer.save();
 
                 if (result) {
@@ -202,7 +205,7 @@ router.post('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (
 });
 
 // Lecturer Edit Form
-router.get('/edit/:id', [ensureAuthenticated, isAdmin, updateAccessControl], async (req, res, next) => {
+router.get('/edit/:id', async (req, res, next) => {
     let lecturer;
     try {
         lecturer = await Lecturer.findOne({
@@ -239,7 +242,7 @@ router.get('/edit/:id', [ensureAuthenticated, isAdmin, updateAccessControl], asy
 });
 
 // Lecturer Update Route
-router.put('/edit/:id', [ensureAuthenticated, isAdmin, updateAccessControl], async (req, res, next) => {
+router.put('/edit/:id',  async (req, res, next) => {
     let lecturer;
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -275,7 +278,7 @@ router.put('/edit/:id', [ensureAuthenticated, isAdmin, updateAccessControl], asy
 });
 
 //Lecturer delete route
-router.delete('/:id', [ensureAuthenticated, isAdmin, deleteAccessControl], async (req, res, next) => {
+router.delete('/:id', async (req, res, next) => {
     let result;
     try {
         result = await Lecturer.remove({
@@ -327,6 +330,131 @@ router.get('/faker', async (req, res, next) => {
     }
 
   });
+
+//Ders onayi
+router.post('/giveApprove/lid=:lid/sid=:sid',  async (req, res, next) => {
+  let student;
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+      return next(
+        new HttpError('Invalid inputs passed, please check your data.', 422)
+      );
+    }
+    else {
+      try{
+        student =  await Student.updateOne(
+          {_id: req.params.sid,
+            advisor: req.params.lid} ,
+           { $set: { 
+            lecturerApprovement: true
+            }
+       });
+       
+      }catch (err) {
+          const error = new HttpError(
+            'Something went wrong .',
+            500
+          );
+          return next(error);
+      }
+      if (student) {
+        res.redirect('/student/id='+req.params.sid);
+      }
+  }
+});
+
+//Lecturer dersler
+router.get('/getCourses/id=:id', async (req, res, next) => {
+  let lecturer;
+  try {
+    lecturer = await Lecturer.findOne({
+      _id: req.params.id,
+    })
+  } catch (err) {
+    const error = new HttpError(
+      'Something went wrong, could not find a lecturer.',
+      500,
+    );
+    return next(error);
+  }
+
+  if (lecturer) {
+    
+      let courses = lecturer.courses;
+    res.json({
+      courses:courses
+    });
+    
+  } else {
+    const error = new HttpError(
+      'Could not find student for the provided id.',
+      404,
+    );
+    return next(error);
+  }
+});
+
+//Lecturer dersler
+router.post('/getGrades/id=:id/cid=:cid/sid=:sid', async (req, res, next) => {
+  let student;
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+      return next(
+        new HttpError('Invalid inputs passed, please check your data.', 422)
+      );
+    }
+    else {
+      let course;
+      try{
+        course = await Course.find({
+            _id: req.params.cid
+        });
+
+      }catch (err) {
+    const error = new HttpError(
+      'Something went wrong, could not find a department.',
+      500
+    );
+    return next(error);
+      }
+    
+      if (course.length>0){
+        try{
+
+        
+          student =  await Student.updateOne(
+            {_id: req.params.sid} ,
+             { $set: { courses: {
+                          "course": course,
+                          "grade": req.body.grade,
+              }
+           }
+         });
+        
+        }catch (err) {
+            const error = new HttpError(
+              'Something went wrong .',
+              500
+            );
+            return next(error);
+        }  
+      }
+      else
+      {
+        const error = new HttpError(
+            'Could not find a course for the provided id.',
+            404
+          );
+          return next(error);
+      } 
+          
+     
+      if (student) {
+        res.redirect('/student/id=req.params.sid');
+
+      }
+  }
+});
 
 
 module.exports = router;
