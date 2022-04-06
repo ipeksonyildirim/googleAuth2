@@ -11,24 +11,25 @@ const UserSchema = new mongoose.Schema({
   privileges: {
     read: Boolean, create: Boolean, update: Boolean, delete: Boolean,
   },
+  availableDates:[{ 
+    date:{type: Date},
+
+  }
+  ],
   appointments: [{
     with: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     date: { type: Date, required: true },
     isActive: Boolean,
   }],
-  availableDates:[{ 
-    date:{type: Date, required: true},
-
-  }
-  ],
+  contact: [{ name: String, value: String }],
+  
   address: [{
-    type: String,
+    addrType: String,
     city: String,
     state: String,
     postalCode: String,
-    country: String,
+    country: String
   }],
-  contact: [{ name: String, value: String }],
 });
 
 module.exports = mongoose.model('User', UserSchema);

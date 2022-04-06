@@ -21,17 +21,20 @@ const CourseSchema = new mongoose.Schema({
   lecturers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Lecturer' }],
   finalExam:{
     date:Date,
-    time:String,
+    endTime:String,
+    startTime: String,
     location:String
   },
   midterm:{
     date:Date,
-    time:String,
+    endTime:String,
+    startTime: String,
     location:String
   },
   makeUpExam:{
     date:Date,
-    time:String,
+    endTime:String,
+    startTime: String,
     location:String
   }
 });

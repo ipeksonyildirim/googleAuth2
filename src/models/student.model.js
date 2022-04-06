@@ -11,6 +11,9 @@ const StudentSchema = new mongoose.Schema({
 //TODO staj tercihi, ikinci yabancı dil bilgileri secimi yapma
 //dersin sinavlarini don
 //assignment, post blog
+//TODO IYD -SECMELI /  ZORUNLU
+//TODO post comment appointment mocks
+//TODO assignment routes ayarla
 
   id: { type: Number, required: true },
   status: {
@@ -29,6 +32,7 @@ const StudentSchema = new mongoose.Schema({
       year:Number,
       term: { type: String, enum: ['guz', 'bahar', 'yaz']},
     }],
+  gpa: Number,
   secondForeignLanguage: { type: String },
   department: { type: mongoose.Schema.Types.ObjectId, ref: 'Department' },
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
@@ -53,7 +57,7 @@ const StudentSchema = new mongoose.Schema({
       
       year:Number,
       term: { type: String, enum: ['guz', 'bahar', 'yaz']},
-      type: String,
+      feeType: String,
       fee: Number,
       collection: Number
     }

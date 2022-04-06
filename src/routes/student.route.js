@@ -535,6 +535,7 @@ router.post('/giveApprove/sid=:sid',  async (req, res, next) => {
 // Student gpa's Route
 router.get('/getGpa/id=:id', async (req, res, next) => {
   let student;
+  let courseSchema;
   try {
     student = await Student.findOne({
       _id: req.params.id,
@@ -549,12 +550,23 @@ router.get('/getGpa/id=:id', async (req, res, next) => {
 
   if (student) {
     let gpa = 0.0;
+    let i = 0;
     for (const course of student.courses) {
-      console.log(course.status);
-      if(course.status === 'basarili'){
-        gpa = gpa + course.course.credit*course.grade;
+      console.log( course.course);
+      courseSchema = await Course.findOne({
+        _id: course.course,
+      })
+      console.log(courseSchema);
+      if(course.status === 'basarili' && courseSchema){
+        gpa = gpa + courseSchema.credit*course.grade;
       }
+      i = i+1;
     }
+    if(i > 0){
+      gpa = gpa/i;
+
+    }
+    console.log(gpa)
     var dateObj = new Date();
     var month = dateObj.getUTCMonth() + 1;
     let term1;
@@ -564,18 +576,24 @@ router.get('/getGpa/id=:id', async (req, res, next) => {
       term1 = "yaz"
     else
       term1 = "guz"
-    student =  await Student.updateOne(
-      {_id: req.params.sid} ,
-      { $push: { gpas: {
-                  "gpa": gpa,
-                  "year": dateObj.getUTCFullYear(),
-                  "term": term1 
-                }
+    console.log(term1)
+    let student1;
+    let gpas = {
+      "gpa": gpa,
+      "year": dateObj.getUTCFullYear(),
+      "term": term1 
+    }
+    console.log(gpas)
+
+    student1 =  await Student.updateOne(
+      {_id: req.params.id} ,
+      { $set: { gpas: gpas
               }
       });
-      let gpas = student.gpas;
+     
+      console.log(student.gpas)
     res.json({
-      gpas:gpas
+      gpas:student.gpas
     });
     
   } else {
@@ -664,6 +682,59 @@ router.get('/getIncomingCourses/id=:id', async (req, res, next) => {
       }
     res.json({
       courses:incomingCourses
+    });
+    
+  } else {
+    const error = new HttpError(
+      'Could not find student for the provided id.',
+      404,
+    );
+    return next(error);
+  }
+});
+
+//Student donem dersleri
+router.get('/getTermCourses/id=:id', async (req, res, next) => {
+  let student;
+  try {
+    student = await Student.findOne({
+      _id: req.params.id,
+    })
+  } catch (err) {
+    const error = new HttpError(
+      'Something went wrong, could not find a department.',
+      500,
+    );
+    return next(error);
+  }
+
+  if (student) {
+    //let courses = student.courses;
+    var dateObj = new Date();
+    var month = dateObj.getUTCMonth() + 1;
+    let term1;
+    if(month<=4)
+      term1 = "bahar"
+    else if(month<=8)
+      term1 = "yaz"
+    else
+      term1 = "guz"
+    let year;
+    year = dateObj.getUTCFullYear()
+    
+    var termCourses = [];
+    var course;
+    console.log(year, term1)
+    for (const courses of student.courses) {
+
+      if(courses.term === term1 && courses.year === year){
+        console.log(courses.year, courses.term)
+        termCourses.push(courses);
+        break;
+      }
+    }
+    res.json({
+      courses:termCourses
     });
     
   } else {
@@ -911,7 +982,7 @@ router.post('/setInternshipSelection/id=:id', async (req, res, next) => {
   try {
     student =  await Student.updateOne(
       {_id: req.params.id} ,
-       { $set: { internshipSelection: {
+       { $push: { internshipSelection: {
                     "rank": req.body.rank,
                     "company": req.body.company
         }
@@ -937,18 +1008,15 @@ router.post('/setInternshipSelection/id=:id', async (req, res, next) => {
   }
 });
 
-//Student iletisim
+//Student address
 router.get('/getAddress/id=:id', async (req, res, next) => {
 
   let student;
-  let address;
+  let address = [];
     try{
         student = await Student.findOne({
             _id: req.params.id
-          }).populate('user').select({
-            address:1,
-            _id: 0
-          });
+          }).populate('user')
   
     }catch (err) {
     const error = new HttpError(
@@ -958,11 +1026,45 @@ router.get('/getAddress/id=:id', async (req, res, next) => {
     return next(error);
   }
   if (student) {
-    console.log(student.user.address)
+    console.log(student.user)
     address = student.user.address;
       
     res.json({
-      addresses: address
+      address: address
+    });
+    
+  } else {
+    const error = new HttpError(
+      'Could not find student for the provided id.',
+      404,
+    );
+    return next(error);
+  }
+});
+
+//Student iletisim
+router.get('/getContact/id=:id', async (req, res, next) => {
+
+  let student;
+  let contacts = [];
+    try{
+        student = await Student.findOne({
+            _id: req.params.id
+          }).populate('user')
+  
+    }catch (err) {
+    const error = new HttpError(
+      'Something went wrong, could not find a department.',
+      500
+    );
+    return next(error);
+  }
+  if (student) {
+    console.log(student.user)
+    contacts = student.user.contact;
+      
+    res.json({
+      contacts: contacts
     });
     
   } else {
@@ -978,9 +1080,9 @@ router.get('/getAddress/id=:id', async (req, res, next) => {
 router.get('/getFeeInfo/id=:id', async (req, res, next) => {
 
   let student;
-  let feeInfos;
+  let feeInfos = [];
     try{
-        student = await Student.find({
+        student = await Student.findOne({
             _id: req.params.id
           })
   
@@ -992,6 +1094,7 @@ router.get('/getFeeInfo/id=:id', async (req, res, next) => {
     return next(error);
   }
   if (student) {
+    console.log(student)
     feeInfos = student.feeInfos;
       
     res.json({

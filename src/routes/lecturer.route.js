@@ -380,14 +380,31 @@ router.get('/getCourses/id=:id', async (req, res, next) => {
 
   if (lecturer) {
     
-      let courses = lecturer.courses;
-    res.json({
-      courses:courses
-    });
+      let courses = [];
+      let course;
+      
+      for(const courseId of lecturer.courses){
+        console.log(courseId.course);
+        try {
+          course = await Course.findOne({
+            _id: courseId.course,
+          })} catch (err) {
+            const error = new HttpError(
+              'Something went wrong, could not find a course.',
+              500,
+            );
+            return next(error);
+          }
+          console.log(course)
+          courses.push(course);
+        }
     
+      res.json({
+        courses:courses,
+      });
   } else {
     const error = new HttpError(
-      'Could not find student for the provided id.',
+      'Could not find lecturer for the provided id.',
       404,
     );
     return next(error);
@@ -406,7 +423,7 @@ router.post('/getGrades/id=:id/cid=:cid/sid=:sid', async (req, res, next) => {
     else {
       let course;
       try{
-        course = await Course.find({
+        course = await Course.findOne({
             _id: req.params.cid
         });
 
@@ -418,17 +435,24 @@ router.post('/getGrades/id=:id/cid=:cid/sid=:sid', async (req, res, next) => {
     return next(error);
       }
     
-      if (course.length>0){
+      if (course){
         try{
+          console.log(req.body.grade)
 
-        
+          var statusVar;
+          statusVar= 'basarili'
+
+          if(req.body.grade === 0)
+            statusVar = 'basarisiz'
+          console.log(statusVar)
+
           student =  await Student.updateOne(
-            {_id: req.params.sid} ,
-             { $set: { courses: {
-                          "course": course,
-                          "grade": req.body.grade,
+            {_id: req.params.sid ,
+            "courses.course": req.params.cid},
+            {'$set': {
+                          'courses.$.grade': req.body.grade,
+                          'courses.$.status': statusVar
               }
-           }
          });
         
         }catch (err) {
@@ -450,7 +474,7 @@ router.post('/getGrades/id=:id/cid=:cid/sid=:sid', async (req, res, next) => {
           
      
       if (student) {
-        res.redirect('/student/id=req.params.sid');
+        res.redirect('/student/id='+req.params.sid);
 
       }
   }

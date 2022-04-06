@@ -5,6 +5,7 @@ const { validationResult } = require('express-validator');
 
 const Department = require('../models/department.model');
 const Course = require('../models/course.model');
+const Student = require('../models/student.model');
 
 const {
     ensureAuthenticated,
@@ -63,6 +64,37 @@ router.get('/code=:code', async (req, res, next) => {
   try {
       course = await Course.find({
         code: req.params.code
+      });
+  }  catch (err) {
+      const error = new HttpError(
+        'Something went wrong, could not find a course.',
+        500
+      );
+      return next(error);
+    }
+
+  if (course.length>0) {
+     
+
+      res.json({ 
+        course: course,
+      });
+  } else {
+      const error = new HttpError(
+          'Something went wrong, could not find a department.',
+          500
+        );
+        return next(error);
+  }
+});
+
+// Course Home Route
+router.get('/id=:id', async (req, res, next) => {
+
+  let course;
+  try {
+      course = await Course.find({
+        _id: req.params.id
       });
   }  catch (err) {
       const error = new HttpError(
@@ -273,6 +305,62 @@ router.delete('/:id', async (req, res, next) => {
         //req.flash('success_msg', 'Record deleted successfully.');
         res.redirect('/course');
     }
+});
+
+// Course Home Route
+router.get('/getCourseInfo/id=:id', async (req, res, next) => {
+
+  let course;
+  try {
+      course = await Course.findOne({
+        _id: req.params.id
+      });
+  }  catch (err) {
+      const error = new HttpError(
+        'Something went wrong, could not find a course.',
+        500
+      );
+      return next(error);
+    }
+
+  if (course) {
+     let pages = 0;
+     let avgGpa = 0.0;
+     let student;
+     console.log(course.students)
+     for(const students of course.students){
+       pages++;
+        try {
+          student = await Student.findOne({
+            _id: students,
+          })
+        } catch (err) {
+          const error = new HttpError(
+            'Something went wrong, could not find a department.',
+            500,
+          );
+          return next(error);
+        }
+        if(student){
+          avgGpa = avgGpa + student.gpa
+        }
+        
+        
+     }
+     avgGpa = avgGpa/pages;
+
+      res.json({ 
+        students: pages,
+        avgGpa: avgGpa
+
+      });
+  } else {
+      const error = new HttpError(
+          'Something went wrong, could not find a department.',
+          500
+        );
+        return next(error);
+  }
 });
 
 module.exports = router;
