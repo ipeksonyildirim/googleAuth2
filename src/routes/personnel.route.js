@@ -5,28 +5,21 @@ const faker = require('faker');
 const moment = require('moment');
 const { validationResult } = require('express-validator');
 
-const { Personnel } = require('../models/personnel.model');
-
-const {
-  Department,
-} = require('../models/department.model');
-const {
-  User,
-} = require('../models/user.model');
-
+const Personnel = require('../models/personnel.model');
+const Department = require('../models/department.model');
+const User = require('../models/user.model');
 const HttpError = require('../models/http-error.model');
 
 const {
   ensureAuthenticated,
   isAdmin,
-  isLoggedIn,
   createAccessControl,
   readAccessControl,
   updateAccessControl,
   deleteAccessControl,
 } = require('../middleware/auth');
 
-// Students Home Route
+// Personnel Home Route
 router.get('/', [ensureAuthenticated, isAdmin, readAccessControl], async (req, res, next) => {
   let personnel;
   try {
@@ -51,25 +44,19 @@ router.get('/', [ensureAuthenticated, isAdmin, readAccessControl], async (req, r
       return next(error);
     }
 
-    res.render('personnel/index', {
-      title: 'Personnel',
-      breadcrumbs: true,
-      search_bar: true,
-      personnel,
-      pages,
-
+    res.json({ 
+      personnel: personnel,
+      pages: pages
     });
-  } else {
-    res.render('personnel/index', {
-      title: 'Personnel',
-      breadcrumbs: true,
-      search_bar: true,
-    });
-  }
+} else {
+  res.json({ 
+    personnel: personnel,
+  });
+}
 });
 
 // Personnel Detail's Route
-router.get('/:id', [ensureAuthenticated, isAdmin, readAccessControl], async (req, res, next) => {
+router.get('/id=:id', [ensureAuthenticated, isAdmin, readAccessControl], async (req, res, next) => {
   let personnel;
   try {
     personnel = await Personnel.findOne({
@@ -83,28 +70,23 @@ router.get('/:id', [ensureAuthenticated, isAdmin, readAccessControl], async (req
     return next(error);
   }
   if (personnel) {
-    res.render('personnel/details', {
-      title: 'Details',
-      breadcrumbs: true,
-      personnel,
+    res.json({ 
+      personnel: personnel,
     });
   } else {
-    req.flash('error_msg', 'No records found...');
+      //req.flash('error_msg', 'No records found...');
   }
 });
 
 // Personnel Dept's Route
-router.get('/:dept', async (req, res, next) => {
+router.get('/dept=:dept', async (req, res, next) => {
   let personnel;
   try {
     personnel = await Personnel.find({
-      department: req.params.dept,
-    }).select({
-      PersonnelName: {
-        FirstName: 1,
-        LastName: 1,
-      },
-      _id: 0,
+      department: req.params.dept
+    }).populate('user').select({
+      name:1,
+      _id: 0
     });
   } catch (err) {
     const error = new HttpError(
@@ -114,10 +96,14 @@ router.get('/:dept', async (req, res, next) => {
     return next(error);
   }
 
-  if (personnel) res.send(personnel);
-  else {
+  if (personnel.length>0){
+    res.json({ 
+      personnel: personnel,
+    });
+    }  
+    else {
     const error = new HttpError(
-      'Could not find student for the provided department id.',
+      'Could not find personnel for the provided department id.',
       404,
     );
     return next(error);
@@ -129,8 +115,8 @@ router.get('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (r
   let user;
   let dept;
   try {
-    user = await User.find();
-    dept = await Department.find();
+    user = await User.find({});
+    dept = await Department.find({});
   } catch (err) {
     const error = new HttpError(
       'User or Department is empty .',
@@ -139,17 +125,15 @@ router.get('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (r
     return next(error);
   }
 
-  if (dept && user) {
-    res.render('personnel/add', {
-      title: 'Add New Personnel',
-      breadcrumbs: true,
-      dept,
-      user,
+  if (dept.length>0 && user.length>0) {
+    res.json({ 
+      dept: dept,
+      user: user
     });
   }
 });
 
-// Process Students Form Data And Insert Into Database.
+// Process Personnel Form Data And Insert Into Database.
 router.post('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -159,33 +143,15 @@ router.post('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (
   }
 
   const personnel = new Personnel({
-    PersonnelName: {
-      FirstName: req.body.FirstName,
-      LastName: req.body.LastName,
-    },
-    DateOfAdmission: req.body.DateOfAdmission,
-    Status: req.body.Status,
-    Email: req.body.Email,
-    Address: {
-      AddrType: req.body.AddrType,
-      City: req.body.City,
-      State: req.body.State,
-      PostalCode: req.body.PostalCode,
-      Country: req.body.Country,
-    },
-    Contact: {
-      ContactType: req.body.ContactType,
-      Value: req.body.Value,
-    },
-    Department: req.body.Department,
-    User: req.body.User,
+    user: req.body.user,
+    department: req.body.department,
 
   });
 
   let result;
   try {
     result = await Personnel.findOne({
-      Email: req.body.Email,
+      user: req.body.user,
     });
   } catch (err) {
     const error = new HttpError(
@@ -200,7 +166,7 @@ router.post('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (
       result = await personnel.save();
 
       if (result) {
-        req.flash('success_msg', 'Information saved successfully.');
+        //req.flash('success_msg', 'Information saved successfully.');
         res.redirect('/personnel');
       }
     } catch (ex) {
@@ -219,8 +185,8 @@ router.post('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (
   }
 });
 
-// Student Edit Form
-router.get('/edit', [ensureAuthenticated, isAdmin, updateAccessControl], async (req, res, next) => {
+// Personnel Edit Form
+router.get('/edit/:id', [ensureAuthenticated, isAdmin, updateAccessControl], async (req, res, next) => {
   let personnel;
   try {
     personnel = await Personnel.findOne({
@@ -246,18 +212,16 @@ router.get('/edit', [ensureAuthenticated, isAdmin, updateAccessControl], async (
     );
     return next(error);
   }
-  if (personnel && user && dept) {
-    res.render('personnel/edit', {
-      title: 'Edit Personnel Details',
-      breadcrumbs: true,
-      personnel,
-      dept,
-      user,
+  if (personnel && user.length>0 && dept.length>0) {
+    res.json({
+      personnel: personnel,
+      dept: dept,
+      user: user
     });
   }
 });
 
-// Student Update Route
+// Personnel Update Route
 router.put('/edit/:id', [ensureAuthenticated, isAdmin, updateAccessControl], async (req, res, next) => {
   let personnel;
   const errors = validationResult(req);
@@ -272,26 +236,8 @@ router.put('/edit/:id', [ensureAuthenticated, isAdmin, updateAccessControl], asy
       _id: req.params.id,
     }, {
       $set: {
-        PersonnelName: {
-          FirstName: req.body.FirstName,
-          LastName: req.body.LastName,
-        },
-        DateOfAdmission: req.body.DateOfAdmission,
-        Status: req.body.Status,
-        Email: req.body.Email,
-        Address: {
-          AddrType: req.body.AddrType,
-          City: req.body.City,
-          State: req.body.State,
-          PostalCode: req.body.PostalCode,
-          Country: req.body.Country,
-        },
-        Contact: {
-          ContactType: req.body.ContactType,
-          Value: req.body.Value,
-        },
-        Department: req.body.Department,
-        User: req.body.User,
+        user: req.body.user,
+    department: req.body.department,
       },
     });
   } catch (err) {
@@ -303,11 +249,12 @@ router.put('/edit/:id', [ensureAuthenticated, isAdmin, updateAccessControl], asy
   }
 
   if (personnel) {
-    req.flash('success_msg', 'Personnel Details Updated Successfully.');
+    //req.flash('success_msg', 'Personnel Details Updated Successfully.');
     res.redirect('/personnel');
   }
 });
 
+//Personnel Delete Route
 router.delete('/:id', [ensureAuthenticated, isAdmin, deleteAccessControl], async (req, res, next) => {
   let result;
   try {
@@ -323,63 +270,20 @@ router.delete('/:id', [ensureAuthenticated, isAdmin, deleteAccessControl], async
   }
 
   if (result) {
-    req.flash('success_msg', 'Record deleted successfully.');
-    res.send('/personnel');
+    //req.flash('success_msg', 'Record deleted successfully.');
+    res.redirect('/personnel');
   } else {
     res.status(500).send();
   }
 });
 
-/*
-router.delete('/multiple/:id', async (req, res) => {
-    let str = req.params.id;
 
-    for (i in str) {
-        console.log(i);
-    }
-
-    const result = await Student.find({
-        _id: {
-            $in: []
-        }
-    });
-    console.log(result);
-    if (result) {
-        req.flash('success_msg', 'Records deleted successfully.');
-        res.send('/students');
-    } else {
-        res.status(500).send();
-    }
-
-    //let str = '[' + req.params.id + ']';
-    //console.log(str);
-}); */
-
-// Faker
+// Personnel Faker
 router.get('/faker', async (req, res, next) => {
   for (let i = 0; i < 2; i++) {
     const personnel = new Personnel({
-      PersonnelName: {
-        FirstName: faker.name.firstName(),
-        LastName: faker.name.lastName(),
-      },
-
-      DateOfAdmission: moment(faker.date.recent()).format('LL'),
-      Status: 'aktif',
-      Email: faker.internet.email(),
-      Address: {
-        AddrType: 'Ev Adresi',
-        City: faker.address.city(),
-        State: faker.address.state(),
-        PostalCode: faker.address.zipCode(),
-        Country: faker.address.country(),
-      },
-      Contact: {
-        ContactType: 'Cep Telefonu',
-        Value: faker.phone.phoneNumber(),
-      },
-      Department: '',
-      User: '',
+      user: req.user,
+      department: ''
 
     });
 
@@ -388,7 +292,7 @@ router.get('/faker', async (req, res, next) => {
       result = await personnel.save();
 
       if (result) {
-        req.flash('success_msg', 'Information saved successfully.');
+        //req.flash('success_msg', 'Information saved successfully.');
         res.redirect('/personnel');
       }
     } catch (ex) {

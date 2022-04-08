@@ -14,10 +14,10 @@ module.exports = function (passport) {
       if (profile.displayName === 'Bi Ara') admin = true;
       const newUser = {
         googleId: profile.id,
-        displayName: profile.displayName,
-        firstName: profile.name.givenName,
-        lastName: profile.name.familyName,
+        name: profile.displayName,
+        email: profile.emails[0].value,
         image: profile.photos[0].value,
+        createdAt: Date.now(),
         isAdmin: admin,
         privileges: {
           read: admin,

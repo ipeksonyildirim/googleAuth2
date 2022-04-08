@@ -29,7 +29,7 @@ router.get('/dashboard', ensureAuthenticated,async (req, res,next) => {
   const id  = req.session.passport.user;
   try {
     const user1 = await User.findById( id);
-    res.json(`hello  ${user1.displayName}`)
+    res.json(`hello  ${user1.name}`)
   } catch (err) {
     const error = new HttpError(
         'Fetching users failed, please try again later.',
@@ -61,7 +61,7 @@ router.get('/user', [ensureAuthenticated, isAdmin], async (req, res, next) => {
     );
     return next(error);
   }
-  res.json({users: users.map(user => user.toObject({ getters: true }))});
+  res.json({users: users.map(user => user)});
    
 });
 
@@ -77,7 +77,7 @@ router.get('/user/:id', [ensureAuthenticated, isAdmin, readAccessControl], async
     );
     return next(error);
   }
-  if(user){
+  if(user.length>0){
     res.json({
       user: user
     });
@@ -105,13 +105,10 @@ router.delete('/user/:id', [ensureAuthenticated, isAdmin, deleteAccessControl], 
     
     
     if (result) {
-        req.flash('success_msg', 'Record deleted successfully.');
+        //req.flash('success_msg', 'Record deleted successfully.');
         res.redirect('/user');
     }
 });
-
-
-
 
 // Edit User Account.
 
@@ -127,7 +124,7 @@ router.get('/user/edit/:id', [ensureAuthenticated, isAdmin, updateAccessControl]
     );
     return next(error);
   }
-  if(user){
+  if(user.length>0){
     res.json({
       user: user
     });
@@ -160,7 +157,7 @@ router.put('/user/edit/:id', [ensureAuthenticated, isAdmin, updateAccessControl]
     
 
     if (user) {
-        req.flash('success_msg', 'User account updated successfully.');
+        //req.flash('success_msg', 'User account updated successfully.');
         res.redirect('/user');
     } 
 });

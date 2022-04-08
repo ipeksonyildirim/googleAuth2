@@ -7,19 +7,38 @@ const CourseSchema = new mongoose.Schema({
   department: { type: mongoose.Schema.Types.ObjectId, ref: 'Department' },
   terms: [{ type: String, required: true }],
   schedule: [{
-    day: String,
+    day: Number,
     time: String,
     location: String,
     zoomId: String,
   }],
   assignments: [
     {
-      assignment: { type: mongoose.Schema.Types.ObjectId, ref: 'Assignment', required: true },
-      isActive: Boolean,
+      assignment: { type: mongoose.Schema.Types.ObjectId, ref: 'Assignment' },
     },
   ],
   students: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Student' }],
-  lecturers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Lecturer' }]
-  
+  lecturers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Lecturer' }],
+  finalExam:{
+    date:Date,
+    endTime:String,
+    startTime: String,
+    location:String
+  },
+  midterm:{
+    date:Date,
+    endTime:String,
+    startTime: String,
+    location:String
+  },
+  makeUpExam:{
+    date:Date,
+    endTime:String,
+    startTime: String,
+    location:String
+  },
+  posts : [{ type: mongoose.Schema.Types.ObjectId, ref: 'Post' }],
+ 
 });
 module.exports = mongoose.model('Course', CourseSchema);
+

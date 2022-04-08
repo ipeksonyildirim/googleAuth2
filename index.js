@@ -8,6 +8,7 @@ const MongoStore = require('connect-mongo')(session);
 const methodOverride = require('method-override');
 const bodyParser = require('body-parser');
 const connectDB = require('./src/config/db');
+const path = require('path');
 
 require('./src/config/passport')(passport);
 
@@ -27,8 +28,8 @@ app.use(bodyParser.urlencoded({
   extended: false,
 }));
 
+app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
-
 // Method Override
 app.use(methodOverride('_method'));
 
@@ -44,13 +45,21 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+//uploads
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 // Routes
 app.use('/', require('./src/routes/index.route'));
 app.use('/auth', require('./src/routes/auth.route'));
 app.use('/student', require('./src/routes/student.route'));
 app.use('/lecturer', require('./src/routes/lecturer.route'));
 app.use('/personnel', require('./src/routes/personnel.route'));
+app.use('/course', require('./src/routes/course.route'));
 app.use('/department', require('./src/routes/department.route'));
+app.use('/post', require('./src/routes/post.route'));
+app.use('/comment', require('./src/routes/comment.route'));
+app.use('/assignment', require('./src/routes/assignment.route'));
+app.use('/appointment', require('./src/routes/appointment.route'));
 
 const PORT = process.env.PORT || 5000;
 

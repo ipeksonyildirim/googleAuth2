@@ -3,12 +3,9 @@ const router = express.Router();
 const moment = require('moment');
 const { validationResult } = require('express-validator');
 
-const {
-    Department
-} = require('../models/department.model');
-const {
-    Course
-} = require('../models/course.model');
+const Department = require('../models/department.model');
+const Course = require('../models/course.model');
+const Student = require('../models/student.model');
 
 const {
     ensureAuthenticated,
@@ -20,12 +17,11 @@ const {
 } = require('../middleware/auth');
 const HttpError = require('../models/http-error.model');
 
-router.get('/', [ensureAuthenticated, isAdmin, readAccessControl], async (req, res, next) => {
+// Course Home Route
+router.get('/', async (req, res, next) => {
 
-  let dept;
   let course;
   try {
-      dept = await Department.find();
       course = await Course.find();
   }  catch (err) {
       const error = new HttpError(
@@ -35,7 +31,7 @@ router.get('/', [ensureAuthenticated, isAdmin, readAccessControl], async (req, r
       return next(error);
     }
 
-  if (dept &&  course) {
+  if (course.length>0) {
       let pages;
       try {
           pages = await Course.find().countDocuments();
@@ -49,15 +45,9 @@ router.get('/', [ensureAuthenticated, isAdmin, readAccessControl], async (req, r
         }
 
       res.json({ 
-        course: course.toObject({ getters: true }),
-        dept: dept.toObject({ getters: true }),
+        course: course,
         pages: pages
       });
-  } else if (dept) {
-    res.json({ 
-      dept: dept.toObject({ getters: true }),
-      pages: pages
-    });
   } else {
       const error = new HttpError(
           'Something went wrong, could not find a department.',
@@ -67,7 +57,70 @@ router.get('/', [ensureAuthenticated, isAdmin, readAccessControl], async (req, r
   }
 });
 
-router.get('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (req, res, next) => {
+// Course Home Route
+router.get('/code=:code', async (req, res, next) => {
+
+  let course;
+  try {
+      course = await Course.find({
+        code: req.params.code
+      });
+  }  catch (err) {
+      const error = new HttpError(
+        'Something went wrong, could not find a course.',
+        500
+      );
+      return next(error);
+    }
+
+  if (course.length>0) {
+     
+
+      res.json({ 
+        course: course,
+      });
+  } else {
+      const error = new HttpError(
+          'Something went wrong, could not find a department.',
+          500
+        );
+        return next(error);
+  }
+});
+
+// Course Home Route
+router.get('/id=:id', async (req, res, next) => {
+
+  let course;
+  try {
+      course = await Course.find({
+        _id: req.params.id
+      });
+  }  catch (err) {
+      const error = new HttpError(
+        'Something went wrong, could not find a course.',
+        500
+      );
+      return next(error);
+    }
+
+  if (course.length>0) {
+     
+
+      res.json({ 
+        course: course,
+      });
+  } else {
+      const error = new HttpError(
+          'Something went wrong, could not find a department.',
+          500
+        );
+        return next(error);
+  }
+});
+
+// Add Course Form Route
+router.get('/add', async (req, res, next) => {
   let dept;
   try {
       dept = await Department.find();
@@ -79,10 +132,12 @@ router.get('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (r
       return next(error);
     }
   if (dept.length > 0) {
-    res.json({ dept: dept.toObject({ getters: true })});
+    res.json({ dept: dept});
   }
 });
-router.post('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (req, res, next) => {
+
+// Process Student Form Data And Insert Into Database.
+router.post('/add', async (req, res, next) => {
 
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -93,26 +148,28 @@ router.post('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (
   else {
      
       const course = new Course({
-          shortCode: req.body.shortCode,
+          code: req.body.code,
           name: req.body.name,
           credit: req.body.credit,
           department: req.body.department,
-          termYear: req.body.termYear,
-          termName: req.body.termName,
-          lessonHours: {
+          terms: req.body.terms,
+          schedule: {
               day: req.body.day,
-              startedHours: req.body.startedHours,
-              finishedHours: req.body.finishedHours,
+              time: req.body.time,
               location: req.body.location,
               zoomId: req.body.zoomId
           },
+          assignments: {
+            assignment: req.body.assignment,
+        },
+        students: req.body.students,
+        lecturers: req.body.lecturers,
       });
 
       try {
-          const result = await course.save();
+          const result =  course.save();
 
           if (result) {
-              req.flash('success_msg', 'Course saved successfully.');
               res.redirect('/course');
           }
       } catch (ex) {
@@ -125,7 +182,8 @@ router.post('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (
   }
 });
 
-router.get('/edit', [ensureAuthenticated, isAdmin, updateAccessControl], async (req, res, next) => {
+// Course Edit Form
+router.get('/edit/:id', async (req, res, next) => {
   let dept;
   let course;
   try {
@@ -142,34 +200,38 @@ router.get('/edit', [ensureAuthenticated, isAdmin, updateAccessControl], async (
       return next(error);
     }
   
-  if (course && dept) {
+  if (course && dept.length>0) {
     res.json({ 
-      dept: dept.toObject({ getters: true }),
-      course: course.toObject({ getters: true }),
+      dept: dept,
+      course: course,
   });
   }
 });
 
-router.put('/edit/:id', [ensureAuthenticated, isAdmin, updateAccessControl], async (req, res, next) => {
+// Course Update Route
+router.put('/edit/:id', async (req, res, next) => {
   let course;
   try {
       course = await Course.update({
           _id: req.params.id
       }, {
           $set: {
-          shortCode: req.body.shortCode,
-          name: req.body.name,
-          credit: req.body.credit,
-          department: req.body.department,
-          termYear: req.body.termYear,
-          termName: req.body.termName,
-          lessonHours: {
-              day: req.body.day,
-              startedHours: req.body.startedHours,
-              finishedHours: req.body.finishedHours,
-              location: req.body.location,
-              zoomId: req.body.zoomId
-          }
+            code: req.body.code,
+            name: req.body.name,
+            credit: req.body.credit,
+            department: req.body.department,
+            terms: req.body.terms,
+            schedule: {
+                day: req.body.day,
+                time: req.body.time,
+                location: req.body.location,
+                zoomId: req.body.zoomId
+            },
+            assignments: {
+              assignment: req.body.assignment,
+          },
+          students: req.body.students,
+          lecturers: req.body.lecturers,
           }
       });
   
@@ -183,18 +245,19 @@ router.put('/edit/:id', [ensureAuthenticated, isAdmin, updateAccessControl], asy
     }
   
   if (course) {
-      req.flash('success_msg', 'Course Updated Successfully.');
+      //req.flash('success_msg', 'Course Updated Successfully.');
       res.redirect('/course');
   } 
 });
 
-router.get('/:dept', async (req, res, next) => {
+// Course Search by dept id's Route
+router.get('/dept=:dept', async (req, res, next) => {
     let course;
     try{
         course = await Course.find({
             department: req.params.dept
         }).select({
-            shortCode: 1,
+            code: 1,
             name: 1,
             _id: 0
         });
@@ -208,8 +271,8 @@ router.get('/:dept', async (req, res, next) => {
   }
     
 
-    if (course)
-    res.json({ course: course.toObject({ getters: true }) });
+    if (course.length>0)
+    res.json({ course: course });
     else
     {
         const error = new HttpError(
@@ -221,7 +284,8 @@ router.get('/:dept', async (req, res, next) => {
         
 });
 
-router.delete('/:id', [ensureAuthenticated, isAdmin, deleteAccessControl], async (req, res, next) => {
+// Course Delete Route
+router.delete('/:id', async (req, res, next) => {
     let result;
     try {
         result = await Course.remove({
@@ -238,9 +302,97 @@ router.delete('/:id', [ensureAuthenticated, isAdmin, deleteAccessControl], async
     
 
     if (result) {
-        req.flash('success_msg', 'Record deleted successfully.');
+        //req.flash('success_msg', 'Record deleted successfully.');
         res.redirect('/course');
     }
+});
+
+// Course Home Route
+router.get('/getCourseInfo/id=:id', async (req, res, next) => {
+
+  let course;
+  try {
+      course = await Course.findOne({
+        _id: req.params.id
+      });
+  }  catch (err) {
+      const error = new HttpError(
+        'Something went wrong, could not find a course.',
+        500
+      );
+      return next(error);
+    }
+
+  if (course) {
+     let pages = 0;
+     let avgGpa = 0.0;
+     let student;
+     console.log(course.students)
+     for(const students of course.students){
+       pages++;
+        try {
+          student = await Student.findOne({
+            _id: students,
+          })
+        } catch (err) {
+          const error = new HttpError(
+            'Something went wrong, could not find a department.',
+            500,
+          );
+          return next(error);
+        }
+        if(student){
+          avgGpa = avgGpa + student.gpa
+        }
+        
+        
+     }
+     avgGpa = avgGpa/pages;
+
+      res.json({ 
+        students: pages,
+        avgGpa: avgGpa
+
+      });
+  } else {
+      const error = new HttpError(
+          'Something went wrong, could not find a department.',
+          500
+        );
+        return next(error);
+  }
+});
+
+// Course Home Route
+router.get('/getPosts/id=:id', async (req, res, next) => {
+
+  let course;
+  try {
+      course = await Course.findOne({
+        _id: req.params.id
+      });
+  }  catch (err) {
+      const error = new HttpError(
+        'Something went wrong, could not find a course.',
+        500
+      );
+      return next(error);
+    }
+
+  if (course) {
+     let posts = [];
+     posts = course.posts
+      res.json({ 
+        posts: posts,
+
+      });
+  } else {
+      const error = new HttpError(
+          'Something went wrong, could not find a department.',
+          500
+        );
+        return next(error);
+  }
 });
 
 module.exports = router;

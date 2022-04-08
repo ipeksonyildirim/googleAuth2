@@ -12,6 +12,11 @@ const DepartmentSchema = new mongoose.Schema({
       ],
     ],
   ],
+  internFirm: [{
+    firmName:Number,
+    choosen:Boolean,
+  }],
+
 });
 
 module.exports = mongoose.model('Department', DepartmentSchema);

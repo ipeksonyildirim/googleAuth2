@@ -15,8 +15,8 @@ const {
     deleteAccessControl
 } = require('../middleware/auth');
 
-// Students Home Route
-router.get('/', [ensureAuthenticated, isAdmin, readAccessControl], async (req, res, next) => {
+// Department Home Route
+router.get('/',async (req, res, next) => {
 
    
     let department;
@@ -53,8 +53,8 @@ router.get('/', [ensureAuthenticated, isAdmin, readAccessControl], async (req, r
     }
 });
 
-// Personel Detail's Route
-router.get('/:id', [ensureAuthenticated, isAdmin, readAccessControl], async (req, res, next) => {
+// Department Search by id's Route
+router.get('/id=:id',async (req, res, next) => {
   let department;
   try{
       department = await Department.findOne({
@@ -70,24 +70,46 @@ router.get('/:id', [ensureAuthenticated, isAdmin, readAccessControl], async (req
     }
   if (department) {
       res.json({ 
-          department: department.toObject({ getters: true }),
+          department: department,
         });
   } else {
-      req.flash('error_msg', 'No records found...');
+      //req.flash('error_msg', 'No records found...');
   }
 });
 
-
-
-
-
-// Add Personel Form Route
-router.get('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (req, res, next) => {
+// Department Search by name's Route
+router.get('/name=:name', async (req, res, next) => {
+  let department;
+  try{
+    console.log(req.params.name);
+      department = await Department.findOne({
+          name: req.params.name
+      });
+  }
+  catch (err) {
+      const error = new HttpError(
+        'Department is empty .',
+        500
+      );
+      return next(error);
+    }
+  if (department) {
+      res.json({ 
+          department: department,
+        });
+  } else {
+      //req.flash('error_msg', 'No records found...');
+  }
 });
 
-// Process Students Form Data And Insert Into Database.
-router.post('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (req, res, next) => {
-  
+// Add Department Form Route
+router.get('/add',async (req, res, next) => {
+  res.status(200).send();
+});
+
+// Process Department Form Data And Insert Into Database.
+router.post('/add', async (req, res, next) => {
+  console.log(req.body);
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return next(
@@ -123,7 +145,7 @@ router.post('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (
                 result = await department.save();
 
                 if (result) {
-                    req.flash('success_msg', 'Information saved successfully.');
+                    //req.flash('success_msg', 'Information saved successfully.');
                     res.redirect('/department');
                 }
             } catch (ex) {
@@ -144,11 +166,10 @@ router.post('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (
 });
 
 // Department Edit Form
-router.get('/edit', [ensureAuthenticated, isAdmin, updateAccessControl], async (req, res, next) => {
+router.get('/edit', async (req, res, next) => {
     let dept;
     try {
-        dept = await Department.findOne({
-            _id: req.params.id
+        dept = await Department.find({
         });
     } catch (err) {
         const error = new HttpError(
@@ -157,12 +178,13 @@ router.get('/edit', [ensureAuthenticated, isAdmin, updateAccessControl], async (
           );
           return next(error);
     }
-    res.json({ dept: dept.toObject({ getters: true })});
+    if(dept.length>0)
+      res.json({ dept: dept});
   
 });
 
 // Department Update Route
-router.put('/edit/:id', [ensureAuthenticated, isAdmin, updateAccessControl], async (req, res, next) => {
+router.put('/edit/:id', async (req, res, next) => {
     let department;
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -189,13 +211,14 @@ router.put('/edit/:id', [ensureAuthenticated, isAdmin, updateAccessControl], asy
        
 
         if (department) {
-            req.flash('success_msg', 'Department Details Updated Successfully.');
+            //req.flash('success_msg', 'Department Details Updated Successfully.');
             res.redirect('/department');
         }
     }
 });
 
-router.delete('/:id', [ensureAuthenticated, isAdmin, deleteAccessControl], async (req, res, next) => {
+// Department Delete Route
+router.delete('/:id', async (req, res, next) => {
     let result;
     try {
         result = await Department.remove({
@@ -211,38 +234,12 @@ router.delete('/:id', [ensureAuthenticated, isAdmin, deleteAccessControl], async
     
 
     if (result) {
-        req.flash('success_msg', 'Record deleted successfully.');
+        //req.flash('success_msg', 'Record deleted successfully.');
         res.redirect('/department');
     } else {
         res.status(500).send();
     }
 });
-
-/*
-router.delete('/multiple/:id', async (req, res) => {
-    let str = req.params.id;
-
-    for (i in str) {
-        console.log(i);
-    }
-
-    const result = await Student.find({
-        _id: {
-            $in: []
-        }
-    });
-    console.log(result);
-    if (result) {
-        req.flash('success_msg', 'Records deleted successfully.');
-        res.send('/students');
-    } else {
-        res.status(500).send();
-    }
-
-    //let str = '[' + req.params.id + ']';
-    //console.log(str);
-});*/
-
 
 
 
