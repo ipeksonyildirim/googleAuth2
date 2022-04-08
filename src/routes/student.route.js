@@ -442,7 +442,7 @@ router.post('/addCourse/sid=:sid/cid=:cid',  async (req, res, next) => {
     
       if (course && student){
         try{
-          let course1, student1;
+          let course1, student1, courseType;
           var dateObj = new Date();
           var month = dateObj.getUTCMonth() + 1;
           let term1;
@@ -452,6 +452,14 @@ router.post('/addCourse/sid=:sid/cid=:cid',  async (req, res, next) => {
             term1 = "yaz"
           else
             term1 = "guz"
+          if(course.code === 'ALM001')
+            courseType = 'iyd1'
+          else if(course.code === 'ALM002')
+            courseType = 'iyd2'
+          else if(course.code === 'ALM003')
+            courseType = 'iyd3'
+          else if(course.code === 'ALM004')
+            courseType = 'iyd4'
           course1 =  await Course.updateOne(
             {_id: req.params.cid} ,
              { $push: { students: student } ,
@@ -461,7 +469,8 @@ router.post('/addCourse/sid=:sid/cid=:cid',  async (req, res, next) => {
           "grade": '-',
           "year":dateObj.getUTCFullYear(),
           "term": term1,
-          "status":'-'
+          "status":'-',
+          "courseType":courseType
       };
 
       console.log(courseVar)

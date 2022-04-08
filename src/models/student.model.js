@@ -11,7 +11,7 @@ const StudentSchema = new mongoose.Schema({
 //TODO staj tercihi, ikinci yabancı dil bilgileri secimi yapma
 //dersin sinavlarini don
 //assignment, post blog
-//TODO IYD -SECMELI /  ZORUNLU
+
 //TODO post comment appointment mocks
 //TODO assignment routes ayarla
 
@@ -40,7 +40,7 @@ const StudentSchema = new mongoose.Schema({
   credit: { type: Number},
   assignments: [
     {
-      assignment: { type: mongoose.Schema.Types.ObjectId, ref: 'Assignment'},
+      assignment: { type: mongoose.Schema.Types.ObjectId, ref: 'StudentAssignment'},
     },
   ],
   courses: [
@@ -49,7 +49,10 @@ const StudentSchema = new mongoose.Schema({
       grade: String,
       year:Number,
       term: { type: String, enum: ['guz', 'bahar', 'yaz']},
-      status: { type: String, enum: ['basarili', 'basarisiz','-']}
+      status: { type: String, enum: ['basarili', 'basarisiz','-']},
+      courseType:{
+        type: String, default: 'zorunlu', enum: ['zorunlu', 'secmeli', 'iyd1', 'iyd2', 'iyd3', 'iyd4'],
+      },
     },
   ],
   feeInfos: [

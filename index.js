@@ -8,6 +8,7 @@ const MongoStore = require('connect-mongo')(session);
 const methodOverride = require('method-override');
 const bodyParser = require('body-parser');
 const connectDB = require('./src/config/db');
+const path = require('path');
 
 require('./src/config/passport')(passport);
 
@@ -27,8 +28,8 @@ app.use(bodyParser.urlencoded({
   extended: false,
 }));
 
+app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
-
 // Method Override
 app.use(methodOverride('_method'));
 
@@ -43,6 +44,9 @@ app.use(session({
 // passport middleware
 app.use(passport.initialize());
 app.use(passport.session());
+
+//uploads
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Routes
 app.use('/', require('./src/routes/index.route'));

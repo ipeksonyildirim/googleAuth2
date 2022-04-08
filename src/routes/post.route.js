@@ -89,11 +89,11 @@ router.get('/code=:code',  async (req, res, next) => {
 });
 
 // Post get Title Route
-router.get('/title=:title', async (req, res, next) => {
+router.get('/pid=:pid', async (req, res, next) => {
     let post;
     try {
         post = await Post.findOne({
-            title: req.params.title
+            _id: req.params.pid
         });
       } catch (err) {
         const error = new HttpError(
@@ -110,7 +110,28 @@ router.get('/title=:title', async (req, res, next) => {
         res.redirect('/post/add');
     }
 });
+// Post get Title Route
+router.get('/title=:title', async (req, res, next) => {
+  let post;
+  try {
+      post = await Post.findOne({
+          title: req.params.title
+      });
+    } catch (err) {
+      const error = new HttpError(
+        'Fetching post failed, please try again later.',
+        500
+      );
+      return next(error);
+    }
 
+  if (post) {
+      res.json({ post: post });
+  }
+  else{
+      res.redirect('/post/add');
+  }
+});
 // Add Post 
 router.get('/add', async (req, res, next) => {
     let course;
@@ -191,6 +212,83 @@ router.post('/add', async (req, res, next) => {
     }
 });
 
+// Add Post with course id
+router.post('/add/cid=:cid', async (req, res, next) => {
+  
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return next(
+      new HttpError('Invalid inputs passed, please check your data.', 422)
+    );
+  }
+  else {
+    let course;
+  try {
+      course = await Course.findOne({_id: req.params.cid});
+    } catch (err) {
+      const error = new HttpError(
+        'Course is empty .',
+        500
+      );
+      return next(error);
+    }
+        const post = new Post({
+           
+            title: req.body.title,
+            content: req.body.content,
+            course: course,
+            createdAt: Date.now(),
+            createdBy: req.body.createdBy,
+          
+            
+        });
+
+        let result;
+        try {
+            result = await Post.findOne({
+                'title': req.body.title
+            });
+            
+        } catch (err) {
+            const error = new HttpError(
+              'Something went wrong',
+              500
+            );
+            return next(error);
+          }
+       
+
+        if (!result) {
+          let course1 ,result1;
+            try {
+              result1 = await post.save();
+
+                if (result1) {
+                  course1 =  await Course.updateOne(
+                    {_id: req.params.cid} ,
+                    {$push: { posts: post } ,
+                  });
+
+                    //req.flash('success_msg', 'Information saved successfully.');
+                    res.redirect('/course/id='+req.params.cid);
+                }
+            } catch (ex) {
+                const error = new HttpError(
+                    'Something went wrong.',
+                    500
+                  );
+                  return next(error);
+            }
+        } else {
+                const error = new HttpError(
+                    'Post Already Exists.',
+                    500
+                  );
+                  return next(error);
+        }
+    }
+});
+
 // Post Edit Form
 router.get('/edit/:id', async (req, res, next) => {
     let post;
@@ -222,16 +320,12 @@ router.put('/edit/:id',  async (req, res, next) => {
       }
       else {
         try {
-            post = await Post.update({
+            post = await Post.updateOne({
                 _id: req.params.id
             }, {
                 $set: {
-                   
-            title: req.body.title,
             content: req.body.content,
-            course: req.body.course,
             createdAt: Date.now(),
-            createdBy: req.user,
             }});
           } catch (err) {
             const error = new HttpError(
@@ -244,7 +338,7 @@ router.put('/edit/:id',  async (req, res, next) => {
 
         if (post) {
             //req.flash('success_msg', 'Post Details Updated Successfully.');
-            res.redirect('/post/code=req.body.course.code');
+            res.redirect('/post/pid='+req.params.id);
         }
     }
 });
@@ -272,6 +366,8 @@ router.delete('/:id',  async (req, res, next) => {
         res.status(500).send();
     }
 });
+
+
 
 
 

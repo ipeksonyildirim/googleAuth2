@@ -363,4 +363,36 @@ router.get('/getCourseInfo/id=:id', async (req, res, next) => {
   }
 });
 
+// Course Home Route
+router.get('/getPosts/id=:id', async (req, res, next) => {
+
+  let course;
+  try {
+      course = await Course.findOne({
+        _id: req.params.id
+      });
+  }  catch (err) {
+      const error = new HttpError(
+        'Something went wrong, could not find a course.',
+        500
+      );
+      return next(error);
+    }
+
+  if (course) {
+     let posts = [];
+     posts = course.posts
+      res.json({ 
+        posts: posts,
+
+      });
+  } else {
+      const error = new HttpError(
+          'Something went wrong, could not find a department.',
+          500
+        );
+        return next(error);
+  }
+});
+
 module.exports = router;

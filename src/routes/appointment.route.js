@@ -69,7 +69,7 @@ router.get('/id=:id', async (req, res, next) => {
         } 
         user = await User.updateOne(
           {_id: req.params.id} ,
-          { $set: { availableDates:date   } ,
+          { $push: { availableDates:date   } ,
         });
       } catch (err) {
         const error = new HttpError(
@@ -110,7 +110,7 @@ router.get('/id=:id', async (req, res, next) => {
             if(key.date.getUTCDate() === date.getUTCDate() ){
               user1 = await User.updateOne(
                 {_id: req.params.id} ,
-                { $set: { appointments: {
+                { $push: { appointments: {
                   with: userWith,
                   date : req.body.date,
                   isActive: true        
@@ -130,7 +130,7 @@ router.get('/id=:id', async (req, res, next) => {
 
               userWith1 = await User.updateOne(
                 {_id: req.params.wid} ,
-                { $set: { appointments: {
+                { $push: { appointments: {
                   with: user,
                   date : req.body.date,
                   isActive: true        

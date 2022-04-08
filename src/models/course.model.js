@@ -36,7 +36,9 @@ const CourseSchema = new mongoose.Schema({
     endTime:String,
     startTime: String,
     location:String
-  }
+  },
+  posts : [{ type: mongoose.Schema.Types.ObjectId, ref: 'Post' }],
+ 
 });
 module.exports = mongoose.model('Course', CourseSchema);
 
