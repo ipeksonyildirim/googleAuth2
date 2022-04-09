@@ -14,7 +14,7 @@ const StudentSchema = new mongoose.Schema({
 
 //TODO post comment appointment mocks
 //TODO assignment routes ayarla
-
+  schoolMail : String,
   id: { type: Number, required: true },
   status: {
     type: String, default: 'aktif', enum: ['aktif', 'pasif', 'mezun'], required: true,

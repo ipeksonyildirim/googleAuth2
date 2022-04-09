@@ -176,15 +176,9 @@ router.post('/add',  async (req, res, next) => {
   }
 
   const student = new Student({
+    schoolMail: req.body.schoolMail,
     id: req.body.id,
     status: req.body.status,
-    internship: {
-      year: req.body.year,
-      term: req.body.term,
-      companyName: req.body.companyName,
-      startDate: req.body.startDate,
-      endDate: req.body.endDate,
-    },
     scholarship: req.body.scholarship,
     grade: req.body.grade,
     term: req.body.term,
@@ -192,16 +186,17 @@ router.post('/add',  async (req, res, next) => {
     secondForeignLanguage: req.body.secondForeignLanguage,
     department: req.body.department,
     user: req.body.user,
-    advisor: req.body.advisors,
+    advisor: req.body.advisor,
     credit: req.body.credit,
-    assignments:{assignment: req.body.assignments},
-    courses: {
-      course: req.body.course,
-      grade: req.body.grade,
-      year:req.body.year,
-      term: req.body.term
-    }
-
+    feeInfos:
+      {
+        
+        year:req.body.year,
+        term: req.body.term,
+        feeType: req.body.feeType,
+        fee: req.body.fee,
+        collection: req.body.collection
+      },
 
   });
   let result;
@@ -295,6 +290,7 @@ router.put('/edit/:id',  async (req, res, next) => {
       _id: req.params.id,
     }, {
       $set: {
+        schoolMail: req.body.schoolMail,
         id: req.body.id,
         status: req.body.status,
         internship: {
@@ -307,14 +303,42 @@ router.put('/edit/:id',  async (req, res, next) => {
         scholarship: req.body.scholarship,
         grade: req.body.grade,
         term: req.body.term,
+        gpas:[ 
+          {
+            gpa:req.body.gpas,
+            year:req.body.year,
+            term: req.body.term,
+          }],
         gpa: req.body.gpa,
         secondForeignLanguage: req.body.secondForeignLanguage,
         department: req.body.department,
         user: req.body.user,
-        advisor: req.body.advisors,
+        advisor: req.body.advisor,
         credit: req.body.credit,
         assignments: req.body.assignments,
-        courses: req.body.courses,
+        courses: {
+          course: req.body.course,
+          grade: req.body.grade,
+          year:req.body.year,
+          term: req.body.term,
+          status: req.body.status,
+          courseType:req.body. courseType,
+        },
+        feeInfos:
+          {
+            
+            year:req.body.year,
+            term: req.body.term,
+            feeType: req.body.feeType,
+            fee: req.body.fee,
+            collection: req.body.collection
+          },
+        approvement:req.body.approvement,
+        lecturerApprovement: req.body.lecturerApprovement,
+        internshipSelection:{
+          rank:req.body.rank, 
+          company: req.body.company,
+        },
 
       },
     });
@@ -1109,6 +1133,42 @@ router.get('/getFeeInfo/id=:id', async (req, res, next) => {
     res.json({
       feeInfo: feeInfos
     });
+    
+  } else {
+    const error = new HttpError(
+      'Could not find student for the provided id.',
+      404,
+    );
+    return next(error);
+  }
+});
+
+//Student add odeme bilgisi
+router.get('/addFeeInfo/id=:id', async (req, res, next) => {
+
+  let student;
+  let feeInfos = [];
+    try{
+      student =  await Student.updateOne(
+        {_id: req.params.id} ,
+         { $push: { feeInfos: {
+          "year": req.body.year,
+          "term": req.body.term,
+          "feeType": req.body.feeType,
+          "fee": req.body.fee,
+          "collection": req.body.collection,
+          }
+       }
+    }
+    )}catch (err) {
+    const error = new HttpError(
+      'Something went wrong, could not find a student.',
+      500
+    );
+    return next(error);
+  }
+  if (student) {
+    res.redirect('/student/getFeeInfo/id='+req.params.id);
     
   } else {
     const error = new HttpError(

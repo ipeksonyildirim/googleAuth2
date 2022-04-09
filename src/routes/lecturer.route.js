@@ -160,7 +160,8 @@ router.post('/add',  async (req, res, next) => {
             user: req.body.user,
             department: req.body.department,
             status: req.body.status,
-            courses: req.body.courses    
+            schoolMail : req.body.schoolMail,
+            title: req.body.title
         });
 
         let result;
@@ -259,7 +260,9 @@ router.put('/edit/:id',  async (req, res, next) => {
                   user: req.body.user,
             department: req.body.department,
             status: req.body.status,
-            courses: req.body.courses   
+            courses: req.body.courses,   
+            schoolMail : req.body.schoolMail,
+            title: req.body.titles
             }});
           } catch (err) {
             const error = new HttpError(

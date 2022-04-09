@@ -13,6 +13,8 @@ const LecturerSchema = new mongoose.Schema({
       course: { type: mongoose.Schema.Types.ObjectId, ref: 'Course'},
     }
   ],
+  schoolMail : String,
+  title: String
   // TODO add officeHours
   // email will be inherited from user
   // address will be inherited from user
