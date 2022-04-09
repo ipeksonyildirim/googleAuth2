@@ -42,16 +42,20 @@ router.get('/dashboard', ensureAuthenticated,async (req, res,next) => {
 // @desc dashboard
 //@route GET /user
 router.get('/getUser', async (req, res,next) => {
-  const id  = req.session.passport.user;
-  try {
-    const user1 = await User.findById( id);
-    res.json({user: user1})
-  } catch (err) {
-    const error = new HttpError(
-        'Fetching users failed, please try again later.',
-        500
-      );
-      return next(error);
+  if(!req.session || !req.session.passport)
+    res.json({user: null})
+  else{
+    const id  = req.session.passport.user;
+    try {
+      const user1 = await User.findById( id);
+      res.json({user: user1})
+    } catch (err) {
+      const error = new HttpError(
+          'Fetching users failed, please try again later.',
+          500
+        );
+        return next(error);
+    }
   }
 });
 
