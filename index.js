@@ -9,6 +9,7 @@ const methodOverride = require('method-override');
 const bodyParser = require('body-parser');
 const connectDB = require('./src/config/db');
 const path = require('path');
+const cors = require('cors');
 
 require('./src/config/passport')(passport);
 
@@ -16,7 +17,7 @@ require('./src/config/passport')(passport);
 connectDB();
 
 const app = express();
-
+app.use(cors());
 // logger
 if (process.env.NODE_ENV === 'dev') {
   app.use(morgan('dev'));
