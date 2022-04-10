@@ -299,6 +299,7 @@ router.put('/edit/:id',  async (req, res, next) => {
           companyName: req.body.companyName,
           startDate: req.body.startDate,
           endDate: req.body.endDate,
+          grade: req.body.grade,
         },
         scholarship: req.body.scholarship,
         grade: req.body.grade,
