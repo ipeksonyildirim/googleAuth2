@@ -1053,7 +1053,7 @@ router.get('/getInternship/id=:id', async (req, res, next) => {
   if (student) {
     
 
-      internship = student.internships;
+      internship = student.internship;
       
     res.json({
     
