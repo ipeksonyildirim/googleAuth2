@@ -6,8 +6,7 @@ module.exports = function (passport) {
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: 'http://127.0.0.1:5000/auth/google/callback',
-      passReqToCallback: true,
+      callbackURL: '/auth/google/callback',
     },
     async (req, token, refreshToken, profile, done) => {
       let admin = false;
