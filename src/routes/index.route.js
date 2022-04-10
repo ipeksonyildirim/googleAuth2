@@ -63,9 +63,10 @@ router.get('/getUser', async (req, res,next) => {
 //@route GET /logout
 
 router.get('/logout', (req, res) => {
+  if(req.user){
     req.logout();
-    req.session.destroy();
-    res.send('Goodbye');
+    res.send('done');
+  }
 })
 
 // Protected Routes.
