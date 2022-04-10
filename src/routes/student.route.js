@@ -293,7 +293,8 @@ router.put('/edit/:id',  async (req, res, next) => {
         schoolMail: req.body.schoolMail,
         id: req.body.id,
         status: req.body.status,
-        internship: {
+        internships: {
+          code: req.body.code,
           year: req.body.year,
           term: req.body.term,
           companyName: req.body.companyName,
@@ -1054,11 +1055,11 @@ router.get('/getInternship/id=:id', async (req, res, next) => {
   if (student) {
     
 
-      internship = student.internship;
+      internship = student.internships;
       
     res.json({
     
-      internship: internship
+      internships: internship
 
     });
     

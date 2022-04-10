@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router();
 const User = require('../models/user.model')
+const Student = require('../models/student.model')
 const HttpError = require('../models/http-error.model');
 const passport = require('passport');
 const { validationResult } = require('express-validator');
@@ -39,7 +40,7 @@ router.get('/dashboard', ensureAuthenticated,async (req, res,next) => {
   }
 });
 
-// @desc dashboard
+// @desc getUser
 //@route GET /user
 router.get('/getUser', async (req, res,next) => {
   if(!req.session || !req.session.passport)
@@ -48,12 +49,19 @@ router.get('/getUser', async (req, res,next) => {
     const id  = req.session.passport.user;
     try {
       const user1 = await User.findById( id);
+      const student = await Student.findOne({user: user1})
+      console.log(student)
+      let studentId;
+      if(student)
+        studentId = student._id
+
       var user = {
         _id: user1._id,
         email: user1.email,
         name: user1.name,
         image: user1.image,
         isAdmin: user1.isAdmin,
+        studentId: studentId
       }
       res.json({user: user})
     } catch (err) {

@@ -47,7 +47,7 @@ const isLoggedIn = (req, res, next) => {
     return;
   }
   // TODO handle error
-  res.redirect('/dashboard');
+  res.redirect('/getUser');
 };
 
 const readAccessControl = (req, res, next) => {
