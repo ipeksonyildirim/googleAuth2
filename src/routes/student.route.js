@@ -188,12 +188,12 @@ router.post('/add',  async (req, res, next) => {
     user: req.body.user,
     advisor: req.body.advisor,
     credit: req.body.credit,
-    feeInfos:
+    payments:
       {
         
         year:req.body.year,
         term: req.body.term,
-        feeType: req.body.feeType,
+        paymentType: req.body.paymentType,
         fee: req.body.fee,
         collection: req.body.collection
       },
@@ -299,6 +299,7 @@ router.put('/edit/:id',  async (req, res, next) => {
           companyName: req.body.companyName,
           startDate: req.body.startDate,
           endDate: req.body.endDate,
+          grade: req.body.grade,
         },
         scholarship: req.body.scholarship,
         grade: req.body.grade,
@@ -324,12 +325,12 @@ router.put('/edit/:id',  async (req, res, next) => {
           status: req.body.status,
           courseType:req.body. courseType,
         },
-        feeInfos:
+        payments:
           {
             
             year:req.body.year,
             term: req.body.term,
-            feeType: req.body.feeType,
+            paymentType: req.body.paymentType,
             fee: req.body.fee,
             collection: req.body.collection
           },
@@ -814,46 +815,123 @@ router.get('/getSFLanguage/id=:id', async (req, res, next) => {
     let japPages;
     let rusPages;
     try {
-      totalPages = await Student.find().countDocuments();
+      var all = [];
+      var dept = [];
+    
       almPages = await Student.countDocuments({secondForeignLanguage: 'Almanca'})
-      arapPages = await Student.countDocuments({secondForeignLanguage: 'Arapça'})
-      cinPages = await Student.countDocuments({secondForeignLanguage: 'Çince'})
-      frPages = await Student.countDocuments({secondForeignLanguage: 'Fransızca'})
-      ispPages = await Student.countDocuments({secondForeignLanguage: 'İspanyolca'})
-      itlPages = await Student.countDocuments({secondForeignLanguage: 'İtalyanca'})
-      japPages = await Student.countDocuments({secondForeignLanguage: 'Japonca'})
-      rusPages = await Student.countDocuments({secondForeignLanguage: 'Rusça'})
-      var all = {
-      total:totalPages,
-      alm: almPages,
-      arap: arapPages,
-      cin: cinPages,
-      fr: frPages,
-      isp: ispPages,
-      itl: itlPages,
-      jap: japPages,
-      rus: rusPages
+      feed = {
+        name:"Almanca",
+        value: almPages
       }
-      totalPages = await Student.find().countDocuments();
-      almPages = await Student.countDocuments({secondForeignLanguage: 'Almanca'}, {department : {$eq: student.department}})
-      arapPages = await Student.countDocuments({secondForeignLanguage: 'Arapça'}, {department : {$eq: student.department}})
-      cinPages = await Student.countDocuments({secondForeignLanguage: 'Çince'}, {department : {$eq: student.department}})
-      frPages = await Student.countDocuments({secondForeignLanguage: 'Fransızca'}, {department : {$eq: student.department}})
-      ispPages = await Student.countDocuments({secondForeignLanguage: 'İspanyolca'}, {department : {$eq: student.department}})
-      itlPages = await Student.countDocuments({secondForeignLanguage: 'İtalyanca'}, {department : {$eq: student.department}})
-      japPages = await Student.countDocuments({secondForeignLanguage: 'Japonca'}, {department : {$eq: student.department}})
+      all.push(feed);
+
+      arapPages = await Student.countDocuments({secondForeignLanguage: 'Arapça'})
+      feed = {
+        name:"Arapça",
+        value: arapPages
+      }
+      all.push(feed);
+
+      cinPages = await Student.countDocuments({secondForeignLanguage: 'Çince'})
+      feed = {
+        name:"Çince",
+        value: cinPages
+      }
+      all.push(feed);
+
+      frPages = await Student.countDocuments({secondForeignLanguage: 'Fransızca'})
+      feed = {
+        name:"Fransızca",
+        value: frPages
+      }
+      all.push(feed);
+
+      ispPages = await Student.countDocuments({secondForeignLanguage: 'İspanyolca'})
+      feed = {
+        name:"İspanyolca",
+        value: ispPages
+      }
+      all.push(feed);
+
+      itlPages = await Student.countDocuments({secondForeignLanguage: 'İtalyanca'})
+      feed = {
+        name:"İtalyanca",
+        value: itlPages
+      }
+      all.push(feed);
+
+      japPages = await Student.countDocuments({secondForeignLanguage: 'Japonca'})
+      feed = {
+        name:"Japonca",
+        value: japPages
+      }
+      all.push(feed);
+
       rusPages = await Student.countDocuments({secondForeignLanguage: 'Rusça'})
-      var dept = {
-        total:totalPages,
-        alm: almPages,
-        arap: arapPages,
-        cin: cinPages,
-        fr: frPages,
-        isp: ispPages,
-        itl: itlPages,
-        jap: japPages,
-        rus: rusPages
-        }
+      feed = {
+        name:"Rusça",
+        value: rusPages
+      }
+      all.push(feed);
+
+
+      almPages = await Student.countDocuments({secondForeignLanguage: 'Almanca'}, {department : {$eq: student.department}})
+      var feed = {
+        name:"Almanca",
+        value: almPages
+      }
+      dept.push(feed);
+
+      arapPages = await Student.countDocuments({secondForeignLanguage: 'Arapça'}, {department : {$eq: student.department}})
+      var feed = {
+        name:"Arapça",
+        value: arapPages
+      }
+      dept.push(feed);
+
+      cinPages = await Student.countDocuments({secondForeignLanguage: 'Çince'}, {department : {$eq: student.department}})
+      var feed = {
+        name:"Çince",
+        value: cinPages
+      }
+      dept.push(feed);
+
+      frPages = await Student.countDocuments({secondForeignLanguage: 'Fransızca'}, {department : {$eq: student.department}})
+      var feed = {
+        name:"Fransızca",
+        value: frPages
+      }
+      dept.push(feed);
+
+      ispPages = await Student.countDocuments({secondForeignLanguage: 'İspanyolca'}, {department : {$eq: student.department}})
+      var feed = {
+        name:"İspanyolca",
+        value: ispPages
+      }
+      dept.push(feed);
+      
+      itlPages = await Student.countDocuments({secondForeignLanguage: 'İtalyanca'}, {department : {$eq: student.department}})
+      var feed = {
+        name:"İtalyanca",
+        value: itlPages
+      }
+      dept.push(feed);
+
+      japPages = await Student.countDocuments({secondForeignLanguage: 'Japonca'}, {department : {$eq: student.department}})
+      var feed = {
+        name:"Japonca",
+        value: japPages
+      }
+      dept.push(feed);
+
+      rusPages = await Student.countDocuments({secondForeignLanguage: 'Rusça'})
+      var feed = {
+        name:"Rusça",
+        value: rusPages
+      }
+      dept.push(feed);
+
+    
       
       
       sfLanguage = student.secondForeignLanguage;
@@ -976,7 +1054,7 @@ router.get('/getInternship/id=:id', async (req, res, next) => {
   if (student) {
     
 
-      internship = student.internships;
+      internship = student.internship;
       
     res.json({
     
@@ -1169,7 +1247,7 @@ router.get('/getContact/id=:id', async (req, res, next) => {
 router.get('/getFeeInfo/id=:id', async (req, res, next) => {
 
   let student;
-  let feeInfos = [];
+  let payments = [];
     try{
         student = await Student.findOne({
             _id: req.params.id
@@ -1184,10 +1262,10 @@ router.get('/getFeeInfo/id=:id', async (req, res, next) => {
   }
   if (student) {
     console.log(student)
-    feeInfos = student.feeInfos;
+    payments = student.payments;
       
     res.json({
-      feeInfo: feeInfos
+      payments: payments
     });
     
   } else {
@@ -1207,10 +1285,10 @@ router.post('/addFeeInfo/id=:id', async (req, res, next) => {
     try{
       student =  await Student.updateOne(
         {_id: req.params.id} ,
-         { $push: { feeInfos: {
+         { $push: { payments: {
           "year": req.body.year,
           "term": req.body.term,
-          "feeType": req.body.feeType,
+          "paymentType": req.body.paymentType,
           "fee": req.body.fee,
           "collection": req.body.collection,
           }

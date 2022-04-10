@@ -20,7 +20,7 @@ const StudentSchema = new mongoose.Schema({
     type: String, default: 'aktif', enum: ['aktif', 'pasif', 'mezun'], required: true,
   },
   internship: [{
-    code:String, year: Number, term: String, company: String, startDate: Date, endDate: Date,
+    code:String, year: Number, term: String, company: String, startDate: Date, endDate: Date, grade: String
   }],
   // TODO this has been changed from class to grade. Find controllers and fix
   scholarship: { type: Number, required: true },
@@ -55,12 +55,12 @@ const StudentSchema = new mongoose.Schema({
       },
     },
   ],
-  feeInfos: [
+  payments: [
     {
       
       year:Number,
       term: { type: String, enum: ['guz', 'bahar', 'yaz']},
-      feeType: String,
+      paymentType: String,
       fee: Number,
       collection: Number
     }

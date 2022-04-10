@@ -48,7 +48,14 @@ router.get('/getUser', async (req, res,next) => {
     const id  = req.session.passport.user;
     try {
       const user1 = await User.findById( id);
-      res.json({user: user1})
+      var user = {
+        _id: user1._id,
+        email: user1.email,
+        name: user1.name,
+        image: user1.image,
+        isAdmin: user1.isAdmin,
+      }
+      res.json({user: user})
     } catch (err) {
       const error = new HttpError(
           'Fetching users failed, please try again later.',
