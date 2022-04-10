@@ -18,7 +18,7 @@ const CourseSchema = new mongoose.Schema({
     },
   ],
   students: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Student' }],
-  lecturers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Lecturer' }],
+  lecturer: { type: mongoose.Schema.Types.ObjectId, ref: 'Lecturer' },
   finalExam:{
     date:Date,
     endTime:String,

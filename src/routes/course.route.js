@@ -163,7 +163,7 @@ router.post('/add', async (req, res, next) => {
             assignment: req.body.assignment,
         },
         students: req.body.students,
-        lecturers: req.body.lecturers,
+        lecturer: req.body.lecturer,
       });
 
       try {
@@ -231,7 +231,7 @@ router.put('/edit/:id', async (req, res, next) => {
               assignment: req.body.assignment,
           },
           students: req.body.students,
-          lecturers: req.body.lecturers,
+          lecturer: req.body.lecturer,
           }
       });
   

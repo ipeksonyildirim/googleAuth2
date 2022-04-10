@@ -383,9 +383,17 @@ router.delete('/:id',  async (req, res, next) => {
 // eslint-disable-next-line consistent-return
 router.get('/faker', async (req, res, next) => {
   let dept;
+  let advisor;
+  let user;
   try {
     dept = await Department.findOne({
-      _id: '623a1e98a197e527ec9f47cc',
+      _id: '623bad2c8ff182d672a02351',
+    });
+    user = await User.findOne({
+      _id: '624f4367ec7b69dcc20c8f41',
+    });
+    advisor = await Lecturer.findOne({
+      _id: '624a1fdf0d412bd580ae2927',
     });
   } catch (err) {
     const error = new HttpError(
@@ -397,25 +405,15 @@ router.get('/faker', async (req, res, next) => {
   const student = new Student({
     id: 123456,
     status: 'aktif',
-    internship: {
-      year: 2019,
-      term: 'Guz',
-      companyName: 'XYZ A.Ş.',
-      startDate: '2019-12-05',
-      endDate: '2019-03-08',
-    },
     scholarship: 75,
-    grade: '3',
-    term: 6,
-    gpa: 3.5,
+    grade: '4',
+    term: 9,
+    gpa: 3.7,
     secondForeignLanguage: 'Almanca',
     department: dept,
-    user: req.user,
-    advisor: null,
-    credit: 42,
-    assignments: [],
-    courses: [],
-
+    user: user,
+    advisor:advisor,
+    credit: 42
   });
 
   let result;
@@ -476,13 +474,13 @@ router.post('/addCourse/sid=:sid/cid=:cid',  async (req, res, next) => {
             term1 = "yaz"
           else
             term1 = "guz"
-          if(course.code === 'ALM001')
+          if(course.code.includes("001") && course.code !== "ING001")
             courseType = 'iyd1'
-          else if(course.code === 'ALM002')
+          else if(course.code.includes("002") && course.code !== "ING002")
             courseType = 'iyd2'
-          else if(course.code === 'ALM003')
+          else if(course.code.includes("003") && course.code !== "ING003")
             courseType = 'iyd3'
-          else if(course.code === 'ALM004')
+          else if(course.code.includes("003") && course.code !== "ING001")
             courseType = 'iyd4'
           course1 =  await Course.updateOne(
             {_id: req.params.cid} ,
@@ -707,7 +705,6 @@ router.get('/getIncomingCourses/id=:id', async (req, res, next) => {
         for (const schedule of course.schedule) {
           if(schedule.day === day || schedule.day === day+1){
             incomingCourses.push(course);
-            break;
           }
         }
       }
@@ -763,7 +760,6 @@ router.get('/getTermCourses/id=:id', async (req, res, next) => {
       if(courses.term === term1 && courses.year === year){
         console.log(courses.year, courses.term)
         termCourses.push(courses);
-        break;
       }
     }
     res.json({
@@ -781,7 +777,19 @@ router.get('/getTermCourses/id=:id', async (req, res, next) => {
 
 //Student ikinci yabanci dil
 router.get('/getSFLanguage/id=:id', async (req, res, next) => {
-
+/*
+"courses": [
+      {
+          "year": "2019",
+          "semester": "Guz",
+          "type": "IYD 1",
+          "shortCode": "ALM 001",
+          "grade": "BB",
+          "status": "Basarili"
+      },
+*/
+  let courses = [];
+  let course;
   let student;
   try {
     student = await Student.findOne({
@@ -815,8 +823,61 @@ router.get('/getSFLanguage/id=:id', async (req, res, next) => {
       itlPages = await Student.countDocuments({secondForeignLanguage: 'İtalyanca'})
       japPages = await Student.countDocuments({secondForeignLanguage: 'Japonca'})
       rusPages = await Student.countDocuments({secondForeignLanguage: 'Rusça'})
-
+      var all = {
+      total:totalPages,
+      alm: almPages,
+      arap: arapPages,
+      cin: cinPages,
+      fr: frPages,
+      isp: ispPages,
+      itl: itlPages,
+      jap: japPages,
+      rus: rusPages
+      }
+      totalPages = await Student.find().countDocuments();
+      almPages = await Student.countDocuments({secondForeignLanguage: 'Almanca'}, {department : {$eq: student.department}})
+      arapPages = await Student.countDocuments({secondForeignLanguage: 'Arapça'}, {department : {$eq: student.department}})
+      cinPages = await Student.countDocuments({secondForeignLanguage: 'Çince'}, {department : {$eq: student.department}})
+      frPages = await Student.countDocuments({secondForeignLanguage: 'Fransızca'}, {department : {$eq: student.department}})
+      ispPages = await Student.countDocuments({secondForeignLanguage: 'İspanyolca'}, {department : {$eq: student.department}})
+      itlPages = await Student.countDocuments({secondForeignLanguage: 'İtalyanca'}, {department : {$eq: student.department}})
+      japPages = await Student.countDocuments({secondForeignLanguage: 'Japonca'}, {department : {$eq: student.department}})
+      rusPages = await Student.countDocuments({secondForeignLanguage: 'Rusça'})
+      var dept = {
+        total:totalPages,
+        alm: almPages,
+        arap: arapPages,
+        cin: cinPages,
+        fr: frPages,
+        isp: ispPages,
+        itl: itlPages,
+        jap: japPages,
+        rus: rusPages
+        }
+      
+      
       sfLanguage = student.secondForeignLanguage;
+
+      for(const key of student.courses){
+        if(key.courseType.includes("iyd")){
+          try {
+            course = await Course.findOne({
+              _id: key.course,
+            })
+          } catch (err) {
+            const error = new HttpError(
+              'Something went wrong, could not find a course.',
+              500,
+            );
+            return next(error);
+          }
+          if(course){
+            var feed = {year: key.year, term: key.term, courseType: key.courseType, shortCode: course.code, grade: key.grade, status: key.status};
+            courses.push(feed);
+          }
+        }
+          
+      }
 
 
 
@@ -829,16 +890,10 @@ router.get('/getSFLanguage/id=:id', async (req, res, next) => {
     }
       
     res.json({
-      total:totalPages,
-      alm: almPages,
-      arap: arapPages,
-      cin: cinPages,
-      fr: frPages,
-      isp: ispPages,
-      itl: itlPages,
-      jap: japPages,
-      rus: rusPages,
-      sfLanguage: sfLanguage
+      sfLanguage:sfLanguage,
+      all: all,
+      dept: dept,
+      courses: courses,
 
     });
     
@@ -1007,6 +1062,7 @@ router.get('/setInternshipSelection/id=:id', async (req, res, next) => {
     return next(error);
   }
 });
+
 //Student ortak egitim
 router.post('/setInternshipSelection/id=:id', async (req, res, next) => {
 
@@ -1144,7 +1200,7 @@ router.get('/getFeeInfo/id=:id', async (req, res, next) => {
 });
 
 //Student add odeme bilgisi
-router.get('/addFeeInfo/id=:id', async (req, res, next) => {
+router.post('/addFeeInfo/id=:id', async (req, res, next) => {
 
   let student;
   let feeInfos = [];
@@ -1214,10 +1270,13 @@ router.get('/getExamInfo/id=:id', async (req, res, next) => {
         return next(error);
       }
       if(course){
-        finalExam.push(course.finalExam);
-        midterm.push(course.midterm);
-        makeUpExam.push(course.makeUpExam);
-        break;
+        var e1 = {code: course.code, name: course.name, midterm:course.midterm};
+        var e2 = {code: course.code, name: course.name, finalExam:course.finalExam};
+        var e3 = {code: course.code, name: course.name, makeUpExam:course.makeUpExam};
+
+        finalExam.push(e2);
+        midterm.push(e1);
+        makeUpExam.push(e3);
           }
         }
       
@@ -1236,6 +1295,71 @@ router.get('/getExamInfo/id=:id', async (req, res, next) => {
   }
 });
 
+//Student ders programi
+router.get('/getSchedule/id=:id', async (req, res, next) => {
 
+  let student;
+  let schedule = [];
+  try {
+    student = await Student.findOne({
+      _id: req.params.id,
+    })
+  } catch (err) {
+    const error = new HttpError(
+      'Something went wrong, could not find a student.',
+      500,
+    );
+    return next(error);
+  }
+  if (student) {
+    //let courses = student.courses;
+    var dateObj = new Date();
+    var month = dateObj.getUTCMonth() + 1;
+    let term1;
+    if(month<=4)
+      term1 = "bahar"
+    else if(month<=8)
+      term1 = "yaz"
+    else
+      term1 = "guz"
+    let year;
+    year = dateObj.getUTCFullYear()
+    
+    var course;
+    console.log(year, term1)
+    for (const courses of student.courses) {
+      var course;
+      if(courses.term === term1 && courses.year === year){
+        try {
+          course = await Course.findOne({
+            _id: courses.course,
+          })
+        } catch (err) {
+          const error = new HttpError(
+            'Something went wrong, could not find a student.',
+            500,
+          );
+          return next(error);
+        }
+        if(course){
+          var feed = {name: course.code , schedule: course.schedule}
+          console.log(feed)
+          schedule.push(feed);
+        }
+        
+      }
+    }
+    res.json({
+      schedule:schedule
+    });
+    
+  }  else {
+    const error = new HttpError(
+      'Could not find student for the provided id.',
+      404,
+    );
+    return next(error);
+  }
+});
 
 module.exports = router;
