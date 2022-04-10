@@ -9,7 +9,11 @@ const methodOverride = require('method-override');
 const bodyParser = require('body-parser');
 const connectDB = require('./src/config/db');
 const path = require('path');
-const cors = require('cors');
+
+var __importDefault = (this && this.__importDefault) || function (mod) {
+  return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+var cors = __importDefault(require('cors'));
 
 require('./src/config/passport')(passport);
 
@@ -17,7 +21,10 @@ require('./src/config/passport')(passport);
 connectDB();
 
 const app = express();
-app.use(cors());
+app.use(cors.default({
+  origin: "http://localhost:3000",
+  credentials: true
+}));
 // logger
 if (process.env.NODE_ENV === 'dev') {
   app.use(morgan('dev'));
