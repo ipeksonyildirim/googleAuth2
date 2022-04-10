@@ -188,12 +188,12 @@ router.post('/add',  async (req, res, next) => {
     user: req.body.user,
     advisor: req.body.advisor,
     credit: req.body.credit,
-    feeInfos:
+    payments:
       {
         
         year:req.body.year,
         term: req.body.term,
-        feeType: req.body.feeType,
+        paymentType: req.body.paymentType,
         fee: req.body.fee,
         collection: req.body.collection
       },
@@ -324,12 +324,12 @@ router.put('/edit/:id',  async (req, res, next) => {
           status: req.body.status,
           courseType:req.body. courseType,
         },
-        feeInfos:
+        payments:
           {
             
             year:req.body.year,
             term: req.body.term,
-            feeType: req.body.feeType,
+            paymentType: req.body.paymentType,
             fee: req.body.fee,
             collection: req.body.collection
           },
@@ -1246,7 +1246,7 @@ router.get('/getContact/id=:id', async (req, res, next) => {
 router.get('/getFeeInfo/id=:id', async (req, res, next) => {
 
   let student;
-  let feeInfos = [];
+  let payments = [];
     try{
         student = await Student.findOne({
             _id: req.params.id
@@ -1261,10 +1261,10 @@ router.get('/getFeeInfo/id=:id', async (req, res, next) => {
   }
   if (student) {
     console.log(student)
-    feeInfos = student.feeInfos;
+    payments = student.payments;
       
     res.json({
-      feeInfo: feeInfos
+      payments: payments
     });
     
   } else {
@@ -1284,10 +1284,10 @@ router.post('/addFeeInfo/id=:id', async (req, res, next) => {
     try{
       student =  await Student.updateOne(
         {_id: req.params.id} ,
-         { $push: { feeInfos: {
+         { $push: { payments: {
           "year": req.body.year,
           "term": req.body.term,
-          "feeType": req.body.feeType,
+          "paymentType": req.body.paymentType,
           "fee": req.body.fee,
           "collection": req.body.collection,
           }

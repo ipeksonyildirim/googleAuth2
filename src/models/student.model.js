@@ -55,12 +55,12 @@ const StudentSchema = new mongoose.Schema({
       },
     },
   ],
-  feeInfos: [
+  payments: [
     {
       
       year:Number,
       term: { type: String, enum: ['guz', 'bahar', 'yaz']},
-      feeType: String,
+      paymentType: String,
       fee: Number,
       collection: Number
     }
