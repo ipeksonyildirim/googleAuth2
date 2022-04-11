@@ -139,6 +139,149 @@ router.get('/id=:id', async (req, res, next) => {
   }
 });
 
+// Student getInfo Route
+router.get('/getInfo/id=:id', async (req, res, next) => {
+  let student;
+  try {
+    student = await Student.findOne({
+      _id: req.params.id,
+    }).populate('user')
+  } catch (err) {
+    const error = new HttpError(
+      'Something went wrong, could not find a student.',
+      500,
+    );
+    return next(error);
+  }
+
+  if (student) {
+    const department = await Department.findOne({
+      _id: student.department
+    })
+    const advisor = await Lecturer.findOne({
+      _id: student.advisor
+    }).populate('user')
+    console.log(advisor)
+    
+    var studentInfo = {
+      name: student.user.name,
+      gpa: student.gpa,
+      creditsCompleted: student.credit,
+      creditsTaken: student.creditsTaken,
+      department: department.name,
+      enrollmentDate: student.enrollmentDate,
+      scholarship: student.scholarship,
+      schoolYear: student.grade,
+      advisor:advisor.title,
+      status: student.status
+    }
+    res.json({
+      
+        name: student.user.name,
+        gpa: student.gpa,
+        creditsCompleted: student.credit,
+        creditsTaken: student.creditsTaken,
+        department: department.name,
+        enrollmentDate: student.enrollmentDate,
+        scholarship: student.scholarship,
+        schoolYear: student.grade,
+        advisor:advisor.title,
+        status: student.status
+      
+    });
+  } else {
+    const error = new HttpError(
+      'Could not find student for the provided department id.',
+      404,
+    );
+    return next(error);
+  }
+});
+
+// Student getInfo Route
+router.get('/getProfile/id=:id', async (req, res, next) => {
+  let student;
+  try {
+    student = await Student.findOne({
+      _id: req.params.id,
+    }).populate('user')
+  } catch (err) {
+    const error = new HttpError(
+      'Something went wrong, could not find a student.',
+      500,
+    );
+    return next(error);
+  }
+
+  if (student) {
+    const department = await Department.findOne({
+      _id: student.department
+    })
+    const advisor = await Lecturer.findOne({
+      _id: student.advisor
+    }).populate('user')
+    console.log(advisor)
+    
+    var studentInfo = {
+      googleId: student.user.googleId,
+      name: student.user.name,
+      image: student.user.image,
+      createdAt: student.user.createdAt,
+      role: "ogrenci",
+      status: student.status,
+      email: student.schoolMail,
+      contacts: student.user.contact,
+      addresses: student.user.address,
+      internships: student.internships,
+      scholarship: student.scholarship,
+      class: student.grade,
+      term: student.term,
+      gpa: student.gpa,
+      secondForeignLanguage: student.secondForeignLanguage,
+      department: department.name,
+      curriculum: department.curriculum,
+      advisor:advisor.title,
+      advisorMail: advisor.schoolMail,
+      creditsCompleted: student.credit,
+      creditsTaken: student.creditsTaken,
+      id: student.id
+    }
+    res.json({
+      
+      
+        googleId: student.user.googleId,
+        name: student.user.name,
+        image: student.user.image,
+        createdAt: student.user.createdAt,
+        role: "ogrenci",
+        status: student.status,
+        email: student.schoolMail,
+        contacts: student.user.contact,
+        addresses: student.user.address,
+        internships: student.internships,
+        scholarship: student.scholarship,
+        class: student.grade,
+        term: student.term,
+        gpa: student.gpa,
+        secondForeignLanguage: student.secondForeignLanguage,
+        department: department.name,
+        curriculum: department.curriculum,
+        advisor:advisor.title,
+        advisorMail: advisor.schoolMail,
+        creditsCompleted: student.credit,
+        creditsTaken: student.creditsTaken,
+        id: student.id
+      
+      
+    });
+  } else {
+    const error = new HttpError(
+      'Could not find student for the provided department id.',
+      404,
+    );
+    return next(error);
+  }
+});
 
 // Add Student Form Route
 router.get('/add', async (req, res, next) => {
@@ -307,7 +450,7 @@ router.put('/edit/:id',  async (req, res, next) => {
         term: req.body.term,
         gpas:[ 
           {
-            gpa:req.body.gpas,
+            value:req.body.value,
             year:req.body.year,
             term: req.body.term,
           }],
@@ -476,6 +619,7 @@ router.post('/addCourse/sid=:sid/cid=:cid',  async (req, res, next) => {
             term1 = "yaz"
           else
             term1 = "guz"
+          courseType = 'zorunlu'
           if(course.code.includes("001") && course.code !== "ING001")
             courseType = 'iyd1'
           else if(course.code.includes("002") && course.code !== "ING002")
@@ -504,8 +648,57 @@ router.post('/addCourse/sid=:sid/cid=:cid',  async (req, res, next) => {
             {$push: { courses: courseVar } ,
           });
          console.log(student)
+         course1 =  await Course.findOne(
+          {_id: req.params.cid});
+          console.log(course1.credit)
+          console.log(student.creditsTaken)
+
+        var creditsTaken = student.creditsTaken + course1.credit;
+        console.log(creditsTaken)
+        student1 =  await Student.updateOne(
+          {_id: req.params.sid} ,
+          {$set: { creditsTaken: creditsTaken } ,
+        });
+         var termName = (dateObj.getUTCFullYear() -1) +"-" +dateObj.getUTCFullYear() + " " + term1;
+         var termVar;
+         if(course1) {
+            termVar ={
+            courses: 
+              {
+                code: course1.code,
+                name: course1.name,
+                courseType: courseType,
+                grade: '-'
+              }};
+         }
+       
+
+      console.log(termVar)
+          student1 =  await Student.updateOne(
+            {_id: req.params.sid, 'terms.name': termName}, {'$push': {
+              'terms.$.courses': {
+                code: course1.code,
+                name: course1.name,
+                courseType: courseType,
+                grade: '-'
+              }}
+          });
         
-         
+         if(student1.modifiedCount == 0 ){
+          var terms = {
+            name: termName,
+            courses: [{
+              code: course1.code,
+              name: course1.name,
+              courseType: courseType,
+              grade: '-'
+            }]
+          }
+          student1 =  await Student.updateOne(
+            {_id: req.params.sid}, {'$push': {
+              terms:terms}
+          });
+         }
          
         }catch (err) {
             const error = new HttpError(
@@ -612,7 +805,7 @@ router.get('/getGpa/id=:id', async (req, res, next) => {
     console.log(term1)
     let student1;
     let gpas = {
-      "gpa": gpa,
+      "value": gpa,
       "year": dateObj.getUTCFullYear(),
       "term": term1 
     }
@@ -626,7 +819,7 @@ router.get('/getGpa/id=:id', async (req, res, next) => {
      
       console.log(student.gpas)
     res.json({
-      gpas:student.gpas
+      gpa:student.gpas
     });
     
   } else {
@@ -654,6 +847,22 @@ router.get('/getCourses/id=:id', async (req, res, next) => {
   }
 
   if (student) {
+    /*
+     "terms": [
+    {
+      "name": "2021-2022 Bahar",
+      "courses": [
+        {
+          "code": "BIL 403",
+          "name": "Sosyal Aglar",
+          "type": "BSD-5",
+          "degreeType": "Ana Dal",
+          "repeat": true,
+          "lastTerm": "2021 Güz",
+          "substitutedCourse": "BIL 409",
+          "grade": "BA"
+        },
+    */
     
       let courses = student.courses;
     res.json({
@@ -669,8 +878,40 @@ router.get('/getCourses/id=:id', async (req, res, next) => {
   }
 });
 
+//Student not dokumu
+router.get('/getTranscript/id=:id', async (req, res, next) => {
+  let student;
+  try {
+    student = await Student.findOne({
+      _id: req.params.id,
+    })
+  } catch (err) {
+    const error = new HttpError(
+      'Something went wrong, could not find a department.',
+      500,
+    );
+    return next(error);
+  }
+
+  if (student) {
+    
+      let terms = student.terms;
+    res.json({
+      terms:terms
+    });
+    
+  } else {
+    const error = new HttpError(
+      'Could not find student for the provided id.',
+      404,
+    );
+    return next(error);
+  }
+});
+
+
 //Student yaklasan dersler
-router.get('/getIncomingCourses/id=:id', async (req, res, next) => {
+router.get('/homePage/id=:id', async (req, res, next) => {
   let student;
   try {
     student = await Student.findOne({
@@ -705,15 +946,64 @@ router.get('/getIncomingCourses/id=:id', async (req, res, next) => {
       if(course){
         console.log(course.schedule)
         for (const schedule of course.schedule) {
-          if(schedule.day === day || schedule.day === day+1){
-            incomingCourses.push(course);
+          if(schedule.day === day ){
+            /*
+             {
+            "date": "Today",
+            "shortCode": "Yap 191",
+            "section": 1,
+            "description": "Eleştirel Düşünce",
+            "time": "11:30"
+        },
+            */
+           var todayCourse = {
+             date: "Today",
+             shortCode: course.code,
+             section: 1,
+             description: course.name, 
+             time: schedule.time
+
+           }
+            incomingCourses.push(todayCourse);
+          }
+          else if(schedule.day === day+2 ){
+            /*
+             {
+            "date": "Today",
+            "shortCode": "Yap 191",
+            "section": 1,
+            "description": "Eleştirel Düşünce",
+            "time": "11:30"
+        },
+            */
+           var todayCourse = {
+             date: "Tomorrow",
+             shortCode: course.code,
+             section: 1,
+             description: course.name, 
+             time: schedule.time
+
+           }
+            incomingCourses.push(todayCourse);
           }
         }
       }
       
       }
     res.json({
-      courses:incomingCourses
+      home: [{ gpa: student.gpas,
+        incomingCourses:incomingCourses,
+        isStudentConfirmed: student.approvement,
+        isAdvisorConfirmed: student.lecturerApprovement,
+        date:dateObj.toLocaleDateString(),
+        role: "Öğrenci"
+
+      }
+        
+      ]
+
+      
+     
     });
     
   } else {

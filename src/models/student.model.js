@@ -28,7 +28,7 @@ const StudentSchema = new mongoose.Schema({
   term: { type: Number, required: true },
   gpas:[ 
     {
-      gpa:Number,
+      value:Number,
       year:Number,
       term: { type: String, enum: ['guz', 'bahar', 'yaz']},
     }],
@@ -69,7 +69,21 @@ const StudentSchema = new mongoose.Schema({
   lecturerApprovement: {type: Boolean, default:false},
   internshipSelection:[{
     rank:Number, company: String,
-  }]
+  }],
+  enrollmentDate: Date,
+  creditsTaken:  {type: Number, default:0},
+  terms: [
+    {
+      name: String,
+      courses: [
+        {
+          code: String,
+          name: String,
+          courseType: String,
+          grade: String
+        },
+      ]
+    }]
 });
 
 
