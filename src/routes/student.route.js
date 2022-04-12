@@ -1731,4 +1731,42 @@ router.get('/getSchedule/id=:id', async (req, res, next) => {
   }
 });
 
+//Student appointment 
+router.get('/getAppointment/id=:id', async (req, res, next) => {
+
+  let student;
+  let user;
+  let schedule = [];
+  try {
+    student = await Student.findOne({
+      _id: req.params.id,
+    })
+    user = await User.findOne({
+      _id: student.user,
+    })
+
+  } catch (err) {
+    const error = new HttpError(
+      'Something went wrong, could not find a student.',
+      500,
+    );
+    return next(error);
+  }
+  if (student) {
+    //let courses = student.courses;
+    res.json({
+      advisorAppointments: student.advisorAppointments,
+      lecturerAppointments: student.lecturerAppointments,
+      studentAffairsAppointments:student.studentAffairsAppointments,
+      ITAppointments: student.ITAppointments,
+    });
+    
+  }  else {
+    const error = new HttpError(
+      'Could not find student for the provided id.',
+      404,
+    );
+    return next(error);
+  }
+});
 module.exports = router;

@@ -83,7 +83,45 @@ const StudentSchema = new mongoose.Schema({
           grade: String
         },
       ]
-    }]
+    }],
+    lecturerAppointments:[
+      {
+      code: String,
+      teacherName :String,
+      appointments: [
+        {
+          date: { type: Date, required: true },
+          hours: String,
+      }]
+    }
+    ],
+    advisorAppointments:[
+      {
+      teacherName :String,
+      appointments: [
+        {
+          date: { type: Date, required: true },
+          hours: String,
+      }]
+    }
+    ],
+    studentAffairsAppointments:[
+      {
+      personnelName :String,
+      appointments: [
+        {
+          date: { type: Date, required: true },
+          hours: String,
+      }]
+    }
+    ],
+    ITAppointments:[
+      {
+        date: { type: Date, required: true },
+        hours: String,
+    }
+  
+    ]
 });
 
 

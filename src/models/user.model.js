@@ -13,12 +13,14 @@ const UserSchema = new mongoose.Schema({
   },
   availableDates:[{ 
     date:{type: Date},
+    hours: String,
 
   }
   ],
   appointments: [{
-    with: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-    date: { type: Date, required: true },
+    with: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    date: { type: Date },
+    hours: String,
     isActive: Boolean,
   }],
   contact: [{ name: String, value: String }],
@@ -30,6 +32,7 @@ const UserSchema = new mongoose.Schema({
     postalCode: String,
     country: String
   }],
+  role: { type: String, enum: ['ogrenci', 'lecturer', 'personnel']},
 });
 
 module.exports = mongoose.model('User', UserSchema);

@@ -5,6 +5,7 @@ const { validationResult } = require('express-validator');
 
 const Student = require('../models/student.model');
 const Course = require('../models/course.model');
+const Personnel = require('../models/personnel.model');
 
 const Department = require('../models/department.model');
 const User = require('../models/user.model');
@@ -65,7 +66,8 @@ router.get('/id=:id', async (req, res, next) => {
       try {
         console.log(req.body.date)
         var date ={
-          date:req.body.date
+          date:req.body.date,
+          hour:req.body.hours,
         } 
         user = await User.updateOne(
           {_id: req.params.id} ,
@@ -88,8 +90,47 @@ router.get('/id=:id', async (req, res, next) => {
     }
   });
 
-  // Search Student Route.//admin
-  router.post('/id=:id/wid=:wid',  async (req, res, next) => {
+// ogrenci isleri appointment
+router.get('/courses/id=:id',  async (req, res, next) => {
+  
+  let department;
+  let student;
+  let user;
+  let course;
+  let stuCourses = []
+  try {
+    user = await User.findOne({_id: req.params.id})
+    student = await Student.findOne({user: user})
+    
+    if(user && student)
+    {
+      for (const courses of student.courses)
+      {
+        console.log(courses.course)
+        course = await Course.findOne({_id: courses.course});
+        var cNames = {
+          code: course.code,
+          name: course.name,
+          _id: course._id
+        }
+        stuCourses.push(cNames);
+      }
+      
+    }
+    
+  } catch (err) {
+    const error = new HttpError(
+      'User is empty .',
+      500,
+    );
+    return next(error);
+  }
+
+  res.json({stuCourses: stuCourses})
+});
+
+  // Ders appointment Route
+  router.post('/lecturer/id=:id/cid=:cid',  async (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return next(
@@ -99,51 +140,517 @@ router.get('/id=:id', async (req, res, next) => {
     else {
       let user;
       let userWith;
+      let course;
+      let student;
+      let lecturer;
       try {
-        userWith = await User.findOne({_id: req.params.wid})
         user = await User.findOne({_id: req.params.id})
+        student = await Student.findOne({user: user._id})
+        course = await Course.findOne({_id: req.params.cid})
+        lecturer = await Lecturer.findOne({_id: course.lecturer._id})
+        console.log(lecturer)
+        userWith = await User.findOne({_id: lecturer.user._id})
+        console.log(userWith)
         if(userWith && user)
         {
-          let user1, userWith1;
+          let user1, userWith1, student1;
           for(const key of user.availableDates){
             let date = new Date(req.body.date)
-            if(key.date.getUTCDate() === date.getUTCDate() ){
+            let hours =  req.body.hours;
+
+            if(key.date.getUTCDate() === date.getUTCDate() && key.hours === hours){
+              userAvailability = true;
+            }              
+            }
+
+          for(const key of userWith.availableDates){
+            let date = new Date(req.body.date)
+            let hours =  req.body.hours;
+            if(key.date.getUTCDate() === date.getUTCDate() && key.hours === hours){
+              userWithAvailability = true;
+            }
+          }            
+          if(userAvailability === true && userWithAvailability === true){
+            user1 = await User.updateOne(
+              {_id: req.params.id} ,
+              { $push: { appointments: {
+                with: userWith,
+                date : req.body.date,
+                hours: req.body.hours,
+                isActive: true        
+              } } ,
+            });
+
+          user1 = await User.updateOne(
+            {_id: req.params.id} ,
+            { $pull: { availableDates: {date : req.body.date,
+              hours: req.body.hours }} ,
+            });
+
+            userWith1 = await User.updateOne(
+              {_id:userWith._id} ,
+              { $push: { appointments: {
+                with: user,
+                date : req.body.date,
+                hours: req.body.hours,
+                isActive: true        
+              } } ,
+            });
+
+          userWith1 = await User.updateOne(
+            {_id: userWith._id} ,
+            { $pull: { availableDates: { date : req.body.date,
+              hours: req.body.hours }} ,
+            });
+
+            student1 = await Student.updateOne(
+              {_id: student,'lecturerAppointments.code': course.code, 'lecturerAppointments.teacherName': lecturer.title},
+              {'$push': {
+                'lecturerAppointments.$.appointments': {
+                date : req.body.date,
+                hours: req.body.hours,} 
+              }
+            })
+            if(student1.modifiedCount == 0 ){
+              var lecturerAppointments = {
+                code: course.code,
+                teacherName: lecturer.title,
+                appointments: [{
+                  date : req.body.date,
+                  hours: req.body.hours,
+                }]
+              }
+              student1 =  await Student.updateOne(
+                {_id: student}, {'$push': {
+                  lecturerAppointments:lecturerAppointments}
+              });
+             }
+          
+         }
+        }
+      
+        
+      } catch (err) {
+        const error = new HttpError(
+          'User is empty .',
+          500,
+        );
+        return next(error);
+      }
+    
+      if (user) {
+        res.redirect('/appointment/id='+user._id);
+      } else {
+        //req.flash('error_msg', 'Record not found.');
+        res.redirect('/student');
+      }
+    }
+  });
+
+
+// ogrenci isleri appointment
+router.get('/studentAffairs',  async (req, res, next) => {
+  
+    let department;
+    let personnel;
+    let user;
+    let users = []
+    try {
+      department = await Department.findOne({name: "Öğrenci İşleri"});
+      console.log(department)
+      personnel = await Personnel.find({department: department});
+      console.log(personnel)
+      if(department && personnel)
+      {
+        console.log(personnel)
+        for (const personel1 of personnel)
+        {
+          user = await User.findOne({_id: personel1.user});
+          console.log(user)
+          var userNames = {
+            name: user.name,
+            _id: user._id
+          }
+          users.push(userNames);
+        }
+        
+      }
+      
+    } catch (err) {
+      const error = new HttpError(
+        'User is empty .',
+        500,
+      );
+      return next(error);
+    }
+  
+    res.json({users: users})
+});
+
+
+    // ogrenci isleri appointment
+router.post('/studentAffairs/id=:id/wid=:wid',  async (req, res, next) => {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+          return next(
+            new HttpError('Invalid inputs passed, please check your data.', 422)
+          );
+        }
+      else {
+        let user;
+        let userWith;
+        let student;
+      
+        try {
+          user = await User.findOne({_id: req.params.id})
+          student = await Student.findOne({user: user})
+          userWith = await User.findOne({_id:  req.params.wid})
+          console.log(userWith)
+          if(userWith && user)
+          {
+            let user1, userWith1, student1;
+            let userAvailability = false;
+            let userWithAvailability = false;
+            for(const key of user.availableDates){
+              let date = new Date(req.body.date)
+              let hours =  req.body.hours;
+
+              if(key.date.getUTCDate() === date.getUTCDate() && key.hours === hours){
+                userAvailability = true;
+
+              }              
+              }
+            console.log(userAvailability)
+            for(const key of userWith.availableDates){
+              let date = new Date(req.body.date)
+              let hours =  req.body.hours;
+              if(key.date.getUTCDate() === date.getUTCDate() && key.hours === hours){
+                userWithAvailability = true;
+                
+              }
+            }
+            console.log(userWithAvailability)
+
+            if(userWithAvailability === true && userAvailability === true){
               user1 = await User.updateOne(
                 {_id: req.params.id} ,
                 { $push: { appointments: {
                   with: userWith,
                   date : req.body.date,
+                  hours: req.body.hours,
                   isActive: true        
                 } } ,
               });
+  
             user1 = await User.updateOne(
               {_id: req.params.id} ,
-              { $pull: { availableDates: { _id: key._id }} ,
+              { $pull: { availableDates: {date : req.body.date,
+                hours: req.body.hours }} ,
               });
-            }              
-            }
-            console.log(userWith.availableDates)
-
-          for(const key of userWith.availableDates){
-            let date = new Date(req.body.date)
-            if(key.date.getUTCDate() === date.getUTCDate() ){
-
               userWith1 = await User.updateOne(
-                {_id: req.params.wid} ,
+                {_id:userWith._id} ,
                 { $push: { appointments: {
                   with: user,
                   date : req.body.date,
+                  hours: req.body.hours,
                   isActive: true        
                 } } ,
               });
-
+  
             userWith1 = await User.updateOne(
-              {_id: req.params.id} ,
-              { $pull: { availableDates: { _id: key._id }} ,
+              {_id: userWith._id} ,
+              { $pull: { availableDates: { date : req.body.date,
+                hours: req.body.hours }} ,
               });
+
+              student1 = await Student.updateOne(
+                {_id: student._id,'studentAffairsAppointments.personnelName':userWith.name},
+                {'$push': {
+                  'studentAffairsAppointments.$.appointments': {
+                  date : req.body.date,
+                  hours: req.body.hours,} 
+                }
+              })
+              if(student1.modifiedCount == 0 ){
+                var studentAffairsAppointments = {
+                  personnelName: userWith.name,
+                  appointments: [{
+                    date : req.body.date,
+                    hours: req.body.hours,
+                  }]
+                }
+                student1 =  await Student.updateOne(
+                  {_id: student._id}, {'$push': {
+                    studentAffairsAppointments:studentAffairsAppointments}
+                });
+               }
             }
+            
+            
           }
           
+        } catch (err) {
+          const error = new HttpError(
+            'User is empty .',
+            500,
+          );
+          return next(error);
+        }
+      
+        if (user) {
+          res.redirect('/appointment/id='+user._id);
+        } else {
+          //req.flash('error_msg', 'Record not found.');
+          res.redirect('/student');
+        }
+      }
+    });
+
+    // ogrenci isleri appointment
+router.get('/it',  async (req, res, next) => {
+  
+  let department;
+  let personnel;
+  let user;
+  let users = []
+  try {
+    department = await Department.findOne({name: "IT"});
+    console.log(department)
+    personnel = await Personnel.find({department: department});
+    console.log(personnel)
+    if(department && personnel)
+    {
+      console.log(personnel)
+      for (const personel1 of personnel)
+      {
+        user = await User.findOne({_id: personel1.user});
+        console.log(user)
+        var userNames = {
+          name: user.name,
+          _id: user._id
+        }
+        users.push(userNames);
+      }
+      
+    }
+    
+  } catch (err) {
+    const error = new HttpError(
+      'User is empty .',
+      500,
+    );
+    return next(error);
+  }
+
+  res.json({users: users})
+});
+
+
+  // ogrenci isleri appointment
+router.post('/it/id=:id/wid=:wid',  async (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return next(
+          new HttpError('Invalid inputs passed, please check your data.', 422)
+        );
+      }
+    else {
+      let user;
+      let userWith;
+      let student;
+    
+      try {
+        user = await User.findOne({_id: req.params.id})
+        student = await Student.findOne({user: user})
+        userWith = await User.findOne({_id:  req.params.wid})
+        console.log(userWith)
+        if(userWith && user)
+        {
+          let user1, userWith1, student1;
+          let userAvailability = false;
+          let userWithAvailability = false;
+          for(const key of user.availableDates){
+            let date = new Date(req.body.date)
+            let hours =  req.body.hours;
+
+            if(key.date.getUTCDate() === date.getUTCDate() && key.hours === hours){
+              userAvailability = true;
+
+            }              
+            }
+          console.log(userAvailability)
+          for(const key of userWith.availableDates){
+            let date = new Date(req.body.date)
+            let hours =  req.body.hours;
+            if(key.date.getUTCDate() === date.getUTCDate() && key.hours === hours){
+              userWithAvailability = true;
+              
+            }
+          }
+          console.log(userWithAvailability)
+
+          if(userWithAvailability === true && userAvailability === true){
+            user1 = await User.updateOne(
+              {_id: req.params.id} ,
+              { $push: { appointments: {
+                with: userWith,
+                date : req.body.date,
+                hours: req.body.hours,
+                isActive: true        
+              } } ,
+            });
+
+          user1 = await User.updateOne(
+            {_id: req.params.id} ,
+            { $pull: { availableDates: {date : req.body.date,
+              hours: req.body.hours }} ,
+            });
+            userWith1 = await User.updateOne(
+              {_id:userWith._id} ,
+              { $push: { appointments: {
+                with: user,
+                date : req.body.date,
+                hours: req.body.hours,
+                isActive: true        
+              } } ,
+            });
+
+          userWith1 = await User.updateOne(
+            {_id: userWith._id} ,
+            { $pull: { availableDates: { date : req.body.date,
+              hours: req.body.hours }} ,
+            });
+
+            student1 = await Student.updateOne(
+              {_id: student._id},
+              {$push: {
+                ITAppointments: {
+                date : req.body.date,
+                hours: req.body.hours,} 
+              }
+            })
+            
+             
+          }
+          
+          
+        }
+        
+      } catch (err) {
+        const error = new HttpError(
+          'User is empty .',
+          500,
+        );
+        return next(error);
+      }
+    
+      if (user) {
+        res.redirect('/appointment/id='+user._id);
+      } else {
+        //req.flash('error_msg', 'Record not found.');
+        res.redirect('/student');
+      }
+    }
+  });
+
+  // Search Student Route.//admin
+  router.post('/advisor/id=:id',  async (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return next(
+          new HttpError('Invalid inputs passed, please check your data.', 422)
+        );
+      }
+    else {
+      let user;
+      let userWith;
+      let student;
+      let lecturer;
+      let userAvailability = false;
+      let userWithAvailability = false;
+      try {
+        user = await User.findOne({_id: req.params.id})
+        student = await Student.findOne({user: user})
+        lecturer = await Lecturer.findOne({_id: student.advisor})
+        userWith = await User.findOne({_id:lecturer.user})
+        console.log(user)
+        if(userWith && user)
+        {
+          let user1, userWith1, student1;
+          for(const key of user.availableDates){
+            let date = new Date(req.body.date)
+            let hours =  req.body.hours;
+
+            if(key.date.getUTCDate() === date.getUTCDate() && key.hours === hours){
+              userAvailability = true;
+            }              
+            }
+
+          for(const key of userWith.availableDates){
+            let date = new Date(req.body.date)
+            let hours =  req.body.hours;
+            if(key.date.getUTCDate() === date.getUTCDate() && key.hours === hours){
+              userWithAvailability = true;
+            }
+          }            
+          if(userAvailability === true && userWithAvailability === true){
+            user1 = await User.updateOne(
+              {_id: req.params.id} ,
+              { $push: { appointments: {
+                with: userWith,
+                date : req.body.date,
+                hours: req.body.hours,
+                isActive: true        
+              } } ,
+            });
+
+          user1 = await User.updateOne(
+            {_id: req.params.id} ,
+            { $pull: { availableDates: {date : req.body.date,
+              hours: req.body.hours }} ,
+            });
+            userWith1 = await User.updateOne(
+              {_id:userWith._id} ,
+              { $push: { appointments: {
+                with: user,
+                date : req.body.date,
+                hours: req.body.hours,
+                isActive: true        
+              } } ,
+            });
+
+          userWith1 = await User.updateOne(
+            {_id: userWith._id} ,
+            { $pull: { availableDates: { date : req.body.date,
+              hours: req.body.hours }} ,
+            });
+
+            student1 = await Student.updateOne(
+              {_id: student._id,'advisorAppointments.teacherName':lecturer.title},
+              {'$push': {
+                'advisorAppointments.$.appointments': {
+                date : req.body.date,
+                hours: req.body.hours,} 
+              }
+            })
+            
+           if(student1.modifiedCount == 0 ){
+            var advisorAppointments = {
+              teacherName: lecturer.title,
+              appointments: [{
+                date : req.body.date,
+                hours: req.body.hours
+              }]
+            }
+            student1 =  await Student.updateOne(
+              {_id: student._id}, {'$push': {
+                advisorAppointments:advisorAppointments}
+            });
+
+
+          }
+          
+         }
         }
         
       } catch (err) {
