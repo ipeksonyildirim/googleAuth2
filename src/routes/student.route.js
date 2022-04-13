@@ -6,6 +6,7 @@ const { validationResult } = require('express-validator');
 const Student = require('../models/student.model');
 const Course = require('../models/course.model');
 const Assignment = require('../models/studentAssignment.model');
+const CourseAssignment = require('../models/assignment.model')
 const Department = require('../models/department.model');
 const User = require('../models/user.model');
 const Lecturer = require('../models/lecturer.model');
@@ -1771,6 +1772,52 @@ router.get('/getAppointment/id=:id', async (req, res, next) => {
 });
 
 // Course Assignment Route
+router.get('/getAssignments/id=:id/cid=:cid/aid=:aid', async (req, res, next) => {
+
+  let course;
+  let student;
+  let assignment;
+  let stuAssignment;
+  try {
+      student = await Student.findOne({
+        _id: req.params.id
+      }).populate('user');
+      course = await Course.findOne({
+        _id: req.params.cid
+      });
+      assignment = await CourseAssignment.findOne({_id: req.params.aid})
+      stuAssignment = await Assignment.findOne({
+        student: student._id,
+        course: course._id,
+        assignment : assignment._id
+      })
+  }  catch (err) {
+      const error = new HttpError(
+        'Something went wrong, could not find a course.',
+        500
+      );
+      return next(error);
+    }
+
+  if (course && student && assignment) {
+     
+      res.json({
+        name: student.user.name, 
+        courseCode: course.code,
+        courseName: course.name,
+        assignmentTitle: assignment.title,
+        assignments: stuAssignment,
+
+      });
+  } else {
+      const error = new HttpError(
+          'Something went wrong, could not find a department.',
+          500
+        );
+        return next(error);
+  }
+});
+// Course Assignment Route
 router.get('/getAssignments/id=:id/cid=:cid', async (req, res, next) => {
 
   let course;
@@ -1819,5 +1866,4 @@ router.get('/getAssignments/id=:id/cid=:cid', async (req, res, next) => {
         return next(error);
   }
 });
-
 module.exports = router;
