@@ -6,6 +6,8 @@ const { validationResult } = require('express-validator');
 const Department = require('../models/department.model');
 const Course = require('../models/course.model');
 const Student = require('../models/student.model');
+const Post = require('../models/post.model');
+const Assignment = require('../models/assignment.model');
 
 const {
     ensureAuthenticated,
@@ -307,7 +309,7 @@ router.delete('/:id', async (req, res, next) => {
     }
 });
 
-// Course Home Route
+// Course Info Route
 router.get('/getCourseInfo/id=:id', async (req, res, next) => {
 
   let course;
@@ -363,7 +365,7 @@ router.get('/getCourseInfo/id=:id', async (req, res, next) => {
   }
 });
 
-// Course Home Route
+// Course Appointment Route
 router.get('/getPosts/id=:id', async (req, res, next) => {
 
   let course;
@@ -381,9 +383,112 @@ router.get('/getPosts/id=:id', async (req, res, next) => {
 
   if (course) {
      let posts = [];
-     posts = course.posts
+     for(const post of course.posts){
+      let stuPosts = await Post.findOne({_id : post._id})
+      posts.push(stuPosts);
+     }
       res.json({ 
+        courseCode: course.code,
+        courseName: course.name,
         posts: posts,
+
+      });
+      
+  } else {
+      const error = new HttpError(
+          'Something went wrong, could not find a department.',
+          500
+        );
+        return next(error);
+  }
+});
+
+// Course Assignment Route
+router.get('/getAssignments/id=:id', async (req, res, next) => {
+
+  let course;
+  let assignments;
+  try {
+      course = await Course.findOne({
+        _id: req.params.id
+      });
+      assignments = await Assignment.find({
+        course: course._id
+      })
+  }  catch (err) {
+      const error = new HttpError(
+        'Something went wrong, could not find a course.',
+        500
+      );
+      return next(error);
+    }
+
+  if (course) {
+     let courseAssignments = [];
+
+     for(const assignment of assignments){
+      console.log(assignment._id)
+
+      let stuAssignment = await Assignment.findOne({_id : assignment._id})
+      courseAssignments.push(stuAssignment);
+     }
+      res.json({ 
+        courseCode: course.code,
+        courseName: course.name,
+        assignments: courseAssignments,
+
+      });
+  } else {
+      const error = new HttpError(
+          'Something went wrong, could not find a department.',
+          500
+        );
+        return next(error);
+  }
+});
+
+// Course Blog Route
+router.get('/getBlog/id=:id', async (req, res, next) => {
+
+  let course;
+  let assignments;
+  try {
+      course = await Course.findOne({
+        _id: req.params.id
+      });
+      assignments = await Assignment.find({
+        course: course._id
+      })
+  }  catch (err) {
+      const error = new HttpError(
+        'Something went wrong, could not find a course.',
+        500
+      );
+      return next(error);
+    }
+
+  if (course) {
+     let courseAssignments = [];
+
+     for(const assignment of assignments){
+      console.log(assignment._id)
+
+      let stuAssignment = await Assignment.findOne({_id : assignment._id})
+      courseAssignments.push(stuAssignment);
+
+     }
+     let posts = [];
+     for(const post of course.posts){
+      let stuPosts = await Post.findOne({_id : post._id})
+      posts.push(stuPosts);
+     }
+      res.json({ 
+        courseCode: course.code,
+        courseName: course.name,
+        posts: posts,
+        resources:[{
+          assignments:  courseAssignments,}
+        ]
 
       });
   } else {
