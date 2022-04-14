@@ -89,39 +89,39 @@ router.get('/id=:id', async (req, res, next) => {
 
 // Lecturer Dept's Route
 router.get('/dept=:dept', async (req, res, next) => {
-    let lecturer;
-    try{
-        lecturer = await Lecturer.find({
-            department: req.params.dept
-          }).populate('user').select({
-            name:1,
-            _id: 0
-          });
+  let lecturer;
+  try{
+      lecturer = await Lecturer.find({
+          department: req.params.dept
+        }).populate('user').select({
+          name:1,
+          _id: 0
+        });
+
+  }catch (err) {
+  const error = new HttpError(
+    'Something went wrong, could not find a department.',
+    500
+  );
+  return next(error);
+}
   
-    }catch (err) {
-    const error = new HttpError(
-      'Something went wrong, could not find a department.',
-      500
-    );
-    return next(error);
+
+  if (lecturer.length>0){
+    res.json({ 
+      lecturer: lecturer,
+    });
   }
-    
-  
-    if (lecturer.length>0){
-      res.json({ 
-        lecturer: lecturer,
-      });
-    }
-    else
-    {
-        const error = new HttpError(
-          'Could not find lecturer for the provided department id.',
-            404
-          );
-          return next(error);
-    }
-        
-  });
+  else
+  {
+      const error = new HttpError(
+        'Could not find lecturer for the provided department id.',
+          404
+        );
+        return next(error);
+  }
+      
+});
 
 // Add Lecturer Form Route
 router.get('/add',  async (req, res, next) => {
