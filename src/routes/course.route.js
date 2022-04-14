@@ -21,7 +21,6 @@ const HttpError = require('../models/http-error.model');
 
 // Course Home Route
 router.get('/', async (req, res, next) => {
-
   let course;
   try {
       course = await Course.find();
@@ -261,7 +260,7 @@ router.get('/dept=:dept', async (req, res, next) => {
         }).select({
             code: 1,
             name: 1,
-            _id: 0
+            _id: 1,
         });
 
     }catch (err) {

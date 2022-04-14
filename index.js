@@ -26,7 +26,7 @@ app.use(cors.default({
   credentials: true
 }));
 // logger
-if (process.env.NODE_ENV === 'dev') {
+if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
 
@@ -49,10 +49,7 @@ app.use(session({
   // cookie: { maxAge: oneDay },
 }));
 
-// passport middleware
-app.use(passport.initialize());
-app.use(passport.session());
-
+app.use('/user', require('./src/routes/user.route'));
 //uploads
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
@@ -68,6 +65,10 @@ app.use('/post', require('./src/routes/post.route'));
 app.use('/comment', require('./src/routes/comment.route'));
 app.use('/assignment', require('./src/routes/assignment.route'));
 app.use('/appointment', require('./src/routes/appointment.route'));
+
+// passport middleware
+app.use(passport.initialize());
+app.use(passport.session());
 
 const PORT = process.env.PORT || 5000;
 
