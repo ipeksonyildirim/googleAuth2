@@ -241,9 +241,6 @@ router.delete('/:id', async (req, res, next) => {
     }
 });
 
-router.get('/')
-
-
 
 
 module.exports = router;
