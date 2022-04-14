@@ -364,7 +364,7 @@ router.post('/studentAffairs/id=:id/wid=:wid',  async (req, res, next) => {
               });
 
               student1 = await Student.updateOne(
-                {_id: student._id,'studentAffairsAppointments.personnelName':userWith.name},
+                {_id: student._id,'studentAffairsAppointments.appointmentsWith':userWith.name},
                 {'$push': {
                   'studentAffairsAppointments.$.appointments': {
                   date : req.body.date,
@@ -373,7 +373,7 @@ router.post('/studentAffairs/id=:id/wid=:wid',  async (req, res, next) => {
               })
               if(student1.modifiedCount == 0 ){
                 var studentAffairsAppointments = {
-                  personnelName: userWith.name,
+                  appointmentsWith: userWith.name,
                   appointments: [{
                     date : req.body.date,
                     hours: req.body.hours,
@@ -522,14 +522,27 @@ router.post('/it/id=:id/wid=:wid',  async (req, res, next) => {
             });
 
             student1 = await Student.updateOne(
-              {_id: student._id},
-              {$push: {
-                ITAppointments: {
+              {_id: student._id,'ITAppointments.appointmentsWith':userWith.name},
+              {'$push': {
+                'ITAppointments.$.appointments': {
                 date : req.body.date,
                 hours: req.body.hours,} 
               }
             })
-            
+            if(student1.modifiedCount == 0 ){
+              var ITAppointments = {
+                appointmentsWith: userWith.name,
+                appointments: [{
+                  date : req.body.date,
+                  hours: req.body.hours,
+                }]
+              }
+              student1 =  await Student.updateOne(
+                {_id: student._id}, {'$push': {
+                  ITAppointments:ITAppointments}
+              });
+             }
+
              
           }
           
@@ -626,7 +639,7 @@ router.post('/it/id=:id/wid=:wid',  async (req, res, next) => {
             });
 
             student1 = await Student.updateOne(
-              {_id: student._id,'advisorAppointments.teacherName':lecturer.title},
+              {_id: student._id,'advisorAppointments.appointmentsWith':lecturer.title},
               {'$push': {
                 'advisorAppointments.$.appointments': {
                 date : req.body.date,
@@ -636,7 +649,7 @@ router.post('/it/id=:id/wid=:wid',  async (req, res, next) => {
             
            if(student1.modifiedCount == 0 ){
             var advisorAppointments = {
-              teacherName: lecturer.title,
+              appointmentsWith: lecturer.title,
               appointments: [{
                 date : req.body.date,
                 hours: req.body.hours

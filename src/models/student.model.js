@@ -97,7 +97,7 @@ const StudentSchema = new mongoose.Schema({
     ],
     advisorAppointments:[
       {
-      teacherName :String,
+      appointmentsWith :String,
       appointments: [
         {
           date: { type: Date, required: true },
@@ -107,7 +107,7 @@ const StudentSchema = new mongoose.Schema({
     ],
     studentAffairsAppointments:[
       {
-      personnelName :String,
+      appointmentsWith :String,
       appointments: [
         {
           date: { type: Date, required: true },
@@ -117,8 +117,12 @@ const StudentSchema = new mongoose.Schema({
     ],
     ITAppointments:[
       {
-        date: { type: Date, required: true },
-        hours: String,
+        appointmentsWith :String,
+        appointments: [
+          {
+            date: { type: Date, required: true },
+            hours: String,
+        }]
     }
   
     ]
