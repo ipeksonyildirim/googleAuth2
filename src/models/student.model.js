@@ -87,7 +87,7 @@ const StudentSchema = new mongoose.Schema({
     lecturerAppointments:[
       {
       code: String,
-      teacherName :String,
+      appointmentsWith :String,
       appointments: [
         {
           date: { type: Date, required: true },

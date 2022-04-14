@@ -204,7 +204,7 @@ router.get('/courses/id=:id',  async (req, res, next) => {
             });
 
             student1 = await Student.updateOne(
-              {_id: student,'lecturerAppointments.code': course.code, 'lecturerAppointments.teacherName': lecturer.title},
+              {_id: student,'lecturerAppointments.code': course.code, 'lecturerAppointments.appointmentsWith': lecturer.title},
               {'$push': {
                 'lecturerAppointments.$.appointments': {
                 date : req.body.date,
@@ -214,7 +214,7 @@ router.get('/courses/id=:id',  async (req, res, next) => {
             if(student1.modifiedCount == 0 ){
               var lecturerAppointments = {
                 code: course.code,
-                teacherName: lecturer.title,
+                appointmentsWith: lecturer.title,
                 appointments: [{
                   date : req.body.date,
                   hours: req.body.hours,
