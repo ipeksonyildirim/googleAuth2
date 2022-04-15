@@ -1,10 +1,13 @@
 const express = require('express')
 const router = express.Router();
-const User = require('../models/user.model')
-const Student = require('../models/student.model')
 const HttpError = require('../models/http-error.model');
 const passport = require('passport');
 const { validationResult } = require('express-validator');
+
+const User = require('../models/user.model')
+const Student = require('../models/student.model')
+const Lecturer = require('../models/lecturer.model');
+const Personnel = require('../models/personnel.model');
 
 const {
     ensureAuthenticated,
@@ -86,7 +89,7 @@ router.get('/logout', (req, res) => {
 
 // Protected Routes.
 
-router.get('/user', [ensureAuthenticated, isAdmin], async (req, res, next) => {
+router.get('/user', async (req, res, next) => {
   let users;
   try {
     users = await User.find({});
@@ -102,7 +105,7 @@ router.get('/user', [ensureAuthenticated, isAdmin], async (req, res, next) => {
 });
 
 
-router.get('/user/:id', [ensureAuthenticated, isAdmin, readAccessControl], async (req, res, next) => {
+router.get('/user/id=:id',  async (req, res, next) => {
   let user;
   try {
     user = await User.find({_id: req.params.id});
@@ -123,7 +126,7 @@ router.get('/user/:id', [ensureAuthenticated, isAdmin, readAccessControl], async
 });
 
 
-router.delete('/user/:id', [ensureAuthenticated, isAdmin, deleteAccessControl], async (req, res) => {
+router.delete('/user/:id', async (req, res) => {
     let user;
     
     try {
@@ -148,7 +151,7 @@ router.delete('/user/:id', [ensureAuthenticated, isAdmin, deleteAccessControl], 
 
 // Edit User Account.
 
-router.get('/user/edit/:id', [ensureAuthenticated, isAdmin, updateAccessControl], async (req, res) => {
+router.get('/user/edit/:id',  async (req, res) => {
 
   let user;
   try {
@@ -168,7 +171,7 @@ router.get('/user/edit/:id', [ensureAuthenticated, isAdmin, updateAccessControl]
 
 });
 
-router.put('/user/edit/:id', [ensureAuthenticated, isAdmin, updateAccessControl], async (req, res) => {
+router.put('/user/edit/:id', async (req, res) => {
     let user;
     try {
       user = await User.update({
@@ -196,6 +199,312 @@ router.put('/user/edit/:id', [ensureAuthenticated, isAdmin, updateAccessControl]
         //req.flash('success_msg', 'User account updated successfully.');
         res.redirect('/user');
     } 
+});
+
+router.get('/user/add', async (req, res, next) => {
+  let result;
+  try {
+    console.log("here")
+    result = await User.find({ 
+      isRegistered: false
+     });
+  } catch (err) {
+    const error = new HttpError(
+      'Something went wrong .',
+      500
+    );
+    return next(error);
+}
+  if (result.length === 0) {
+    res.status(404).json({
+      message: "User is not registered not found"
+    })
+  } else {
+    const users = [];
+    result.forEach(user => {
+      // if user.name.includes ignore case
+        const userObj = {
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+        }
+        users.push(userObj);
+      
+    }
+    )
+    res.status(200).json({
+      users
+    })
+  }
+})
+router.get('/user/add/name=:name', async (req, res, next) => {
+  const name = req.params.name;
+
+  let result;
+  try {
+    console.log("here")
+    result = await User.find({ "name": { "$regex": name, "$options": "i" } ,      
+                                isRegistered: false
+  });
+  } catch (err) {
+    const error = new HttpError(
+      'Something went wrong .',
+      500
+    );
+    return next(error);
+}
+  if (result.length === 0) {
+    res.status(404).json({
+      message: "User is not registered not found"
+    })
+  } else {
+    const users = [];
+    result.forEach(user => {
+      // if user.name.includes ignore case
+        const userObj = {
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+        }
+        users.push(userObj);
+      
+    }
+    )
+    res.status(200).json({
+      users
+    })
+  }
+})
+router.post('/user/add/id=:id', async (req, res, next) => {
+  let user;
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+      return next(
+        new HttpError('Invalid inputs passed, please check your data.', 422)
+      );
+    }
+    else {
+      try{
+        user =  await User.updateOne(
+          {_id: req.params.id} ,
+           { $set: { 
+              isStudent: req.body.isStudent,
+              isLecturer: req.body.isLecturer,
+              isPersonnel: req.body.isPersonnel,
+              isRegistered: true
+            }
+       });
+       user = await User.findOne({_id: req.params.id})
+       console.log(user.isStudent)
+      }catch (err) {
+          const error = new HttpError(
+            'Something went wrong .',
+            500
+          );
+          return next(error);
+      }
+      res.status(200).json({
+        id:null,
+        isStudent: user.isStudent,
+        isLecturer: user.isLecturer,
+        isPersonnel: user.isPersonnel
+      });
+  }
+});
+
+router.get('/user/getId/id=:id', async (req, res, next) => {
+  let user;
+  let student;
+  let lecturer;
+  let personnel;
+  try{
+    user =  await User.findOne(
+      {_id: req.params.id});
+
+      if(user.isRegistered === false ){
+        const error = new HttpError(
+          'User is not registered .',
+          500
+        );
+        res.redirect('user/add/id='+user._id);
+      }
+      
+      if(user.isStudent){
+        student = await Student.findOne({user: user._id})
+        if(student){
+          res.json({
+            id: student._id,
+            isStudent: user.isStudent,
+            isLecturer: user.isLecturer,
+            isPersonnel: user.isPersonnel
+          });
+        }
+        else {
+          res.json({
+            id:null,
+            isStudent: user.isStudent,
+            isLecturer: user.isLecturer,
+            isPersonnel: user.isPersonnel,
+            message: "User is not registered"
+          });
+        }
+      }
+      else if(user.isLecturer){
+        lecturer = await Lecturer.findOne({user: user._id})
+        if(lecturer){
+          res.json({
+            id: lecturer._id,
+            isStudent: user.isStudent,
+            isLecturer: user.isLecturer,
+            isPersonnel: user.isPersonnel
+          });
+        }
+        else {
+          res.json({
+            id:null,
+            isStudent: user.isStudent,
+            isLecturer: user.isLecturer,
+            isPersonnel: user.isPersonnel,
+            message: "User is not registered"
+          });
+        }
+      }
+      else if(user.isPersonnel){
+        personnel = await Personnel.findOne({user: user._id})
+        if(personnel){
+          res.json({
+            id: personnel._id,
+            isStudent: user.isStudent,
+            isLecturer: user.isLecturer,
+            isPersonnel: user.isPersonnel
+          });
+        }
+        else {
+          res.json({
+            id:null,
+            isStudent: user.isStudent,
+            isLecturer: user.isLecturer,
+            isPersonnel: user.isPersonnel,
+            message: "User is not registered"
+          });
+        }
+      }
+      else {
+        res.json({
+          id:null,
+          isStudent: user.isStudent,
+          isLecturer: user.isLecturer,
+          isPersonnel: user.isPersonnel,
+          message: "User is not registered"
+        });
+      }
+  
+   
+  }catch (err) {
+      const error = new HttpError(
+        'Something went wrong .',
+        500
+      );
+      return next(error);
+  }
+      
+  
+});
+router.get('/user/getId/email=:email', async (req, res, next) => {
+  let user;
+  let student;
+  let lecturer;
+  let personnel;
+
+  try{
+    user =  await User.findOne(
+      {email: req.params.email});
+
+      if(user.isRegistered === false ){
+        const error = new HttpError(
+          'User is not registered .',
+          500
+        );
+        res.redirect('user/add/id='+user._id);
+      }
+      
+      if(user.isStudent){
+        student = await Student.findOne({user: user._id})
+        if(student){
+          res.json({
+            id: student._id,
+            isStudent: user.isStudent,
+            isLecturer: user.isLecturer,
+            isPersonnel: user.isPersonnel
+          });
+        }
+        else {
+          res.json({
+            id:null,
+            isStudent: user.isStudent,
+            isLecturer: user.isLecturer,
+            isPersonnel: user.isPersonnel,
+            message: "User is not registered"
+          });
+        }
+      }
+      else if(user.isLecturer){
+        lecturer = await Lecturer.findOne({user: user._id})
+        if(lecturer){
+          res.json({
+            id: lecturer._id,
+            isStudent: user.isStudent,
+            isLecturer: user.isLecturer,
+            isPersonnel: user.isPersonnel
+          });
+        }
+        else {
+          res.json({
+            id:null,
+            isStudent: user.isStudent,
+            isLecturer: user.isLecturer,
+            isPersonnel: user.isPersonnel,
+            message: "User is not registered"
+          });
+        }
+      }
+      else if(user.isPersonnel){
+        personnel = await Personnel.findOne({user: user._id})
+        if(personnel){
+          res.json({
+            id: personnel._id,
+            isStudent: user.isStudent,
+            isLecturer: user.isLecturer,
+            isPersonnel: user.isPersonnel
+          });
+        }
+        else {
+          res.json({
+            id:null,
+            isStudent: user.isStudent,
+            isLecturer: user.isLecturer,
+            isPersonnel: user.isPersonnel,
+            message: "User is not registered"
+          });
+        }
+      }
+      else {
+        res.json({
+          id:null,
+          isStudent: user.isStudent,
+          isLecturer: user.isLecturer,
+          isPersonnel: user.isPersonnel,
+          message: "User is not registered"
+        });
+      }
+   
+  }catch (err) {
+      const error = new HttpError(
+        'Something went wrong .',
+        500
+      );
+      return next(error);
+  }
 });
 
 module.exports = router;

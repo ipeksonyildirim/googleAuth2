@@ -33,6 +33,10 @@ const UserSchema = new mongoose.Schema({
     country: String
   }],
   role: { type: String, enum: ['ogrenci', 'lecturer', 'personnel']},
+  isLecturer: { type: Boolean,default:false, required: true },
+  isPersonnel: { type: Boolean,default:false, required: true },
+  isStudent: { type: Boolean,default:false,required: true },
+  isRegistered: { type: Boolean,default:false, required: true },
 });
 
 module.exports = mongoose.model('User', UserSchema);

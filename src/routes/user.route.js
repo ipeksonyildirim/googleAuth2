@@ -1,6 +1,12 @@
 const express = require('express')
 const router = express.Router()
+const HttpError = require('../models/http-error.model');
+const { validationResult } = require('express-validator');
+
 const User = require('../models/user.model')
+const Student = require('../models/student.model')
+const Lecturer = require('../models/lecturer.model');
+const Personnel = require('../models/personnel.model');
 
 router.get("/", async (req, res, next) => {
   const name = req.query.name;
@@ -36,5 +42,6 @@ router.get("/", async (req, res, next) => {
     })
   }
 })
+
 
 module.exports = router;
