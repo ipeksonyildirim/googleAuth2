@@ -49,7 +49,10 @@ app.use(session({
   // cookie: { maxAge: oneDay },
 }));
 
-app.use('/user', require('./src/routes/user.route'));
+// passport middleware
+app.use(passport.initialize());
+app.use(passport.session());
+
 //uploads
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
@@ -65,10 +68,9 @@ app.use('/post', require('./src/routes/post.route'));
 app.use('/comment', require('./src/routes/comment.route'));
 app.use('/assignment', require('./src/routes/assignment.route'));
 app.use('/appointment', require('./src/routes/appointment.route'));
+app.use('/user', require('./src/routes/user.route'));
 
-// passport middleware
-app.use(passport.initialize());
-app.use(passport.session());
+
 
 const PORT = process.env.PORT || 5000;
 
