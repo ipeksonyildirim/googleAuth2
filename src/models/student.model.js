@@ -30,7 +30,7 @@ const StudentSchema = new mongoose.Schema({
     {
       value:Number,
       year:Number,
-      term: { type: String, enum: ['guz', 'bahar', 'yaz']},
+      term: { type: String, enum: ['güz', 'bahar', 'yaz']},
     }],
   gpa: Number,
   secondForeignLanguage: { type: String },

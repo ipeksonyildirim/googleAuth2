@@ -140,6 +140,33 @@ router.get('/id=:id', async (req, res, next) => {
   }
 });
 
+router.get("/userid=:id", async (req, res, next) => {
+  let student;
+  try {
+    student = await Student.find({
+      user: req.params.id,
+    }).populate('user')
+  } catch (err) {
+    const error = new HttpError(
+      'Something went wrong, could not find a student.',
+      500,
+    );
+    return next(error);
+  }
+
+  if (student) {
+    res.json({
+      student,
+    });
+  } else {
+    const error = new HttpError(
+      'Could not find student for the provided department id.',
+      404,
+    );
+    return next(error);
+  }
+})
+
 // Student getInfo Route
 router.get('/getInfo/id=:id', async (req, res, next) => {
   let student;
@@ -332,15 +359,14 @@ router.post('/add',  async (req, res, next) => {
     user: req.body.user,
     advisor: req.body.advisor,
     credit: req.body.credit,
-    payments:
-      {
-        
-        year:req.body.year,
-        term: req.body.term,
-        paymentType: req.body.paymentType,
-        fee: req.body.fee,
-        collection: req.body.collection
-      },
+    // payments:
+    //   {
+    //     year:req.body.year,
+    //     term: req.body.term,
+    //     paymentType: req.body.paymentType,
+    //     fee: req.body.fee,
+    //     collection: req.body.collection
+    //   },
 
   });
   let result;
@@ -359,12 +385,13 @@ router.post('/add',  async (req, res, next) => {
   if (!result) {
     try {
       result = await student.save();
-
+      console.log(result)
       if (result) {
         //req.flash('success_msg', 'Information saved successfully.');
         res.redirect('/student');
       }
     } catch (ex) {
+      console.log(ex)
       const error = new HttpError(
         'Something went wrong.',
         500,
@@ -472,7 +499,6 @@ router.put('/edit/:id',  async (req, res, next) => {
         },
         payments:
           {
-            
             year:req.body.year,
             term: req.body.term,
             paymentType: req.body.paymentType,
