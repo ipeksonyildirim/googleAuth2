@@ -152,10 +152,7 @@ router.get('/dept=:dept', async (req, res, next) => {
         );
         return next(error);
   }
-      
-});
-
-
+    
   if (lecturer.length > 0) {
     res.json({
       lecturer: lecturer,
