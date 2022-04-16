@@ -266,9 +266,11 @@ router.get('/getProfile/id=:id', async (req, res, next) => {
         gpa: student.gpa,
         secondForeignLanguage: student.secondForeignLanguage,
         department: department.name,
+        departmentId: department._id,
         curriculum: department.curriculum,
         advisor:advisor.title,
         advisorMail: advisor.schoolMail,
+        advisorId: advisor._id,
         creditsCompleted: student.credit,
         creditsTaken: student.creditsTaken,
         id: student.id
