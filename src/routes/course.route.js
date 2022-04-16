@@ -468,7 +468,11 @@ router.get('/getBlog/id=:id', async (req, res, next) => {
 
   if (course) {
      let courseAssignments = [];
-
+     let lectureNotes = [];
+     let lectureVideos = [];
+     let exams = [];
+     let otherResources = [];
+    
      for(const assignment of assignments){
       console.log(assignment._id)
 
@@ -485,10 +489,13 @@ router.get('/getBlog/id=:id', async (req, res, next) => {
         courseCode: course.code,
         courseName: course.name,
         posts: posts,
-        resources:[{
-          assignments:  courseAssignments,}
-        ]
-
+        resources:{
+          assignments:  courseAssignments,
+          lectureVideos: [],
+          lectureNotes: [],
+          exams: [],
+          otherResources: []
+        }
       });
   } else {
       const error = new HttpError(
