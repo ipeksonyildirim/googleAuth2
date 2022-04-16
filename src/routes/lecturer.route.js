@@ -164,12 +164,12 @@ router.post('/add',  async (req, res, next) => {
         let result;
         try {
             result = await Lecturer.findOne({
-                'user': req.body.user
+                user: req.body.user
             });
             
         } catch (err) {
             const error = new HttpError(
-              'Something went wrong, could not find a department.',
+              'Something went wrong, this user is registered.',
               500
             );
             return next(error);
@@ -183,7 +183,7 @@ router.post('/add',  async (req, res, next) => {
 
                 if (result) {
                     //req.flash('success_msg', 'Information saved successfully.');
-                    res.redirect('/lecturer');
+                    res.json('Information saved successfully');
                 }
             } catch (ex) {
                 const error = new HttpError(
@@ -254,12 +254,12 @@ router.put('/edit/:id',  async (req, res, next) => {
                 _id: req.params.id
             }, {
                 $set: {
-                  user: req.body.user,
+            user: req.body.user,
             department: req.body.department,
             status: req.body.status,
             courses: req.body.courses,   
             schoolMail : req.body.schoolMail,
-            title: req.body.titles
+            title: req.body.title
             }});
           } catch (err) {
             const error = new HttpError(
@@ -271,8 +271,10 @@ router.put('/edit/:id',  async (req, res, next) => {
        
 
         if (lecturer) {
-            //req.flash('success_msg', 'Lecturer Details Updated Successfully.');
-            res.redirect('/lecturer');
+          res.status(200).json({status:"ok"})
+        } else {
+          //req.flash('error_msg', 'Record not found.');
+          res.status(500).json({error: "Internal server error"})
         }
     }
 });
@@ -295,9 +297,10 @@ router.delete('/:id', async (req, res, next) => {
 
     if (result) {
         //req.flash('success_msg', 'Record deleted successfully.');
-        res.redirect('/lecturer');
-    } else {
-        res.status(500).send();
+        res.status(200).json({status:"ok"})
+      } else {
+        //req.flash('error_msg', 'Record not found.');
+        res.status(500).json({error: "Internal server error"})
     }
 });
 
@@ -319,7 +322,10 @@ router.get('/faker', async (req, res, next) => {
 
         if (result) {
             //req.flash('success_msg', 'Information saved successfully.');
-            res.redirect('/lecturer');
+            res.status(200).json({status:"ok"})
+          } else {
+            //req.flash('error_msg', 'Record not found.');
+            res.status(500).json({error: "Internal server error"})
         }
     } catch (ex) {
         const error = new HttpError(
@@ -358,7 +364,10 @@ router.post('/giveApprove/lid=:lid/sid=:sid',  async (req, res, next) => {
           return next(error);
       }
       if (student) {
-        res.redirect('/student/id='+req.params.sid);
+        res.status(200).json({status:"ok"})
+      } else {
+        //req.flash('error_msg', 'Record not found.');
+        res.status(500).json({error: "Internal server error"})
       }
   }
 });
@@ -474,7 +483,10 @@ router.post('/getGrades/id=:id/cid=:cid/sid=:sid', async (req, res, next) => {
           
      
       if (student) {
-        res.redirect('/student/id='+req.params.sid);
+        res.status(200).json({status:"ok"})
+      } else {
+        //req.flash('error_msg', 'Record not found.');
+        res.status(500).json({error: "Internal server error"})
 
       }
   }

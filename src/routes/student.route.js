@@ -50,7 +50,7 @@ router.get('/',  async (req, res, next) => {
       pages,
     });
   } else {
-    res.redirect('/student/add');
+    res.status(500).json({error: "Internal server error"})
   }
 });
 
@@ -75,8 +75,7 @@ router.post('/',  async (req, res, next) => {
       student: student,
     });
   } else {
-    //req.flash('error_msg', 'Record not found.');
-    res.redirect('/student');
+        res.status(500).json({error: "Internal server error"})
   }
 });
 
@@ -352,8 +351,10 @@ router.post('/add',  async (req, res, next) => {
       result = await student.save();
 
       if (result) {
-        //req.flash('success_msg', 'Information saved successfully.');
-        res.redirect('/student');
+        res.status(200).json({status:"ok"})
+      } else {
+        //req.flash('error_msg', 'Record not found.');
+        res.status(500).json({error: "Internal server error"})
       }
     } catch (ex) {
       const error = new HttpError(
@@ -489,7 +490,10 @@ router.put('/edit/:id',  async (req, res, next) => {
 
   if (student) {
     //req.flash('success_msg', 'Student Details Updated Successfully.');
-    res.redirect('/student');
+    res.status(200).json({status:"ok"})
+      } else {
+        //req.flash('error_msg', 'Record not found.');
+        res.status(500).json({error: "Internal server error"})
   }
 });
 
@@ -510,9 +514,10 @@ router.delete('/:id',  async (req, res, next) => {
 
   if (result) {
     //req.flash('success_msg', 'Record deleted successfully.');
-    res.redirect('/student');
-  } else {
-    res.status(500).send();
+    res.status(200).json({status:"ok"})
+      } else {
+        //req.flash('error_msg', 'Record not found.');
+        res.status(500).json({error: "Internal server error"})
   }
 });
 
@@ -560,7 +565,10 @@ router.get('/faker', async (req, res, next) => {
 
     if (result) {
       // //req.flash('success_msg', 'Information saved successfully.');
-      res.redirect('/student');
+      res.status(200).json({status:"ok"})
+      } else {
+        //req.flash('error_msg', 'Record not found.');
+        res.status(500).json({error: "Internal server error"})
     }
   } catch (ex) {
     console.log(ex);
@@ -713,7 +721,10 @@ router.post('/addCourse/sid=:sid/cid=:cid',  async (req, res, next) => {
       if (student) {
         var id= req.params.sid
         console.log(id)
-        res.redirect('/student/id='+student._id);
+        res.status(200).json({status:"ok"})
+      } else {
+        //req.flash('error_msg', 'Record not found.');
+        res.status(500).json({error: "Internal server error"})
 
       }
   }
@@ -745,7 +756,10 @@ router.post('/giveApprove/sid=:sid',  async (req, res, next) => {
           return next(error);
       }
       if (student) {
-        res.redirect('/student/id='+req.params.sid);
+        res.status(200).json({status:"ok"})
+      } else {
+        //req.flash('error_msg', 'Record not found.');
+        res.status(500).json({error: "Internal server error"})
       }
   }
 });
@@ -1335,7 +1349,10 @@ router.post('/setSFLanguage/sid=:sid',  async (req, res, next) => {
           return next(error);
       }
       if (student) {
-        res.redirect('/student/id='+req.params.sid);
+        res.status(200).json({status:"ok"})
+      } else {
+        //req.flash('error_msg', 'Record not found.');
+        res.status(500).json({error: "Internal server error"})
       }
   }
 });
@@ -1469,14 +1486,10 @@ router.post('/setInternshipSelection/id=:id', async (req, res, next) => {
     return next(error);
   }
   if (student) {
-    res.redirect('/student/getInternshipSelection/id='+req.params.id);
-    
+    res.status(200).json({status:"ok"})
   } else {
-    const error = new HttpError(
-      'Could not find student for the provided id.',
-      404,
-    );
-    return next(error);
+    //req.flash('error_msg', 'Record not found.');
+    res.status(500).json({error: "Internal server error"})
   }
 });
 
@@ -1607,14 +1620,10 @@ router.post('/addFeeInfo/id=:id', async (req, res, next) => {
     return next(error);
   }
   if (student) {
-    res.redirect('/student/getFeeInfo/id='+req.params.id);
-    
+    res.status(200).json({status:"ok"})
   } else {
-    const error = new HttpError(
-      'Could not find student for the provided id.',
-      404,
-    );
-    return next(error);
+    //req.flash('error_msg', 'Record not found.');
+    res.status(500).json({error: "Internal server error"})
   }
 });
 

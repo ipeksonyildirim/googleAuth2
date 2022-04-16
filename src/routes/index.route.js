@@ -64,7 +64,6 @@ router.get('/getUser', async (req, res,next) => {
         name: user1.name,
         image: user1.image,
         isAdmin: user1.isAdmin,
-        studentId: studentId,
         isRegistered: user1.isRegistered
       }
       res.json({user: user})
@@ -132,7 +131,7 @@ router.delete('/user/:id', async (req, res) => {
     
     try {
       user = await User.remove({
-        _id: req.param.id
+        _id: req.params.id
     });
 
     } catch (err) {
@@ -145,8 +144,10 @@ router.delete('/user/:id', async (req, res) => {
     
     
     if (result) {
-        //req.flash('success_msg', 'Record deleted successfully.');
-        res.redirect('/user');
+      res.status(200).json({status:"ok"})
+    } else {
+      //req.flash('error_msg', 'Record not found.');
+      res.status(500).json({error: "Internal server error"})
     }
 });
 
@@ -198,7 +199,10 @@ router.put('/user/edit/:id', async (req, res) => {
 
     if (user) {
         //req.flash('success_msg', 'User account updated successfully.');
-        res.redirect('/user');
+        res.status(200).json({status:"ok"})
+      } else {
+        //req.flash('error_msg', 'Record not found.');
+        res.status(500).json({error: "Internal server error"})
     } 
 });
 

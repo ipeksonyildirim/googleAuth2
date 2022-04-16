@@ -49,7 +49,8 @@ router.get('/',async (req, res, next) => {
           });
     }
     else{
-      res.redirect('/department/add');
+        //req.flash('error_msg', 'Record not found.');
+        res.status(500).json({error: "Internal server error"})
     }
 });
 
@@ -146,7 +147,10 @@ router.post('/add', async (req, res, next) => {
 
                 if (result) {
                     //req.flash('success_msg', 'Information saved successfully.');
-                    res.redirect('/department');
+                    res.status(200).json({status:"ok"})
+                } else {
+                    //req.flash('error_msg', 'Record not found.');
+                    res.status(500).json({error: "Internal server error"})
                 }
             } catch (ex) {
                 const error = new HttpError(
@@ -212,7 +216,10 @@ router.put('/edit/:id', async (req, res, next) => {
 
         if (department) {
             //req.flash('success_msg', 'Department Details Updated Successfully.');
-            res.redirect('/department');
+            res.status(200).json({status:"ok"})
+        } else {
+          //req.flash('error_msg', 'Record not found.');
+          res.status(500).json({error: "Internal server error"})
         }
     }
 });
@@ -235,9 +242,10 @@ router.delete('/:id', async (req, res, next) => {
 
     if (result) {
         //req.flash('success_msg', 'Record deleted successfully.');
-        res.redirect('/department');
-    } else {
-        res.status(500).send();
+        res.status(200).json({status:"ok"})
+      } else {
+        //req.flash('error_msg', 'Record not found.');
+        res.status(500).json({error: "Internal server error"})
     }
 });
 
