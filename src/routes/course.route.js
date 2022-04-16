@@ -94,7 +94,7 @@ router.get('/id=:id', async (req, res, next) => {
 
   let course;
   try {
-      course = await Course.find({
+      course = await Course.findOne({
         _id: req.params.id
       });
   }  catch (err) {
@@ -105,7 +105,7 @@ router.get('/id=:id', async (req, res, next) => {
       return next(error);
     }
 
-  if (course.length>0) {
+  if (course) {
      
 
       res.json({ 

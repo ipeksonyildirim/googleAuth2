@@ -64,7 +64,8 @@ router.get('/getUser', async (req, res,next) => {
         name: user1.name,
         image: user1.image,
         isAdmin: user1.isAdmin,
-        studentId: studentId
+        studentId: studentId,
+        isRegistered: user1.isRegistered
       }
       res.json({user: user})
     } catch (err) {

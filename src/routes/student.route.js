@@ -1052,7 +1052,29 @@ router.get('/getTermCourses/id=:id', async (req, res, next) => {
 
       if(courses.term === term1 && courses.year === year){
         console.log(courses.year, courses.term)
-        termCourses.push(courses);
+        let stuCourse;
+        try {
+          stuCourse = await Course.findOne({
+            _id: courses.course,
+          })
+        } catch (err) {
+          const error = new HttpError(
+            'Something went wrong, could not find a course.',
+            500,
+          );
+          return next(error);
+        }
+        if(stuCourse){
+          console.log(stuCourse.code)
+          var crs = {
+            code: stuCourse.code,
+            name: stuCourse.name,
+            id: stuCourse._id,
+            courseInfo: courses
+          }
+        }
+        termCourses.push(crs);
+        
       }
     }
     res.json({
