@@ -326,7 +326,14 @@ router.get('/user/getId/id=:id', async (req, res, next) => {
           'User is not registered .',
           500
         );
-        res.redirect('user/add/id='+user._id);
+        res.json({
+          id:null,
+          isStudent: user.isStudent,
+          isLecturer: user.isLecturer,
+          isPersonnel: user.isPersonnel,
+          message: "User is not registered"
+        });
+      
       }
       
       if(user.isStudent){
@@ -425,7 +432,13 @@ router.get('/user/getId/email=:email', async (req, res, next) => {
           'User is not registered .',
           500
         );
-        res.redirect('user/add/id='+user._id);
+        res.json({
+          id:null,
+          isStudent: user.isStudent,
+          isLecturer: user.isLecturer,
+          isPersonnel: user.isPersonnel,
+          message: "User is not registered"
+        });
       }
       
       if(user.isStudent){
