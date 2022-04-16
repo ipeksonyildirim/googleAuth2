@@ -84,7 +84,8 @@ router.get('/code=:code',  async (req, res, next) => {
         }
     }
     else{
-      res.redirect('/post/add');
+        //req.flash('error_msg', 'Record not found.');
+        res.status(500).json({error: "Internal server error"})
     }
 });
 
@@ -107,7 +108,7 @@ router.get('/pid=:pid', async (req, res, next) => {
         res.json({ post: post });
     }
     else{
-        res.redirect('/post/add');
+      res.status(500).json({error: "Internal server error"})
     }
 });
 // Post get Title Route
@@ -129,7 +130,7 @@ router.get('/title=:title', async (req, res, next) => {
       res.json({ post: post });
   }
   else{
-      res.redirect('/post/add');
+     res.status(500).json({error: "Internal server error"})
   }
 });
 // Add Post 
@@ -191,9 +192,10 @@ router.post('/add', async (req, res, next) => {
                 result = await post.save();
 
                 if (result) {
-                  console.log(result);
-                    //req.flash('success_msg', 'Information saved successfully.');
-                    res.redirect('/post/code=req.body.course.code');
+                  res.status(200).json({status:"ok"})
+                } else {
+                  //req.flash('error_msg', 'Record not found.');
+                  res.status(500).json({error: "Internal server error"})
                 }
             } catch (ex) {
                 const error = new HttpError(
@@ -270,7 +272,10 @@ router.post('/add/cid=:cid', async (req, res, next) => {
                   });
 
                     //req.flash('success_msg', 'Information saved successfully.');
-                    res.redirect('/course/id='+req.params.cid);
+                    res.status(200).json({status:"ok"})
+                } else {
+                    //req.flash('error_msg', 'Record not found.');
+                     res.status(500).json({error: "Internal server error"})
                 }
             } catch (ex) {
                 const error = new HttpError(
@@ -337,8 +342,11 @@ router.put('/edit/:id',  async (req, res, next) => {
        
 
         if (post) {
-            //req.flash('success_msg', 'Post Details Updated Successfully.');
-            res.redirect('/post/pid='+req.params.id);
+          //req.flash('success_msg', 'Post Details Updated Successfully.');
+          res.status(200).json({status:"ok"})
+        } else {
+          //req.flash('error_msg', 'Record not found.');
+          res.status(500).json({error: "Internal server error"})
         }
     }
 });
@@ -361,9 +369,10 @@ router.delete('/:id',  async (req, res, next) => {
 
     if (result) {
         //req.flash('success_msg', 'Record deleted successfully.');
-        res.redirect('/post/code=result.course.code');
-    } else {
-        res.status(500).send();
+        res.status(200).json({status:"ok"})
+      } else {
+        //req.flash('error_msg', 'Record not found.');
+        res.status(500).json({error: "Internal server error"})
     }
 });
 

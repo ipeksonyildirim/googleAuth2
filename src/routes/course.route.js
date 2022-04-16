@@ -482,7 +482,17 @@ router.get('/getBlog/id=:id', async (req, res, next) => {
      }
      let posts = [];
      for(const post of course.posts){
-      let stuPosts = await Post.findOne({_id : post._id})
+      let stuPosts = await Post.findOne({_id : post._id}).populate('createdBy', 'name _id').populate({
+        path: 'comments',
+        // Get friends of friends - populate the 'friends' array for every friend
+        populate: {
+          path: 'createdBy',
+          model: 'User',
+          select: 'name _id'
+        } ,
+     
+      })
+      
       posts.push(stuPosts);
      }
       res.json({ 
