@@ -721,6 +721,157 @@ router.post('/addCourse/sid=:sid/cid=:cid',  async (req, res, next) => {
   }
 });
 
+//Add course - ders secimi - array
+router.post('/addCourse/sid=:sid',  async (req, res, next) => {
+    
+  let student;
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+      return next(
+        new HttpError('Invalid inputs passed, please check your data.', 422)
+      );
+    }
+    else {
+      let courses = req.body.course;
+      let course; 
+      try{
+        student = await Student.findOne({
+          _id: req.params.sid
+      });
+
+       for(const crs of courses){
+        course = await Course.findOne({
+          _id: crs
+      });
+
+      if (course && student){
+        try{
+          let course1, student1, courseType;
+          var dateObj = new Date();
+          var month = dateObj.getUTCMonth() + 1;
+          let term1;
+          if(month<=4)
+            term1 = "bahar"
+          else if(month<=8)
+            term1 = "yaz"
+          else
+            term1 = "guz"
+          courseType = 'zorunlu'
+          if(course.code.includes("001") && course.code !== "ING001")
+            courseType = 'iyd1'
+          else if(course.code.includes("002") && course.code !== "ING002")
+            courseType = 'iyd2'
+          else if(course.code.includes("003") && course.code !== "ING003")
+            courseType = 'iyd3'
+          else if(course.code.includes("003") && course.code !== "ING001")
+            courseType = 'iyd4'
+          course1 =  await Course.updateOne(
+            {_id: req.params.cid} ,
+             { $push: { students: student } ,
+         });
+         var courseVar ={
+          "course": course,
+          "grade": '-',
+          "year":dateObj.getUTCFullYear(),
+          "term": term1,
+          "status":'-',
+          "courseType":courseType
+      };
+
+
+          student1 =  await Student.updateOne(
+            {_id: req.params.sid} ,
+            {$push: { courses: courseVar } ,
+          });
+         course1 =  await Course.findOne(
+          {_id: crs});
+          console.log(course1.credit)
+          console.log(student.creditsTaken)
+
+        var creditsTaken =0;
+        creditsTaken = student.creditsTaken + course1.credit;
+        console.log(creditsTaken)
+        student1 =  await Student.updateOne(
+          {_id: req.params.sid} ,
+          {$set: { creditsTaken: creditsTaken } ,
+        });
+         var termName = (dateObj.getUTCFullYear() -1) +"-" +dateObj.getUTCFullYear() + " " + term1;
+         var termVar;
+         if(course1) {
+            termVar ={
+            courses: 
+              {
+                code: course1.code,
+                name: course1.name,
+                courseType: courseType,
+                grade: '-'
+              }};
+         }
+       
+
+      console.log(termVar)
+          student1 =  await Student.updateOne(
+            {_id: req.params.sid, 'terms.name': termName}, {'$push': {
+              'terms.$.courses': {
+                code: course1.code,
+                name: course1.name,
+                courseType: courseType,
+                grade: '-'
+              }}
+          });
+        
+         if(student1.modifiedCount == 0 ){
+          var terms = {
+            name: termName,
+            courses: [{
+              code: course1.code,
+              name: course1.name,
+              courseType: courseType,
+              grade: '-'
+            }]
+          }
+          student1 =  await Student.updateOne(
+            {_id: req.params.sid}, {'$push': {
+              terms:terms}
+          });
+         }
+         
+        }catch (err) {
+            const error = new HttpError(
+              'Something went wrong .',
+              500
+            );
+            return next(error);
+        }  
+      }
+      else
+      {
+        const error = new HttpError(
+            'Could not find a course for the provided id.',
+            404
+          );
+          return next(error);
+      } 
+          
+
+       }
+      }catch (err) {
+    const error = new HttpError(
+      'Something went wrong, could not find a department.',
+      500
+    );
+    return next(error);
+      }
+    
+      
+   
+     
+      if (student) {
+        res.status(200).json({status:"ok"})
+      }
+  }
+});
+
 //Ders onayi
 router.post('/giveApprove/sid=:sid',  async (req, res, next) => {
   let student;
