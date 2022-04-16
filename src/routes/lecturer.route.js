@@ -93,9 +93,6 @@ router.get('/dept=:dept', async (req, res, next) => {
   try{
       lecturer = await Lecturer.find({
           department: req.params.dept
-        }).populate('user').select({
-          name:1,
-          _id: 0
         });
 
   }catch (err) {
