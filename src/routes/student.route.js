@@ -331,16 +331,7 @@ router.post('/add',  async (req, res, next) => {
     department: req.body.department,
     user: req.body.user,
     advisor: req.body.advisor,
-    credit: req.body.credit,
-    payments:
-      {
-        
-        year:req.body.year,
-        term: req.body.term,
-        paymentType: req.body.paymentType,
-        fee: req.body.fee,
-        collection: req.body.collection
-      },
+    credit: req.body.credit
 
   });
   let result;
