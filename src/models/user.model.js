@@ -12,14 +12,14 @@ const UserSchema = new mongoose.Schema({
     read: Boolean, create: Boolean, update: Boolean, delete: Boolean,
   },
   availableDates:[{ 
-    date:{type: Date},
+    date:{type: String},
     hours: String,
 
   }
   ],
   appointments: [{
     with: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-    date: { type: Date },
+    date: { type: String },
     hours: String,
     isActive: Boolean,
   }],
