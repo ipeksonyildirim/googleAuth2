@@ -166,8 +166,10 @@ router.post('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (
       result = await personnel.save();
 
       if (result) {
-        //req.flash('success_msg', 'Information saved successfully.');
-        res.redirect('/personnel');
+        res.status(200).json({status:"ok"})
+      } else {
+        //req.flash('error_msg', 'Record not found.');
+        res.status(500).json({error: "Internal server error"})
       }
     } catch (ex) {
       const error = new HttpError(
@@ -249,8 +251,10 @@ router.put('/edit/:id', [ensureAuthenticated, isAdmin, updateAccessControl], asy
   }
 
   if (personnel) {
-    //req.flash('success_msg', 'Personnel Details Updated Successfully.');
-    res.redirect('/personnel');
+    res.status(200).json({status:"ok"})
+      } else {
+        //req.flash('error_msg', 'Record not found.');
+        res.status(500).json({error: "Internal server error"})
   }
 });
 
@@ -270,10 +274,10 @@ router.delete('/:id', [ensureAuthenticated, isAdmin, deleteAccessControl], async
   }
 
   if (result) {
-    //req.flash('success_msg', 'Record deleted successfully.');
-    res.redirect('/personnel');
+    res.status(200).json({status:"ok"})
   } else {
-    res.status(500).send();
+    //req.flash('error_msg', 'Record not found.');
+    res.status(500).json({error: "Internal server error"})
   }
 });
 
@@ -293,7 +297,10 @@ router.get('/faker', async (req, res, next) => {
 
       if (result) {
         //req.flash('success_msg', 'Information saved successfully.');
-        res.redirect('/personnel');
+        res.status(200).json({status:"ok"})
+      } else {
+        //req.flash('error_msg', 'Record not found.');
+        res.status(500).json({error: "Internal server error"})
       }
     } catch (ex) {
       const error = new HttpError(

@@ -13,7 +13,7 @@ const ensureAuthenticated = (req, res, next) => {
   }
   // TODO handle error
   // //req.flash('error_msg', 'You must login first');
-  res.redirect('/');
+  res.status(500).json({error: "You must login first, error"})
 };
 
 const isAdmin = async (req, res, next) => {
@@ -47,7 +47,8 @@ const isLoggedIn = (req, res, next) => {
     return;
   }
   // TODO handle error
-  res.redirect('/getUser');
+  res.status(200).json({status: "Ok"})
+
 };
 
 const readAccessControl = (req, res, next) => {
@@ -56,7 +57,7 @@ const readAccessControl = (req, res, next) => {
     return;
   }
   // TODO handle error
-  res.redirect('/');
+  res.status(500).json({error: "You have not read access, error"})
 };
 
 const createAccessControl = (req, res, next) => {
@@ -66,7 +67,7 @@ const createAccessControl = (req, res, next) => {
   }
   // TODO handle error
   // //req.flash('error_msg', 'You do not have the required permissions to perform this action.');
-  res.redirect('/');
+  res.status(500).json({error: "You do not have the required permissions to perform this action"})
 };
 
 const updateAccessControl = (req, res, next) => {
@@ -76,7 +77,8 @@ const updateAccessControl = (req, res, next) => {
   }
   // TODO handle error
   // //req.flash('error_msg', 'You do not have the required permissions to perform this action.');
-  res.redirect('/');
+  res.status(500).json({error: "You do not have the required permissions to perform this action"})
+
 };
 
 const deleteAccessControl = (req, res, next) => {
@@ -86,7 +88,7 @@ const deleteAccessControl = (req, res, next) => {
   }
   // TODO handle error
   // //req.flash('error_msg', 'You do not have the required permissions to perform this action.');
-  res.redirect('/');
+  res.status(500).json({error: "You do not have the required permissions to perform this action"})
 };
 
 
@@ -151,7 +153,7 @@ const inCourse = async(req, res, next) => {
     }
   // TODO handle error
   // //req.flash('error_msg', 'You do not have the required permissions to perform this action.');
-  res.redirect('/');
+  res.status(500).json({error: "You do not have the required permissions to perform this action"})
 };
 
 const isOwner = async(req, res, next) => {
@@ -177,7 +179,7 @@ const isOwner = async(req, res, next) => {
   }
   // TODO handle error
   // //req.flash('error_msg', 'You do not have the required permissions to perform this action.');
-  res.redirect('/');
+  res.status(500).json({error: "You do not have the required permissions to perform this action"})
 };
 
 

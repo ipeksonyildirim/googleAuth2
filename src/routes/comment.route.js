@@ -43,9 +43,11 @@ router.post('/addComment/:id',async (req, res, next) => {
           }
        
         if (post1) {
-          res.redirect('/post/id='+req.body._id);
-
-        }
+          res.status(200).json({status:"ok"})
+      } else {
+        //req.flash('error_msg', 'Record not found.');
+        res.status(500).json({error: "Internal server error"})
+      }
     }
 });
 
@@ -71,7 +73,10 @@ router.put('/editComment/pid=:pid/id=:id', async (req, res, next) => {
 
       if (post1) {
         
-        res.redirect('/post/id=post1._id');
+        res.status(200).json({status:"ok"})
+      } else {
+        //req.flash('error_msg', 'Record not found.');
+        res.status(500).json({error: "Internal server error"})
 
           }
 
@@ -98,10 +103,10 @@ router.delete('/removeComment/pid=:pid/id=:id',async (req, res, next) => {
       }
          
     if (post1) {
-        res.redirect('/post/id=post1._id');
-    } 
-    else {
-        res.status(500).send();
+      res.status(200).json({status:"ok"})
+    } else {
+      //req.flash('error_msg', 'Record not found.');
+      res.status(500).json({error: "Internal server error"})
     }
        
 });

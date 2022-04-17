@@ -49,7 +49,8 @@ router.get('/',async (req, res, next) => {
           });
     }
     else{
-      res.redirect('/department/add');
+        //req.flash('error_msg', 'Record not found.');
+        res.status(500).json({error: "Internal server error"})
     }
 });
 
@@ -103,12 +104,12 @@ router.get('/name=:name', async (req, res, next) => {
 });
 
 // Add Department Form Route
-router.get('/add',async (req, res, next) => {
+router.get('/add',[ensureAuthenticated, isAdmin, createAccessControl],async (req, res, next) => {
   res.status(200).send();
 });
 
 // Process Department Form Data And Insert Into Database.
-router.post('/add', async (req, res, next) => {
+router.post('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (req, res, next) => {
   console.log(req.body);
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -146,7 +147,10 @@ router.post('/add', async (req, res, next) => {
 
                 if (result) {
                     //req.flash('success_msg', 'Information saved successfully.');
-                    res.redirect('/department');
+                    res.status(200).json({status:"ok"})
+                } else {
+                    //req.flash('error_msg', 'Record not found.');
+                    res.status(500).json({error: "Internal server error"})
                 }
             } catch (ex) {
                 const error = new HttpError(
@@ -166,7 +170,7 @@ router.post('/add', async (req, res, next) => {
 });
 
 // Department Edit Form
-router.get('/edit', async (req, res, next) => {
+router.get('/edit', [ensureAuthenticated, isAdmin, updateAccessControl],async (req, res, next) => {
     let dept;
     try {
         dept = await Department.find({
@@ -184,7 +188,7 @@ router.get('/edit', async (req, res, next) => {
 });
 
 // Department Update Route
-router.put('/edit/:id', async (req, res, next) => {
+router.put('/edit/:id', [ensureAuthenticated, isAdmin, updateAccessControl], async (req, res, next) => {
     let department;
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -212,13 +216,16 @@ router.put('/edit/:id', async (req, res, next) => {
 
         if (department) {
             //req.flash('success_msg', 'Department Details Updated Successfully.');
-            res.redirect('/department');
+            res.status(200).json({status:"ok"})
+        } else {
+          //req.flash('error_msg', 'Record not found.');
+          res.status(500).json({error: "Internal server error"})
         }
     }
 });
 
 // Department Delete Route
-router.delete('/:id', async (req, res, next) => {
+router.delete('/:id', [ensureAuthenticated, isAdmin, deleteAccessControl], async (req, res, next) => {
     let result;
     try {
         result = await Department.remove({
@@ -235,9 +242,10 @@ router.delete('/:id', async (req, res, next) => {
 
     if (result) {
         //req.flash('success_msg', 'Record deleted successfully.');
-        res.redirect('/department');
-    } else {
-        res.status(500).send();
+        res.status(200).json({status:"ok"})
+      } else {
+        //req.flash('error_msg', 'Record not found.');
+        res.status(500).json({error: "Internal server error"})
     }
 });
 

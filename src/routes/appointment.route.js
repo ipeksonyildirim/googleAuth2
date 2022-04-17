@@ -49,7 +49,7 @@ router.get('/id=:id', async (req, res, next) => {
         appointment: appointment
       });
     } else {
-      res.redirect('/student');
+        res.status(500).json({error: "Internal server error"})
     }
   });
   
@@ -82,12 +82,12 @@ router.get('/id=:id', async (req, res, next) => {
       }
     
       if (user) {
-        res.redirect('/appointment/id='+req.params.id);
+        res.status(200).json({status:"ok"})
       } else {
         //req.flash('error_msg', 'Record not found.');
-        res.redirect('/student');
-      }
+        res.status(500).json({error: "Internal server error"})
     }
+  }
   });
 
 // ogrenci isleri appointment
@@ -248,10 +248,11 @@ router.get('/courses/id=:id',  async (req, res, next) => {
       }
     
       if (user) {
-        res.redirect('/appointment/id='+user._id);
+        res.status(200).json({status:"ok"})
       } else {
         //req.flash('error_msg', 'Record not found.');
-        res.redirect('/student');
+        res.status(500).json({error: "Internal server error"})
+
       }
     }
   });
@@ -407,10 +408,10 @@ router.post('/studentAffairs/id=:id/wid=:wid',  async (req, res, next) => {
         }
       
         if (user) {
-          res.redirect('/appointment/id='+user._id);
-        } else {
-          //req.flash('error_msg', 'Record not found.');
-          res.redirect('/student');
+          res.status(200).json({status:"ok"})
+      } else {
+        //req.flash('error_msg', 'Record not found.');
+        res.status(500).json({error: "Internal server error"})
         }
       }
     });
@@ -567,10 +568,10 @@ router.post('/it/id=:id/wid=:wid',  async (req, res, next) => {
       }
     
       if (user) {
-        res.redirect('/appointment/id='+user._id);
+        res.status(200).json({status:"ok"})
       } else {
         //req.flash('error_msg', 'Record not found.');
-        res.redirect('/student');
+        res.status(500).json({error: "Internal server error"})
       }
     }
   });
@@ -684,10 +685,10 @@ router.post('/it/id=:id/wid=:wid',  async (req, res, next) => {
       }
     
       if (user) {
-        res.redirect('/appointment/id='+user._id);
+        res.status(200).json({status:"ok"})
       } else {
         //req.flash('error_msg', 'Record not found.');
-        res.redirect('/student');
+        res.status(500).json({error: "Internal server error"})
       }
     }
   });

@@ -64,7 +64,6 @@ router.get('/getUser', async (req, res,next) => {
         name: user1.name,
         image: user1.image,
         isAdmin: user1.isAdmin,
-        studentId: studentId,
         isRegistered: user1.isRegistered
       }
       res.json({user: user})
@@ -89,7 +88,6 @@ router.get('/logout', (req, res) => {
 })
 
 // Protected Routes.
-
 router.get('/user', async (req, res, next) => {
   let users;
   try {
@@ -127,12 +125,12 @@ router.get('/user/id=:id',  async (req, res, next) => {
 });
 
 
-router.delete('/user/:id', async (req, res) => {
+router.delete('/user/:id',[ensureAuthenticated, isAdmin, deleteAccessControl], async (req, res) => {
     let user;
     
     try {
       user = await User.remove({
-        _id: req.param.id
+        _id: req.params.id
     });
 
     } catch (err) {
@@ -145,14 +143,16 @@ router.delete('/user/:id', async (req, res) => {
     
     
     if (result) {
-        //req.flash('success_msg', 'Record deleted successfully.');
-        res.redirect('/user');
+      res.status(200).json({status:"ok"})
+    } else {
+      //req.flash('error_msg', 'Record not found.');
+      res.status(500).json({error: "Internal server error"})
     }
 });
 
 // Edit User Account.
 
-router.get('/user/edit/:id',  async (req, res) => {
+router.get('/user/edit/:id',[ensureAuthenticated, isAdmin, updateAccessControl],  async (req, res) => {
 
   let user;
   try {
@@ -172,7 +172,7 @@ router.get('/user/edit/:id',  async (req, res) => {
 
 });
 
-router.put('/user/edit/:id', async (req, res) => {
+router.put('/user/edit/:id',[ensureAuthenticated, isAdmin, updateAccessControl], async (req, res) => {
     let user;
     try {
       user = await User.update({
@@ -198,11 +198,14 @@ router.put('/user/edit/:id', async (req, res) => {
 
     if (user) {
         //req.flash('success_msg', 'User account updated successfully.');
-        res.redirect('/user');
+        res.status(200).json({status:"ok"})
+      } else {
+        //req.flash('error_msg', 'Record not found.');
+        res.status(500).json({error: "Internal server error"})
     } 
 });
 
-router.get('/user/add', async (req, res, next) => {
+router.get('/user/add',[ensureAuthenticated, isAdmin, createAccessControl], async (req, res, next) => {
   let result;
   try {
     console.log("here")
@@ -238,7 +241,7 @@ router.get('/user/add', async (req, res, next) => {
     })
   }
 })
-router.get('/user/add/name=:name', async (req, res, next) => {
+router.get('/user/add/name=:name',[ensureAuthenticated, isAdmin, createAccessControl], async (req, res, next) => {
   const name = req.params.name;
 
   let result;
@@ -276,7 +279,7 @@ router.get('/user/add/name=:name', async (req, res, next) => {
     })
   }
 })
-router.post('/user/add/id=:id', async (req, res, next) => {
+router.post('/user/add/id=:id', [ensureAuthenticated, isAdmin, createAccessControl], async (req, res, next) => {
   let user;
   const errors = validationResult(req);
   if (!errors.isEmpty()) {

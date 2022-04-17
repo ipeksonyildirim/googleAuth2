@@ -69,9 +69,12 @@ router.post("/upload/cid=:cid",upload.single('file'),  async (req, res, next) =>
             );
             return next(error);
           }
-          if(course1)
-          res.redirect('/course/id='+req.params.cid);
-        
+          if(course1){
+            res.status(200).json({status:"ok"})
+      } else {
+        //req.flash('error_msg', 'Record not found.');
+        res.status(500).json({error: "Internal server error"})
+          }        
         }
 });
 
