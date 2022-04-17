@@ -166,7 +166,7 @@ router.get('/courses/id=:id',  async (req, res, next) => {
             }
 
           for(const key of userWith.availableDates){
-            let date = new Date(req.body.date)
+            let date = req.body.date
             let hours =  req.body.hours;
             console.log(key.date)
             console.log(date)
@@ -316,7 +316,7 @@ router.post('/studentAffairs/id=:id/wid=:wid',  async (req, res, next) => {
             let userAvailability = false;
             let userWithAvailability = false;
             for(const key of user.availableDates){
-              let date = new Date(req.body.date)
+              let date = req.body.date
               let hours =  req.body.hours;
 
               if(key.date === date && key.hours === hours){
@@ -326,7 +326,7 @@ router.post('/studentAffairs/id=:id/wid=:wid',  async (req, res, next) => {
               }
             console.log(userAvailability)
             for(const key of userWith.availableDates){
-              let date = new Date(req.body.date)
+              let date = req.body.date
               let hours =  req.body.hours;
               if(key.date === date && key.hours === hours){
                 userWithAvailability = true;
@@ -474,7 +474,7 @@ router.post('/it/id=:id/wid=:wid',  async (req, res, next) => {
           let userAvailability = false;
           let userWithAvailability = false;
           for(const key of user.availableDates){
-            let date = new Date(req.body.date)
+            let date = req.body.date
             let hours =  req.body.hours;
 
             if(key.date === date && key.hours === hours){
@@ -484,7 +484,7 @@ router.post('/it/id=:id/wid=:wid',  async (req, res, next) => {
             }
           console.log(userAvailability)
           for(const key of userWith.availableDates){
-            let date = new Date(req.body.date)
+            let date = req.body.date
             let hours =  req.body.hours;
             if(key.date === date && key.hours === hours){
               userWithAvailability = true;
@@ -595,7 +595,7 @@ router.post('/it/id=:id/wid=:wid',  async (req, res, next) => {
         {
           let user1, userWith1, student1;
           for(const key of user.availableDates){
-            let date = new Date(req.body.date)
+            let date = req.body.date
             let hours =  req.body.hours;
 
             if(key.date === date && key.hours === hours){
@@ -604,7 +604,7 @@ router.post('/it/id=:id/wid=:wid',  async (req, res, next) => {
             }
 
           for(const key of userWith.availableDates){
-            let date = new Date(req.body.date)
+            let date = req.body.date
             let hours =  req.body.hours;
             if(key.date === date && key.hours === hours){
               userWithAvailability = true;
