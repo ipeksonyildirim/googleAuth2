@@ -5,12 +5,15 @@ const {upload} = require('../helpers/filehelper');
 
 const { validationResult } = require('express-validator');
 
-const Resource = require('../models/resource.model');
+const Assignment = require('../models/assignment.model');
+const StudentAssignment = require('../models/studentAssignment.model');
+
 const Course = require('../models/course.model');
+const Student = require('../models/student.model');
 const HttpError = require('../models/http-error.model');
 
-//Upload assignment route
-router.post("/upload/lectureNotes/cid=:cid",upload.single('file'),  async (req, res, next) => {
+//Upload exam route
+router.post("/upload/cid=:cid",upload.single('file'),  async (req, res, next) => {
 
     let course1;
     const errors = validationResult(req);
@@ -41,26 +44,113 @@ router.post("/upload/lectureNotes/cid=:cid",upload.single('file'),  async (req, 
 
           try{
             console.log(req.file)
-            const file = new Resource({
+            const file = new Assignment({
                 course: course1,
                 title: req.body.title,
                 description: req.body.description,
+                fileName: req.file.originalname,
+                filePath: req.file.path,
+                fileType: req.file.mimetype,
+                fileSize: fileSizeFormatter(req.file.size, 2), // 0.00,
+                dueDate: req.body.dueDate,
+                uploadedDate: Date.now(),
+                isExam: true
+            });
+            await file.save();
+            console.log(file)
+            course1 =  await Course.updateOne(
+              {_id: req.params.cid} ,
+              {$push: { exams: file } ,
+            });
+            
+          }catch (err) {
+            const error = new HttpError(
+              'Something went wrong .',
+              500
+            );
+            return next(error);
+          }
+          if(course1){
+            res.status(200).json({status:"ok"})
+      } else {
+        //req.flash('error_msg', 'Record not found.');
+        res.status(500).json({error: "Internal server error"})
+          }        
+        }
+});
+
+//Upload exams route for student
+router.post("/upload/cid=:cid/aid=:aid/sid=:sid/",upload.single('file'),  async (req, res, next) => {
+
+    let assignment1;
+    let student1;
+    let course1;
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return next(
+          new HttpError('Invalid inputs passed, please check your data.', 422)
+        );
+      }
+      else {
+        try {
+            course1 = await Course.findOne({
+                _id: req.params.cid
+            });
+            student1 = await Student.findOne({
+              _id: req.params.sid
+          });
+          assignment1 = await Assignment.findOne({
+            _id: req.params.aid
+        });
+          } catch (err) {
+            const error = new HttpError(
+              'Something went wrong .',
+              500
+            );
+            return next(error);
+          }
+          if(!(course1 && assignment1 && student1)){
+            const error = new HttpError(
+                'Something went wrong, course is not found .',
+                500
+              );
+              return next(error);
+          }
+
+          var dateObj = new Date();
+          let isLate = false;
+          console.log(assignment1.dueDate)
+          console.log(dateObj.getUTCDate())
+          if(Date.now() > assignment1.dueDate){
+            isLate= true;
+          }
+
+
+
+          try{
+
+            const file = new StudentAssignment({
+                course: course1,
+                student: student1,
+                assignment: assignment1,
+                title: req.body.title,
                 fileName: req.file.originalname,
                 filePath: req.file.path,
                 fileType: req.file.mimetype,
                 fileSize: fileSizeFormatter(req.file.size, 2), // 0.00,
                 uploadedDate: Date.now(),
-                isLectureNotes: true,
-                isLectureVideos: false,
-                isOtherResources: false
+                lateSubmission: isLate,
+                isExam: true
             });
-            await file.save();
             console.log(file)
-            course1 =  await Course.updateOne(
-              {_id: req.params.cid} ,
-              {$push: { lecturerNotes: file } ,
+            await file.save();
+            student1 =  await Student.updateOne(
+              {_id: req.params.sid} ,
+              {$push: { exams: file } ,
             });
-            
+            console.log(student1.exams)
+
+            res.status(201).send('File Uploaded Successfully');
           }catch (err) {
             const error = new HttpError(
               'Something went wrong .',
@@ -68,150 +158,44 @@ router.post("/upload/lectureNotes/cid=:cid",upload.single('file'),  async (req, 
             );
             return next(error);
           }
-          if(course1)
-          res.redirect('/course/id='+req.params.cid);
         
         }
 });
 
-//Upload assignment route
-router.post("/upload/lectureVideos/cid=:cid",upload.single('file'),  async (req, res, next) => {
-
-    let course1;
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return next(
-          new HttpError('Invalid inputs passed, please check your data.', 422)
+router.get("/getList/aid=:aid", async (req, res, next) => {
+    let exam1;
+    try {
+        exam1 = await Assignment.findOne({
+            _id: req.params.aid
+        });
+      } catch (err) {
+        const error = new HttpError(
+          'Something went wrong .',
+          500
         );
+        return next(error);
       }
-      else {
-        try {
-            course1 = await Course.findOne({
-                _id: req.params.cid
-            });
-          } catch (err) {
-            const error = new HttpError(
-              'Something went wrong .',
-              500
-            );
-            return next(error);
-          }
-          if(!course1){
-            const error = new HttpError(
-                'Something went wrong, course is not found .',
-                500
-              );
-              return next(error);
-          }
 
-          try{
-            console.log(req.file)
-            const file = new Resource({
-                course: course1,
-                title: req.body.title,
-                description: req.body.description,
-                fileName: req.file.originalname,
-                filePath: req.file.path,
-                fileType: req.file.mimetype,
-                fileSize: fileSizeFormatter(req.file.size, 2), // 0.00,
-                uploadedDate: Date.now(), 
-                isLectureNotes: false,
-                isLectureVideos: true,
-                isOtherResources: false
+      if (exam1) {
+      
+        res.json({ 
+         exam: exam1
+        });
+    } else {
+        const error = new HttpError(
+            'Something went wrong, could not find a assignment.',
+            500
+          );
+        }    
 
-            });
-            await file.save();
-            console.log(file)
-            course1 =  await Course.updateOne(
-              {_id: req.params.cid} ,
-              {$push: { lecturerVideos: file } ,
-            });
-            
-          }catch (err) {
-            const error = new HttpError(
-              'Something went wrong .',
-              500
-            );
-            return next(error);
-          }
-          if(course1)
-          res.redirect('/course/id='+req.params.cid);
-        
-        }
 });
 
-
-//Upload assignment route
-router.post("/upload/otherResources/cid=:cid",upload.single('file'),  async (req, res, next) => {
-
-    let course1;
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return next(
-          new HttpError('Invalid inputs passed, please check your data.', 422)
-        );
-      }
-      else {
-        try {
-            course1 = await Course.findOne({
-                _id: req.params.cid
-            });
-          } catch (err) {
-            const error = new HttpError(
-              'Something went wrong .',
-              500
-            );
-            return next(error);
-          }
-          if(!course1){
-            const error = new HttpError(
-                'Something went wrong, course is not found .',
-                500
-              );
-              return next(error);
-          }
-
-          try{
-            console.log(req.file)
-            const file = new Resource({
-                course: course1,
-                title: req.body.title,
-                description: req.body.description,
-                fileName: req.file.originalname,
-                filePath: req.file.path,
-                fileType: req.file.mimetype,
-                fileSize: fileSizeFormatter(req.file.size, 2), // 0.00,
-                uploadedDate: Date.now(),
-                isLectureNotes: false,
-                isLectureVideos: false,
-                isOtherResources: true
-            });
-            await file.save();
-            console.log(file)
-            course1 =  await Course.updateOne(
-              {_id: req.params.cid} ,
-              {$push: { otherResources: file } ,
-            });
-            
-          }catch (err) {
-            const error = new HttpError(
-              'Something went wrong .',
-              500
-            );
-            return next(error);
-          }
-          if(course1)
-          res.redirect('/course/id='+req.params.cid);
-        
-        }
-});
-
-
-router.get("/getResources/cid=:cid", async (req, res, next) => {
+router.get("/getList/cid=:cid", async (req, res, next) => {
   let course1;
   try {
     course1 = await Course.findOne({
-          _id: req.params.cid
+          _id: req.params.cid,
+          isExam: true
       });
     } catch (err) {
       const error = new HttpError(
@@ -222,12 +206,12 @@ router.get("/getResources/cid=:cid", async (req, res, next) => {
     }
 
     if (course1) {
-      let lecturerNote;
-      let resourceArr = [];
-      for(const lecturerNotes of course1.lecturerNotes){
+      let exams;
+      let examArr = [];
+      for(const exam of course1.exams){
         try {
-            lecturerNote = await Resource.findOne({
-            _id: lecturerNotes,
+            exams = await Assignment.findOne({
+            _id: exam,
           })} catch (err) {
             const error = new HttpError(
               'Something went wrong, could not find a course.',
@@ -235,12 +219,12 @@ router.get("/getResources/cid=:cid", async (req, res, next) => {
             );
             return next(error);
           }
-          console.log(lecturerNote)
-          resourceArr.push(lecturerNote);
+          console.log(exams)
+          examArr.push(exams);
         }
     
       res.json({ 
-        lecturerNotes: resourceArr
+        exams: examArr
       });
   } else {
       const error = new HttpError(
@@ -251,7 +235,78 @@ router.get("/getResources/cid=:cid", async (req, res, next) => {
 
 });
 
+router.get("/getStudentExam/aid=:aid", async (req, res, next) => {
+  let exam1;
+  try {
+    exam1 = await StudentAssignment.findOne({
+          _id: req.params.aid
+      });
+    } catch (err) {
+      const error = new HttpError(
+        'Something went wrong .',
+        500
+      );
+      return next(error);
+    }
 
+    if (exam1) {
+    
+      res.json({ 
+       exam: exam1
+      });
+  } else {
+      const error = new HttpError(
+          'Something went wrong, could not find a assignment.',
+          500
+        );
+      }    
+
+});
+
+router.get("/getStudentExam/sid=:sid", async (req, res, next) => {
+let student1;
+try {
+  student1 = await Student.findOne({
+        _id: req.params.sid,
+        isExam: true
+    });
+  } catch (err) {
+    const error = new HttpError(
+      'Something went wrong .',
+      500
+    );
+    return next(error);
+  }
+
+  if (student1) {
+    let exams;
+    let examArr = [];
+    for(const exam of student1.exams){
+      try {
+        exams = await StudentAssignment.findOne({
+          _id: exam,
+        })} catch (err) {
+          const error = new HttpError(
+            'Something went wrong, could not find a course.',
+            500,
+          );
+          return next(error);
+        }
+        console.log(exams)
+        examArr.push(exams);
+      }
+  
+    res.json({ 
+        exams: examArr
+    });
+} else {
+    const error = new HttpError(
+        'Something went wrong, could not find a assignment.',
+        500
+      );
+    }    
+
+});
 
 const fileSizeFormatter = (bytes, decimal) => {
   if(bytes === 0){

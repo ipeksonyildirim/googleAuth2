@@ -70,7 +70,7 @@ app.use('/assignment', require('./src/routes/assignment.route'));
 app.use('/appointment', require('./src/routes/appointment.route'));
 app.use('/yuser', require('./src/routes/user.route'));
 app.use('/resource', require('./src/routes/resource.route'));
-
+app.use('/exam', require('./src/routes/exam.route'));
 
 
 const PORT = process.env.PORT || 5000;

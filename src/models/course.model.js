@@ -29,7 +29,7 @@ const CourseSchema = new mongoose.Schema({
   ],
   exams: [
     {
-      resouce: { type: mongoose.Schema.Types.ObjectId, ref: 'Resource' },
+      exam: { type: mongoose.Schema.Types.ObjectId, ref: 'Assignment' },
     }
   ],
   otherResources: [

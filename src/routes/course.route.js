@@ -470,7 +470,8 @@ router.get('/getBlog/id=:id', async (req, res, next) => {
         _id: req.params.id
       });
       assignments = await Assignment.find({
-        course: course._id
+        course: course._id,
+        isExam: false
       })
       lectureVideos = await Resource.find({
         course: course._id,
@@ -482,7 +483,7 @@ router.get('/getBlog/id=:id', async (req, res, next) => {
         isLectureNotes: true
         
       })
-      exams = await Resource.find({
+      exams = await Assignment.find({
         course: course._id,
         isExam: true
         
@@ -531,7 +532,7 @@ router.get('/getBlog/id=:id', async (req, res, next) => {
      for(const resource of exams){
       console.log(resource._id)
 
-      let exam = await Resource.findOne({_id : resource._id})
+      let exam = await Assignment.findOne({_id : resource._id})
       courseExams.push(exam);
 
      }

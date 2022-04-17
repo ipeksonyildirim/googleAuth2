@@ -43,6 +43,11 @@ const StudentSchema = new mongoose.Schema({
       assignment: { type: mongoose.Schema.Types.ObjectId, ref: 'StudentAssignment'},
     },
   ],
+  exams: [
+    {
+      exam: { type: mongoose.Schema.Types.ObjectId, ref: 'StudentAssignment'},
+    },
+  ],
   courses: [
     {
       course: { type: mongoose.Schema.Types.ObjectId, ref: 'Course' },

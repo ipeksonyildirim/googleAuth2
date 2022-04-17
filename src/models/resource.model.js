@@ -11,7 +11,6 @@ const resourceSchema = new mongoose.Schema({
   uploadedDate: { type: Date },
   isLectureNotes: { type: Boolean, default:false },
   isLectureVideos: { type: Boolean, default:false },
-  isExam: { type: Boolean, default:false },
   isOtherResources: { type: Boolean, default:false },
 
 });

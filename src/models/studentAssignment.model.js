@@ -11,6 +11,7 @@ const studentAssignmentSchema = new mongoose.Schema({
   fileSize: { type: String },
   uploadedDate: { type: Date },
   lateSubmission: { type: Boolean },
+  isExam: { type:Boolean, default:false}
 
 
 });

@@ -53,7 +53,8 @@ router.post("/upload/cid=:cid",upload.single('file'),  async (req, res, next) =>
                 fileType: req.file.mimetype,
                 fileSize: fileSizeFormatter(req.file.size, 2), // 0.00,
                 dueDate: req.body.dueDate,
-                uploadedDate: Date.now()
+                uploadedDate: Date.now(),
+                isExam: false
             });
             await file.save();
             console.log(file)
@@ -118,7 +119,7 @@ router.post("/upload/cid=:cid/aid=:aid/sid=:sid/",upload.single('file'),  async 
 
           var dateObj = new Date();
           let isLate = false;
-          if(dateObj.getUTCDate() > assignment1.uploadedDate){
+          if(Date.now() > assignment1.dueDate){
             isLate= true;
           }
 
@@ -136,7 +137,8 @@ router.post("/upload/cid=:cid/aid=:aid/sid=:sid/",upload.single('file'),  async 
                 fileType: req.file.mimetype,
                 fileSize: fileSizeFormatter(req.file.size, 2), // 0.00,
                 uploadedDate: Date.now(),
-                lateSubmission: isLate
+                lateSubmission: isLate,
+                isExam: false
             });
             console.log(file)
             await file.save();
@@ -190,7 +192,8 @@ router.get("/getList/cid=:cid", async (req, res, next) => {
   let course1;
   try {
     course1 = await Course.findOne({
-          _id: req.params.cid
+          _id: req.params.cid,
+          isExam: false
       });
     } catch (err) {
       const error = new HttpError(
@@ -262,7 +265,8 @@ router.get("/getStudentAssignment/sid=:sid", async (req, res, next) => {
 let student1;
 try {
   student1 = await Student.findOne({
-        _id: req.params.sid
+        _id: req.params.sid,
+        isExam: false
     });
   } catch (err) {
     const error = new HttpError(

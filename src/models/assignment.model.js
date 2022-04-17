@@ -10,6 +10,7 @@ const assignmentSchema = new mongoose.Schema({
   fileSize: { type: String },
   dueDate: { type: Date },
   uploadedDate: { type: Date },
+  isExam: { type:Boolean, default:false}
 
 });
 
