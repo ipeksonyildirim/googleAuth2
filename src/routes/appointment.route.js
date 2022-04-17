@@ -158,7 +158,7 @@ router.get('/courses/id=:id',  async (req, res, next) => {
             let date = new Date(req.body.date)
             let hours =  req.body.hours;
 
-            if(key.date.getUTCDate() === date.getUTCDate() && key.hours === hours){
+            if(key.date.toUTCString()() === date.toUTCString()() && key.hours === hours){
               userAvailability = true;
             }              
             }
@@ -166,7 +166,7 @@ router.get('/courses/id=:id',  async (req, res, next) => {
           for(const key of userWith.availableDates){
             let date = new Date(req.body.date)
             let hours =  req.body.hours;
-            if(key.date.getUTCDate() === date.getUTCDate() && key.hours === hours){
+            if(key.date.toUTCString() === date.toUTCString() && key.hours === hours){
               userWithAvailability = true;
             }
           }            
@@ -315,7 +315,7 @@ router.post('/studentAffairs/id=:id/wid=:wid',  async (req, res, next) => {
               let date = new Date(req.body.date)
               let hours =  req.body.hours;
 
-              if(key.date.getUTCDate() === date.getUTCDate() && key.hours === hours){
+              if(key.date.toUTCString() === date.toUTCString() && key.hours === hours){
                 userAvailability = true;
 
               }              
@@ -324,7 +324,7 @@ router.post('/studentAffairs/id=:id/wid=:wid',  async (req, res, next) => {
             for(const key of userWith.availableDates){
               let date = new Date(req.body.date)
               let hours =  req.body.hours;
-              if(key.date.getUTCDate() === date.getUTCDate() && key.hours === hours){
+              if(key.date.toUTCString() === date.toUTCString() && key.hours === hours){
                 userWithAvailability = true;
                 
               }
@@ -473,7 +473,7 @@ router.post('/it/id=:id/wid=:wid',  async (req, res, next) => {
             let date = new Date(req.body.date)
             let hours =  req.body.hours;
 
-            if(key.date.getUTCDate() === date.getUTCDate() && key.hours === hours){
+            if(key.date.toUTCString() === date.toUTCString() && key.hours === hours){
               userAvailability = true;
 
             }              
@@ -482,7 +482,7 @@ router.post('/it/id=:id/wid=:wid',  async (req, res, next) => {
           for(const key of userWith.availableDates){
             let date = new Date(req.body.date)
             let hours =  req.body.hours;
-            if(key.date.getUTCDate() === date.getUTCDate() && key.hours === hours){
+            if(key.date.toUTCString() === date.toUTCString() && key.hours === hours){
               userWithAvailability = true;
               
             }
@@ -594,7 +594,7 @@ router.post('/it/id=:id/wid=:wid',  async (req, res, next) => {
             let date = new Date(req.body.date)
             let hours =  req.body.hours;
 
-            if(key.date.getUTCDate() === date.getUTCDate() && key.hours === hours){
+            if(key.date.toUTCString() === date.toUTCString() && key.hours === hours){
               userAvailability = true;
             }              
             }
@@ -602,7 +602,7 @@ router.post('/it/id=:id/wid=:wid',  async (req, res, next) => {
           for(const key of userWith.availableDates){
             let date = new Date(req.body.date)
             let hours =  req.body.hours;
-            if(key.date.getUTCDate() === date.getUTCDate() && key.hours === hours){
+            if(key.date.toUTCString() === date.toUTCString() && key.hours === hours){
               userWithAvailability = true;
             }
           }            
