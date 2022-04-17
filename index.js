@@ -69,6 +69,7 @@ app.use('/comment', require('./src/routes/comment.route'));
 app.use('/assignment', require('./src/routes/assignment.route'));
 app.use('/appointment', require('./src/routes/appointment.route'));
 app.use('/yuser', require('./src/routes/user.route'));
+app.use('/resource', require('./src/routes/resource.route'));
 
 
 

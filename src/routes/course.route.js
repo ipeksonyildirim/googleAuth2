@@ -8,7 +8,7 @@ const Course = require('../models/course.model');
 const Student = require('../models/student.model');
 const Post = require('../models/post.model');
 const Assignment = require('../models/assignment.model');
-
+const Resource = require('../models/resource.model');
 const {
     ensureAuthenticated,
     isAdmin,
@@ -451,12 +451,37 @@ router.get('/getBlog/id=:id', async (req, res, next) => {
 
   let course;
   let assignments;
+  let lectureVideos;
+  let lectureNotes;
+  let exams;
+  let otherResources;
+  
   try {
       course = await Course.findOne({
         _id: req.params.id
       });
       assignments = await Assignment.find({
         course: course._id
+      })
+      lectureVideos = await Resource.find({
+        course: course._id,
+        isLectureVideos: true
+        
+      })
+      lectureNotes = await Resource.find({
+        course: course._id,
+        isLectureNotes: true
+        
+      })
+      exams = await Resource.find({
+        course: course._id,
+        isExam: true
+        
+      })
+      otherResources = await Resource.find({
+        course: course._id,
+        isOtherResources: true
+        
       })
   }  catch (err) {
       const error = new HttpError(
@@ -468,16 +493,44 @@ router.get('/getBlog/id=:id', async (req, res, next) => {
 
   if (course) {
      let courseAssignments = [];
-     let lectureNotes = [];
-     let lectureVideos = [];
-     let exams = [];
-     let otherResources = [];
+     let courseLectureVideos = [];
+     let courseLectureNotes = [];
+     let courseExams = [];
+     let courseOtherResources = [];
     
      for(const assignment of assignments){
       console.log(assignment._id)
 
       let stuAssignment = await Assignment.findOne({_id : assignment._id})
       courseAssignments.push(stuAssignment);
+
+     }
+     for(const resource of lectureVideos){
+      console.log(resource._id)
+
+      let lectureVideo = await Resource.findOne({_id : resource._id})
+      courseLectureVideos.push(lectureVideo);
+
+     }
+     for(const resource of lectureNotes){
+      console.log(resource._id)
+
+      let lectureNote = await Resource.findOne({_id : resource._id})
+      courseLectureNotes.push(lectureNote);
+
+     }
+     for(const resource of exams){
+      console.log(resource._id)
+
+      let exam = await Resource.findOne({_id : resource._id})
+      courseExams.push(exam);
+
+     }
+     for(const resource of otherResources){
+      console.log(resource._id)
+
+      let otherResource = await Resource.findOne({_id : resource._id})
+      courseOtherResources.push(otherResource);
 
      }
      let posts = [];
@@ -501,10 +554,10 @@ router.get('/getBlog/id=:id', async (req, res, next) => {
         posts: posts,
         resources:{
           assignments:  courseAssignments,
-          lectureVideos: [],
-          lectureNotes: [],
-          exams: [],
-          otherResources: []
+          lectureVideos: courseLectureVideos,
+          lectureNotes: courseLectureNotes,
+          exams: courseExams,
+          otherResources: courseOtherResources
         }
       });
   } else {

@@ -17,6 +17,26 @@ const CourseSchema = new mongoose.Schema({
       assignment: { type: mongoose.Schema.Types.ObjectId, ref: 'Assignment' },
     },
   ],
+  lecturerNotes: [
+    {
+      resouce: { type: mongoose.Schema.Types.ObjectId, ref: 'Resource' },
+    }
+  ],
+  lecturerVideos: [
+    {
+      resouce: { type: mongoose.Schema.Types.ObjectId, ref: 'Resource' },
+    }
+  ],
+  exams: [
+    {
+      resouce: { type: mongoose.Schema.Types.ObjectId, ref: 'Resource' },
+    }
+  ],
+  otherResources: [
+    {
+      resouce: { type: mongoose.Schema.Types.ObjectId, ref: 'Resource' },
+    }
+  ],
   students: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Student' }],
   lecturer: { type: mongoose.Schema.Types.ObjectId, ref: 'Lecturer' },
   finalExam:{
