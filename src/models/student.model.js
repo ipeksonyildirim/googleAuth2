@@ -90,7 +90,7 @@ const StudentSchema = new mongoose.Schema({
       appointmentsWith :String,
       appointments: [
         {
-          date: { type: Date, required: true },
+          date: { type: String, required: true },
           hours: String,
       }]
     }
@@ -100,7 +100,7 @@ const StudentSchema = new mongoose.Schema({
       appointmentsWith :String,
       appointments: [
         {
-          date: { type: Date, required: true },
+          date: { type: String, required: true },
           hours: String,
       }]
     }
@@ -110,7 +110,7 @@ const StudentSchema = new mongoose.Schema({
       appointmentsWith :String,
       appointments: [
         {
-          date: { type: Date, required: true },
+          date: { type: String, required: true },
           hours: String,
       }]
     }
@@ -120,7 +120,7 @@ const StudentSchema = new mongoose.Schema({
         appointmentsWith :String,
         appointments: [
           {
-            date: { type: Date, required: true },
+            date: { type: String, required: true },
             hours: String,
         }]
     }
