@@ -234,8 +234,24 @@ router.get('/courses/id=:id',  async (req, res, next) => {
                   lecturerAppointments:lecturerAppointments}
               });
              }
+
+             if (student1.modifiedCount == 0 || user1.modifiedCount == 0 || userWith1.modifiedCount == 0) {
+              //req.flash('error_msg', 'Record not found.');
+              res.status(500).json({error: "Internal server error"})
+            } else {
+              res.status(200).json({status:"ok"})
+      
+            }
           
          }
+         else{
+          res.status(500).json({error: "Internal server error"})
+
+        }
+        }
+        else{
+          res.status(500).json({error: "Internal server error"})
+
         }
       
         
@@ -247,13 +263,7 @@ router.get('/courses/id=:id',  async (req, res, next) => {
         return next(error);
       }
     
-      if (user) {
-        res.status(200).json({status:"ok"})
-      } else {
-        //req.flash('error_msg', 'Record not found.');
-        res.status(500).json({error: "Internal server error"})
-
-      }
+    
     }
   });
 
@@ -394,9 +404,23 @@ router.post('/studentAffairs/id=:id/wid=:wid',  async (req, res, next) => {
                     studentAffairsAppointments:studentAffairsAppointments}
                 });
                }
-            }
+               if (student1.modifiedCount == 0 || user1.modifiedCount == 0 || userWith1.modifiedCount == 0) {
+                //req.flash('error_msg', 'Record not found.');
+                res.status(500).json({error: "Internal server error"})
+              } else {
+                res.status(200).json({status:"ok"})
+        
+              }
             
-            
+           }
+           else{
+            res.status(500).json({error: "Internal server error"})
+  
+          }
+          }
+          else{
+            res.status(500).json({error: "Internal server error"})
+  
           }
           
         } catch (err) {
@@ -407,12 +431,6 @@ router.post('/studentAffairs/id=:id/wid=:wid',  async (req, res, next) => {
           return next(error);
         }
       
-        if (user) {
-          res.status(200).json({status:"ok"})
-      } else {
-        //req.flash('error_msg', 'Record not found.');
-        res.status(500).json({error: "Internal server error"})
-        }
       }
     });
 
@@ -554,9 +572,23 @@ router.post('/it/id=:id/wid=:wid',  async (req, res, next) => {
              }
 
              
-          }
+             if (student1.modifiedCount == 0 || user1.modifiedCount == 0 || userWith1.modifiedCount == 0) {
+              //req.flash('error_msg', 'Record not found.');
+              res.status(500).json({error: "Internal server error"})
+            } else {
+              res.status(200).json({status:"ok"})
+      
+            }
           
-          
+         }
+         else{
+          res.status(500).json({error: "Internal server error"})
+
+        }
+        }
+        else{
+          res.status(500).json({error: "Internal server error"})
+
         }
         
       } catch (err) {
@@ -567,12 +599,7 @@ router.post('/it/id=:id/wid=:wid',  async (req, res, next) => {
         return next(error);
       }
     
-      if (user) {
-        res.status(200).json({status:"ok"})
-      } else {
-        //req.flash('error_msg', 'Record not found.');
-        res.status(500).json({error: "Internal server error"})
-      }
+      
     }
   });
 
@@ -672,9 +699,24 @@ router.post('/it/id=:id/wid=:wid',  async (req, res, next) => {
 
 
           }
-          
-         }
-        }
+          if (student1.modifiedCount == 0 || user1.modifiedCount == 0 || userWith1.modifiedCount == 0) {
+            //req.flash('error_msg', 'Record not found.');
+            res.status(500).json({error: "Internal server error"})
+          } else {
+            res.status(200).json({status:"ok"})
+    
+          }
+        
+       }
+       else{
+        res.status(500).json({error: "Internal server error"})
+
+      }
+      }
+      else{
+        res.status(500).json({error: "Internal server error"})
+
+      }
         
       } catch (err) {
         const error = new HttpError(
@@ -684,12 +726,6 @@ router.post('/it/id=:id/wid=:wid',  async (req, res, next) => {
         return next(error);
       }
     
-      if (user) {
-        res.status(200).json({status:"ok"})
-      } else {
-        //req.flash('error_msg', 'Record not found.');
-        res.status(500).json({error: "Internal server error"})
-      }
     }
   });
 
