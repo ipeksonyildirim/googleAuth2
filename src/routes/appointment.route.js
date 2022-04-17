@@ -154,6 +154,8 @@ router.get('/courses/id=:id',  async (req, res, next) => {
         if(userWith && user)
         {
           let user1, userWith1, student1;
+          let userAvailability = false;
+            let userWithAvailability = false;
           for(const key of user.availableDates){
             let date = req.body.date;
             let hours =  req.body.hours;
@@ -173,7 +175,10 @@ router.get('/courses/id=:id',  async (req, res, next) => {
             if(key.date === date && key.hours === hours){
               userWithAvailability = true;
             }
-          }            
+          }           
+          console.log( userAvailability)
+          console.log("aa")
+          console.log( userWithAvailability)
           if(userAvailability === true && userWithAvailability === true){
             user1 = await User.updateOne(
               {_id: req.params.id} ,
