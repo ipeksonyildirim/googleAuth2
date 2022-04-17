@@ -105,29 +105,10 @@ router.get("/upload/cid=:cid/aid=:aid/sid=:sid/",upload.single('file'),  async (
     res.json({ 
       isRegistered: false
       });  
-  }
-
-  try{
-
-    student1 =  await Student.findOne({
-      assignments: assignment1._id
-    })
-    console.log(assignment1)
-    if(student1){
-      res.json({ 
-        isRegistered: true
-       });
-    }else {
-      res.json({ 
-        isRegistered: false
-        });  
-    }
-  }catch (err) {
-    const error = new HttpError(
-      'Something went wrong .',
-      500
-    );
-    return next(error);
+  }else {
+    res.json({ 
+      isRegistered: true
+      });  
   }
 });
 

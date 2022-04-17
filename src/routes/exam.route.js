@@ -79,6 +79,40 @@ router.post("/upload/cid=:cid",upload.single('file'),  async (req, res, next) =>
         }
 });
 
+//Upload exam route for student
+router.get("/upload/cid=:cid/aid=:aid/sid=:sid/",upload.single('file'),  async (req, res, next) => {
+
+    let assignment1;
+    let student1;
+    let course1;
+    try {
+    assignment1 = await StudentAssignment.findOne({
+      course: req.params.cid,
+      student: req.params.sid,
+      assignment: req.params.aid,
+  
+  });
+  
+    } catch (err) {
+      const error = new HttpError(
+        'Something went wrong .',
+        500
+      );
+      return next(error);
+    }
+    if(!assignment1){
+      res.json({ 
+        isRegistered: false
+        });  
+    }else {
+        res.json({ 
+          isRegistered: true
+          });  
+      }
+  
+    
+  });
+  
 //Upload exams route for student
 router.post("/upload/cid=:cid/aid=:aid/sid=:sid/",upload.single('file'),  async (req, res, next) => {
 
