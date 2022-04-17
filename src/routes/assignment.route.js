@@ -44,6 +44,7 @@ router.post("/upload/cid=:cid",upload.single('file'),  async (req, res, next) =>
 
           try{
             console.log(req.file)
+            console.log(req.body.dueDate)
             const file = new Assignment({
                 course: course1,
                 title: req.body.title,
@@ -77,6 +78,57 @@ router.post("/upload/cid=:cid",upload.single('file'),  async (req, res, next) =>
         res.status(500).json({error: "Internal server error"})
           }        
         }
+});
+
+//Upload homework route for student
+router.get("/upload/cid=:cid/aid=:aid/sid=:sid/",upload.single('file'),  async (req, res, next) => {
+
+  let assignment1;
+  let student1;
+  let course1;
+  try {
+  assignment1 = await StudentAssignment.findOne({
+    course: req.params.cid,
+    student: req.params.sid,
+    assignment: req.params.aid,
+
+});
+
+  } catch (err) {
+    const error = new HttpError(
+      'Something went wrong .',
+      500
+    );
+    return next(error);
+  }
+  if(!assignment1){
+    res.json({ 
+      isRegistered: false
+      });  
+  }
+
+  try{
+
+    student1 =  await Student.findOne({
+      assignments: assignment1._id
+    })
+    console.log(assignment1)
+    if(student1){
+      res.json({ 
+        isRegistered: true
+       });
+    }else {
+      res.json({ 
+        isRegistered: false
+        });  
+    }
+  }catch (err) {
+    const error = new HttpError(
+      'Something went wrong .',
+      500
+    );
+    return next(error);
+  }
 });
 
 //Upload homework route for student
@@ -149,6 +201,7 @@ router.post("/upload/cid=:cid/aid=:aid/sid=:sid/",upload.single('file'),  async 
             console.log(student1.assignments)
 
             res.status(201).send('File Uploaded Successfully');
+
           }catch (err) {
             const error = new HttpError(
               'Something went wrong .',
