@@ -157,8 +157,10 @@ router.get('/courses/id=:id',  async (req, res, next) => {
           for(const key of user.availableDates){
             let date = new Date(req.body.date)
             let hours =  req.body.hours;
+            console.log(key.date.toUTCString())
+            console.log(date.toUTCString())
 
-            if(key.date.toUTCString()() === date.toUTCString()() && key.hours === hours){
+            if(key.date.toUTCString() === date.toUTCString() && key.hours === hours){
               userAvailability = true;
             }              
             }
@@ -166,6 +168,8 @@ router.get('/courses/id=:id',  async (req, res, next) => {
           for(const key of userWith.availableDates){
             let date = new Date(req.body.date)
             let hours =  req.body.hours;
+            console.log(key.date.toUTCString())
+            console.log(date.toUTCString())
             if(key.date.toUTCString() === date.toUTCString() && key.hours === hours){
               userWithAvailability = true;
             }
