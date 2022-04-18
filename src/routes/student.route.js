@@ -445,16 +445,10 @@ router.put('/edit/:id',  [ensureAuthenticated, isAdmin, updateAccessControl], as
         term: req.body.term,
         gpa: req.body.gpa,
         secondForeignLanguage: req.body.secondForeignLanguage,
-        department: req.body.department,
         credit: req.body.credit,
-        assignments: req.body.assignments,
         courses: {
-          course: req.body.course,
-          grade: req.body.grade,
-          year:req.body.year,
-          term: req.body.term,
-          status: req.body.status,
-          courseType:req.body. courseType,
+          grade: req.body.terms[0].courses[0].grade,
+          courseType:req.body.terms[0].courses[0].courseType,
         },
         payments:
           {
