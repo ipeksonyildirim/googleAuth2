@@ -443,17 +443,9 @@ router.put('/edit/:id',  [ensureAuthenticated, isAdmin, updateAccessControl], as
         scholarship: req.body.scholarship,
         grade: req.body.grade,
         term: req.body.term,
-        gpas:[ 
-          {
-            value:req.body.value,
-            year:req.body.year,
-            term: req.body.term,
-          }],
         gpa: req.body.gpa,
         secondForeignLanguage: req.body.secondForeignLanguage,
         department: req.body.department,
-        user: req.body.user,
-        advisor: req.body.advisor,
         credit: req.body.credit,
         assignments: req.body.assignments,
         courses: {
@@ -473,13 +465,7 @@ router.put('/edit/:id',  [ensureAuthenticated, isAdmin, updateAccessControl], as
             fee: req.body.fee,
             collection: req.body.collection
           },
-        approvement:req.body.approvement,
-        lecturerApprovement: req.body.lecturerApprovement,
-        internshipSelection:{
-          rank:req.body.rank, 
-          company: req.body.company,
-        },
-
+        
       },
     });
   } catch (err) {
