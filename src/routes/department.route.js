@@ -104,7 +104,7 @@ router.get('/name=:name', async (req, res, next) => {
 });
 
 // Add Department Form Route
-router.get('/add',[ensureAuthenticated, isAdmin, createAccessControl],async (req, res, next) => {
+router.get('/add',async (req, res, next) => {
   res.status(200).send();
 });
 

@@ -126,7 +126,7 @@ router.get('/user/id=:id',  async (req, res, next) => {
 });
 
 
-router.delete('/user/:id',[ensureAuthenticated, isAdmin, deleteAccessControl], async (req, res) => {
+router.delete('/user/:id', async (req, res) => {
     let user;
     
     try {
@@ -153,7 +153,7 @@ router.delete('/user/:id',[ensureAuthenticated, isAdmin, deleteAccessControl], a
 
 // Edit User Account.
 
-router.get('/user/edit/:id',[ensureAuthenticated, isAdmin, updateAccessControl],  async (req, res) => {
+router.get('/user/edit/:id',  async (req, res) => {
 
   let user;
   try {
@@ -173,7 +173,7 @@ router.get('/user/edit/:id',[ensureAuthenticated, isAdmin, updateAccessControl],
 
 });
 
-router.put('/user/edit/:id',[ensureAuthenticated, isAdmin, updateAccessControl], async (req, res) => {
+router.put('/user/edit/:id', async (req, res) => {
     let user;
     try {
       user = await User.update({
@@ -206,7 +206,7 @@ router.put('/user/edit/:id',[ensureAuthenticated, isAdmin, updateAccessControl],
     } 
 });
 
-router.get('/user/add',[ensureAuthenticated, isAdmin, createAccessControl], async (req, res, next) => {
+router.get('/user/add', async (req, res, next) => {
   let result;
   try {
     console.log("here")
@@ -242,7 +242,7 @@ router.get('/user/add',[ensureAuthenticated, isAdmin, createAccessControl], asyn
     })
   }
 })
-router.get('/user/add/name=:name',[ensureAuthenticated, isAdmin, createAccessControl], async (req, res, next) => {
+router.get('/user/add/name=:name', async (req, res, next) => {
   const name = req.params.name;
 
   let result;
