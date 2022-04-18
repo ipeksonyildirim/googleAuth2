@@ -126,7 +126,7 @@ router.get('/dept=:dept', async (req, res, next) => {
 });
 
 // Add Lecturer Form Route
-router.get('/add',  [ensureAuthenticated, isAdmin, createAccessControl], async (req, res, next) => {
+router.get('/add',   async (req, res, next) => {
     let user;
     let dept;
     try {
@@ -208,7 +208,7 @@ router.post('/add',   async (req, res, next) => {
 });
 
 // Lecturer Edit Form
-router.get('/edit/:id', [ensureAuthenticated, isAdmin, updateAccessControl],async (req, res, next) => {
+router.get('/edit/:id', async (req, res, next) => {
     let lecturer;
     try {
         lecturer = await Lecturer.findOne({
@@ -245,7 +245,7 @@ router.get('/edit/:id', [ensureAuthenticated, isAdmin, updateAccessControl],asyn
 });
 
 // Lecturer Update Route
-router.put('/edit/:id', [ensureAuthenticated, isAdmin, updateAccessControl],  async (req, res, next) => {
+router.put('/edit/:id',   async (req, res, next) => {
     let lecturer;
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -285,7 +285,7 @@ router.put('/edit/:id', [ensureAuthenticated, isAdmin, updateAccessControl],  as
 });
 
 //Lecturer delete route
-router.delete('/:id', [ensureAuthenticated, isAdmin, deleteAccessControl],async (req, res, next) => {
+router.delete('/:id',async (req, res, next) => {
     let result;
     try {
         result = await Lecturer.remove({

@@ -280,7 +280,7 @@ router.get('/user/add/name=:name',[ensureAuthenticated, isAdmin, createAccessCon
     })
   }
 })
-router.post('/user/add/id=:id', [ensureAuthenticated, isAdmin, createAccessControl], async (req, res, next) => {
+router.post('/user/add/id=:id',  async (req, res, next) => {
   let user;
   const errors = validationResult(req);
   if (!errors.isEmpty()) {

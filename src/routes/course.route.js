@@ -187,7 +187,7 @@ router.post('/add',[ensureAuthenticated, isAdmin, createAccessControl], async (r
 });
 
 // Course Edit Form
-router.get('/edit/:id', [ensureAuthenticated, isAdmin, updateAccessControl], async (req, res, next) => {
+router.get('/edit/:id',  async (req, res, next) => {
   let dept;
   let course;
   try {
@@ -292,7 +292,7 @@ router.get('/dept=:dept', async (req, res, next) => {
 });
 
 // Course Delete Route
-router.delete('/:id', [ensureAuthenticated, isAdmin, deleteAccessControl],async (req, res, next) => {
+router.delete('/:id',async (req, res, next) => {
     let result;
     try {
         result = await Course.remove({

@@ -286,7 +286,7 @@ router.get('/getProfile/id=:id', async (req, res, next) => {
 });
 
 // Add Student Form Route
-router.get('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (req, res, next) => {
+router.get('/add',  async (req, res, next) => {
   let user;
   let lecturer;
   let dept;
@@ -312,7 +312,7 @@ router.get('/add', [ensureAuthenticated, isAdmin, createAccessControl], async (r
 });
 
 // Process Students Form Data And Insert Into Database.
-router.post('/add',   [ensureAuthenticated, isAdmin, createAccessControl],async (req, res, next) => {
+router.post('/add',  async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return next(
@@ -375,7 +375,7 @@ router.post('/add',   [ensureAuthenticated, isAdmin, createAccessControl],async 
 });
 
 // Student Edit Form
-router.get('/edit/:id',  [ensureAuthenticated, isAdmin, updateAccessControl], async (req, res, next) => {
+router.get('/edit/:id',  async (req, res, next) => {
   let student;
   try {
     student = await Student.findOne({
@@ -414,7 +414,7 @@ router.get('/edit/:id',  [ensureAuthenticated, isAdmin, updateAccessControl], as
 });
 
 // Student Update Route
-router.put('/edit/:id', [ensureAuthenticated, isAdmin, updateAccessControl],   async (req, res, next) => {
+router.put('/edit/:id',    async (req, res, next) => {
   let student;
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -508,7 +508,7 @@ router.put('/edit/:id', [ensureAuthenticated, isAdmin, updateAccessControl],   a
 });
 
 // Student Delete Route
-router.delete('/:id', [ensureAuthenticated, isAdmin, deleteAccessControl],  async (req, res, next) => {
+router.delete('/:id',  async (req, res, next) => {
   let result;
   try {
     result = await Student.remove({
