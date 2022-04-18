@@ -414,7 +414,7 @@ router.get('/edit/:id',  [ensureAuthenticated, isAdmin, updateAccessControl], as
 });
 
 // Student Update Route
-router.put('/edit/:id',  [ensureAuthenticated, isAdmin, updateAccessControl], async (req, res, next) => {
+router.put('/edit/:id', [ensureAuthenticated, isAdmin, updateAccessControl],   async (req, res, next) => {
   let student;
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -424,44 +424,72 @@ router.put('/edit/:id',  [ensureAuthenticated, isAdmin, updateAccessControl], as
   }
 
   try {
-    student = await Student.update({
+    student = await Student.updateOne({
       _id: req.params.id,
     }, {
       $set: {
         schoolMail: req.body.schoolMail,
         id: req.body.id,
         status: req.body.status,
-        internships: {
-          code: req.body.code,
-          year: req.body.year,
-          term: req.body.term,
-          companyName: req.body.companyName,
-          startDate: req.body.startDate,
-          endDate: req.body.endDate,
-          grade: req.body.grade,
-        },
+    
         scholarship: req.body.scholarship,
         grade: req.body.grade,
         term: req.body.term,
         gpa: req.body.gpa,
         secondForeignLanguage: req.body.secondForeignLanguage,
         credit: req.body.credit,
-        courses: {
-          grade: req.body.terms[0].courses[0].grade,
-          courseType:req.body.terms[0].courses[0].courseType,
-        },
-        payments:
-          {
-            
-            year:req.body.year,
-            term: req.body.term,
-            paymentType: req.body.paymentType,
-            fee: req.body.fee,
-            collection: req.body.collection
-          },
         
       },
     });
+    console.log(student)
+    var varPayments = 
+      {
+            
+        year:req.body.payments[0].year,
+        term: req.body.payments[0].term,
+        paymentType: req.body.payments[0].paymentType,
+        fee: req.body.payments[0].fee,
+        collection: req.body.payments[0].collection
+      }
+    var varInternships = {
+      code: req.body.internships[0].code,
+      year: req.body.internships[0].year,
+      term: req.body.internships[0].term,
+      companyName: req.body.internships[0].companyName,
+      startDate: req.body.internships[0].startDate,
+      endDate: req.body.internships[0].endDate,
+      grade: req.body.internships[0].grade,
+    } 
+    var varCourses = {
+      code: req.body.terms[0].courses[0].code,
+      name: req.body.terms[0].courses[0].name,
+      grade: req.body.terms[0].courses[0].grade,
+      courseType:req.body.terms[0].courses[0].courseType
+
+    }
+    student =  await Student.updateOne(
+      {_id: req.params.id}, {$set: {
+        payments:varPayments
+         }
+    });
+    console.log(student)
+
+    student =  await Student.updateOne(
+      {_id: req.params.id}, {$set: {
+        internships:varInternships }
+    });
+    console.log(student)
+    student =  await Student.updateOne(
+      {_id: req.params.id, 'terms.name': req.body.terms[0].name}, {'$set': {
+        'terms.$.courses': {
+          code: req.body.terms[0].courses[0].code,
+          name: req.body.terms[0].courses[0].name,
+          grade: req.body.terms[0].courses[0].grade,
+          courseType:req.body.terms[0].courses[0].courseType
+        }}
+    });
+    console.log(student)
+
   } catch (err) {
     const error = new HttpError(
       'Something went wrong .',
