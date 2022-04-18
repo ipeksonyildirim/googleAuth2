@@ -420,6 +420,92 @@ router.get('/getCourses/id=:id', async (req, res, next) => {
   }
 });
 
+//Lecurer ogrenciler
+router.get('/getStudents/id=:id', async (req, res, next) => {
+  let students;
+  var advisorStu = [];
+
+  try {
+    students = await Student.find({
+      advisor: req.params.id,
+    }).populate('user')
+  } catch (err) {
+    const error = new HttpError(
+      'Something went wrong, could not find a department.',
+      500,
+    );
+    return next(error);
+  }
+
+  if (students.length>0) {
+    //let courses = student.courses;
+    var dateObj = new Date();
+    var month = dateObj.getUTCMonth() + 1;
+    let term1;
+    if(month<=4)
+      term1 = "bahar"
+    else if(month<=8)
+      term1 = "yaz"
+    else
+      term1 = "guz"
+    let year;
+    year = dateObj.getUTCFullYear()
+    
+    var course;
+    console.log(year, term1)
+    for(const student of students){
+      var termCourses = [];
+
+      for (const courses of student.courses) {
+
+        if(courses.term === term1 && courses.year === year){
+          console.log(courses.year, courses.term)
+          let stuCourse;
+          try {
+            stuCourse = await Course.findOne({
+              _id: courses.course,
+            })
+          } catch (err) {
+            const error = new HttpError(
+              'Something went wrong, could not find a course.',
+              500,
+            );
+            return next(error);
+          }
+          if(stuCourse){
+            console.log(stuCourse.code)
+            var crs = {
+              code: stuCourse.code,
+              name: stuCourse.name,
+              id: stuCourse._id,
+              courseInfo: courses
+            }
+          }
+          termCourses.push(crs);
+          
+        }
+      }
+      var stuVar = {
+        name: student.user.name,
+        id: student._id,
+        termCourses: termCourses
+      }
+      advisorStu.push(stuVar)
+    }
+    
+    res.json({
+      students:advisorStu
+    });
+    
+  } else {
+    const error = new HttpError(
+      'Could not find student for the provided id.',
+      404,
+    );
+    return next(error);
+  }
+});
+
 //Lecturer dersler
 router.post('/getGrades/id=:id/cid=:cid/sid=:sid', async (req, res, next) => {
   let student;
