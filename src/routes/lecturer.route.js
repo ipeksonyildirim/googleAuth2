@@ -65,10 +65,11 @@ router.get('/', async (req, res, next) => {
 // Lecturer Detail's Route
 router.get('/id=:id', async (req, res, next) => {
     let lecturer;
+    let department;
     try{
         lecturer = await Lecturer.findOne({
             _id: req.params.id
-        });
+        }).populate('department').populate('user');
     }
     catch (err) {
         const error = new HttpError(
@@ -78,8 +79,12 @@ router.get('/id=:id', async (req, res, next) => {
         return next(error);
       }
     if (lecturer) {
+
       res.json({ 
-        lecturer: lecturer,
+        image: lecturer.user.image,
+        title: lecturer.title,
+        schoolMail: lecturer.schoolMail,
+        department: lecturer.department.name
       });
     } else {
         //req.flash('error_msg', 'No records found...');
@@ -144,7 +149,7 @@ router.get('/add',  [ensureAuthenticated, isAdmin, createAccessControl], async (
 });
 
 // Process Lecturer Form Data And Insert Into Database.
-router.post('/add',  [ensureAuthenticated, isAdmin, createAccessControl], async (req, res, next) => {
+router.post('/add',   async (req, res, next) => {
   
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
