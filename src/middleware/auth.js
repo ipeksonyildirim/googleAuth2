@@ -21,7 +21,7 @@ const isAdmin = async (req, res, next) => {
     const id = req.user;
     const user1 = await (await User.find({ _id: id }).lean()).at(0);
 
-    if (user1.isAdmin === true) {
+    if (user1.isPersonnel === true) {
       next();
       return;
     }
